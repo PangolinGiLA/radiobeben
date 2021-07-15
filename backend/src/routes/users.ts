@@ -2,26 +2,15 @@ import * as express from "express";
 import { Request, Response } from "express";
 import { login, register } from "../app/users";
 import { login_middleware, permissions, permission_middleware } from "../app/permissions";
-import { SongManager } from "../player/songs";
 
 const router = express.Router();
 
-router.get("/", function (req: Request, res: Response) {
-    res.send('<form method="post" action="login"><input type="text" name="login"><input type="text" name="password"><input type="text" name="permission"><input type="submit"></form>')
-})
 
 declare module 'express-session' {
     interface SessionData {
       userid: number;
     }
 }
-
-var aa = new SongManager;
-router.get("/test", function(req, res) {
-    aa.DownloadQueue("2aMVzFlApa0");
-    aa.DownloadQueue("a4N4yQB_B4c");
-    res.send("haha");
-})
 
 router.post("/login", function (req: Request, res: Response) {
     if (!req.session.userid) {

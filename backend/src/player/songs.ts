@@ -92,16 +92,13 @@ export class SongManager {
             let hash_path = path.join(cfg.song_folder, hash);
             if (!fs.existsSync(hash_path)) {
                 this.normalizeSong(filepath, path.join(cfg.song_folder, hash)).then(done => {
-                    fs.unlink(filepath, nothing => { }); // delete original file
-                    resolve(hash);
+                    fs.unlink(filepath, nothing => { resolve(hash); }); // delete original file
                 })
                     .catch(err => {
-                        fs.unlink(filepath, nothing => { }); // delete original file
-                        reject(err);
+                        fs.unlink(filepath, nothing => { reject(err); }); // delete original file
                     });
             } else {
-                fs.unlink(filepath, nothing => { }); // delete original file
-                reject("this song is already in your library!");
+                fs.unlink(filepath, nothing => { reject("this song is already in your library!"); }); // delete original file
             }
 
         });
@@ -115,6 +112,11 @@ export class SongManager {
                 this.downloadFromQueue();
         });
         return promise;
+    }
+    public RemoveSong(filename: string): Promise<string> {
+        return new Promise<string>(async resolve => {
+            fs.unlink(path.join(cfg.song_folder, filename), nothing => { resolve("done") });
+        });
     }
 
 }

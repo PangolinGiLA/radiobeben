@@ -16,7 +16,10 @@ function add_suggestion(ytid: string): Promise<string> {
                 yts({ videoID: ytid }).then(async song => {
                     await suggesionTable.insert({ ytid: ytid, name: song.title, author: song.author.name, duration: song.seconds });
                     resolve("done");
-                });
+                })
+                    .catch(err => {
+                        reject("no such video");
+                    })
             }
         });
     });
@@ -30,8 +33,8 @@ function accept_suggestion(id: number, name?: string, author?: string): Promise<
             songManager.DownloadQueue(to_accept.ytid).then(new_name => {
                 let songTable = getRepository(Song);
                 let song: Song;
-                song.title = (name) ? name:to_accept.name;
-                song.author = (author) ? author:to_accept.author;
+                song.title = (name) ? name : to_accept.name;
+                song.author = (author) ? author : to_accept.author;
                 song.duration = to_accept.duration;
                 song.filename = new_name;
                 song.ytid = to_accept.ytid;
@@ -77,7 +80,15 @@ function update_song(id: number, author?: string, name?: string, isPrivate?: boo
     });
 }
 
-function delete_song(id: number): Promise<any> {
-    // remove song from disk and
-    return getRepository(Song).delete(id);
+function delete_song(id: number): Promise<string> {
+    return new Promise<string>(async resolve => {
+        let songTable = getRepository(Song);
+        let song = await songTable.findOne(id);
+        await songManager.RemoveSong(song.filename);
+        await songTable.delete(id);
+        resolve("done");
+    });
+
 }
+
+export { add_suggestion, get_suggestions, accept_suggestion, reject_suggestion }

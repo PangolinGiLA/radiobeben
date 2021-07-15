@@ -11,7 +11,7 @@ export class Playlist {
     songID: Song;
 
     @Column("date")
-    date: Date;
+    date: string;
 
     @Column()
     breakNumber: number;
