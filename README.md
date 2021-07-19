@@ -1,0 +1,1 @@
+To start `npm run dev` in backend and `npm start` in frontend
