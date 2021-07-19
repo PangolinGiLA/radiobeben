@@ -10,9 +10,9 @@ export class Breaketimes {
     @Column()
     name: string;
     
-    @Column()
-    isDefault: boolean;
-
     @Column("simple-json")
     breaketimesJSON: Break[];
+
+    @Column()
+    visible: boolean;
 }

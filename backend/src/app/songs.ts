@@ -13,10 +13,11 @@ function add_suggestion(ytid: string): Promise<string> {
             if (song) {
                 reject("song already suggested");
             } else {
-                yts({ videoID: ytid }).then(async song => {
-                    await suggesionTable.insert({ ytid: ytid, name: song.title, author: song.author.name, duration: song.seconds });
-                    resolve("done");
-                })
+                yts({ videoID: ytid })
+                    .then(async song => {
+                        await suggesionTable.insert({ ytid: ytid, name: song.title, author: song.author.name, duration: song.seconds });
+                        resolve("done");
+                    })
                     .catch(err => {
                         reject("no such video");
                     })
@@ -30,17 +31,23 @@ function accept_suggestion(id: number, name?: string, author?: string): Promise<
         let suggesionTable = getRepository(Suggestion);
         let to_accept = await suggesionTable.findOne(id);
         if (to_accept) {
-            songManager.DownloadQueue(to_accept.ytid).then(new_name => {
-                let songTable = getRepository(Song);
-                let song: Song;
-                song.title = (name) ? name : to_accept.name;
-                song.author = (author) ? author : to_accept.author;
-                song.duration = to_accept.duration;
-                song.filename = new_name;
-                song.ytid = to_accept.ytid;
-                songTable.insert(song);
-                resolve("done");
-            });
+            if (to_accept.status == 0) {
+                songManager.DownloadQueue(to_accept.ytid).then(new_name => {
+                    let songTable = getRepository(Song);
+                    let song = new Song;
+                    song.title = (name) ? name : to_accept.name;
+                    song.author = (author) ? author : to_accept.author;
+                    song.duration = to_accept.duration;
+                    song.filename = new_name;
+                    song.ytid = to_accept.ytid;
+                    songTable.insert(song);
+                });
+                suggesionTable.update(id, { status: 1 });
+                resolve("added to download queue");
+            } else {
+                reject("suggestion already accepted/rejected");
+            }
+
         } else {
             reject("no suggestion with that id");
         }
@@ -51,8 +58,18 @@ function accept_suggestion(id: number, name?: string, author?: string): Promise<
 function reject_suggestion(id: number): Promise<string> {
     return new Promise<string>(async (resolve, reject) => {
         let suggesionTable = getRepository(Suggestion);
-        await suggesionTable.update(id, { status: -1 });
-        resolve("done");
+        let suggestion = await suggesionTable.findOne(id);
+        if (suggestion) {
+            if (suggestion.status != 0) {
+                reject("suggestion already accepted/rejected");
+            } else {
+                await suggesionTable.update(id, { status: -1 });
+                resolve("done");
+            }
+        } else {
+            reject("no such suggestion!");
+        }
+
     });
 }
 

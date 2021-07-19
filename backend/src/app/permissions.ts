@@ -16,6 +16,12 @@ import { getRepository } from "typeorm";
 import { User } from "../entity/User";
 import { Request, Response } from "express"
 
+declare module 'express-session' {
+    interface SessionData {
+        userid: number;
+    }
+}
+
 export enum permissions {
     suggestions,
     playlist,
@@ -49,10 +55,12 @@ function can(userid: number, what: permissions): Promise<boolean> {
 export function permission_middleware(what: permissions) {
     return function (req: Request, res: Response, next) {
         can(req.session.userid, what).then(permitted => {
-            if (permitted)
+            if (permitted) {
                 next();
-            else
-                res.sendStatus(403)
+            }
+            else {
+                res.sendStatus(403);
+            }
         });
     }
 }
@@ -62,6 +70,6 @@ export function login_middleware(req: Request, res: Response, next) {
     if (req.session.userid) {
         next();
     } else {
-        res.status(401);
+        res.sendStatus(401);
     }
 }

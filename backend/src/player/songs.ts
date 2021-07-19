@@ -21,6 +21,7 @@ export class SongManager {
             let stream = ytdl(ytid, {
                 quality: 'highestaudio',
             });
+            // later need to add check if video still exists
             let filename = ytid + ".TEMP.mp3";
             filename = path.join(cfg.song_folder, filename);
             ffmpeg(stream)
@@ -39,9 +40,10 @@ export class SongManager {
             this.downloadQueue.shift();
             this.running = true;
             this.download(toDownload.ytid).then(filename => {
-                this.processDownloaded(filename).then(new_name => {
-                    toDownload.resolve(new_name);
-                })
+                this.processDownloaded(filename)
+                    .then(new_name => {
+                        toDownload.resolve(new_name);
+                    })
                     .catch(err => {
                         toDownload.reject(err);
                     });
@@ -91,9 +93,10 @@ export class SongManager {
             hash = hash + ".mp3";
             let hash_path = path.join(cfg.song_folder, hash);
             if (!fs.existsSync(hash_path)) {
-                this.normalizeSong(filepath, path.join(cfg.song_folder, hash)).then(done => {
-                    fs.unlink(filepath, nothing => { resolve(hash); }); // delete original file
-                })
+                this.normalizeSong(filepath, path.join(cfg.song_folder, hash))
+                    .then(done => {
+                        fs.unlink(filepath, nothing => { resolve(hash); }); // delete original file
+                    })
                     .catch(err => {
                         fs.unlink(filepath, nothing => { reject(err); }); // delete original file
                     });

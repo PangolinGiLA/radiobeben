@@ -1,8 +1,8 @@
-import {Entity, PrimaryGeneratedColumn, Column} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 @Entity()
 export class Song {
-    
+
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -23,7 +23,7 @@ export class Song {
     @Column()
     duration: number;
 
-    @Column()
+    @Column({ default: false })
     isPrivate: boolean;
 
 }

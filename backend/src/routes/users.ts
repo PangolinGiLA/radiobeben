@@ -8,7 +8,7 @@ const router = express.Router();
 
 declare module 'express-session' {
     interface SessionData {
-      userid: number;
+        userid: number;
     }
 }
 
@@ -35,10 +35,11 @@ router.use(login_middleware);
 
 router.post("/register", permission_middleware(permissions.users), function (req: Request, res: Response) {
     if (req.body.login && req.body.password) {
-        register(req.body.login, req.body.password).then(result => {
-            console.log(result);
-            res.sendStatus(200);
-        })
+        register(req.body.login, req.body.password)
+            .then(result => {
+                console.log(result);
+                res.sendStatus(200);
+            })
             .catch(err => {
                 console.log(err);
                 res.sendStatus(400);

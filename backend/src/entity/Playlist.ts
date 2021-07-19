@@ -1,4 +1,5 @@
 import {Entity, PrimaryGeneratedColumn, Column, ManyToOne} from "typeorm";
+import { Days } from "./Days";
 import { Song } from "./Song";
 
 @Entity()
@@ -10,8 +11,8 @@ export class Playlist {
     @ManyToOne(() => Song, {onDelete: 'CASCADE'})
     songID: Song;
 
-    @Column("date")
-    date: string;
+    @ManyToOne(() => Days, day => day.playlist)
+    day: Days;
 
     @Column()
     breakNumber: number;

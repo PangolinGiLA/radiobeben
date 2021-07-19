@@ -14,5 +14,5 @@ export class Schedule {
     breaketimeid: Breaketimes;
 
     @Column()
-    visibility: boolean;
+    visibility: number;
 }
