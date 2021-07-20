@@ -6,3 +6,4 @@ tmp/
 temp/
 sessions/
 package-lock.json
+Music/*

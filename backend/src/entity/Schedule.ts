@@ -11,7 +11,7 @@ export class Schedule {
     isEnabled: boolean;
 
     @ManyToOne(() => Breaketimes)
-    breaketimeid: Breaketimes;
+    breaketime: Breaketimes;
 
     @Column()
     visibility: number;

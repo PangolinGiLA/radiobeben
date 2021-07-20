@@ -9,7 +9,7 @@ export class Playlist {
     id: number;
 
     @ManyToOne(() => Song, {onDelete: 'CASCADE'})
-    songID: Song;
+    song: Song;
 
     @ManyToOne(() => Days, day => day.playlist)
     day: Days;
@@ -17,6 +17,6 @@ export class Playlist {
     @Column()
     breakNumber: number;
 
-    @Column("timestamp")
+    @Column("datetime")
     estTime: Date;
 }

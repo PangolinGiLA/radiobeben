@@ -14,7 +14,7 @@ export class Days {
     playlist: Playlist[];
 
     @ManyToOne(() => Breaketimes)
-    breaketimeid: Breaketimes;
+    breaketime: Breaketimes;
 
     @Column()
     isEnabled: boolean;

@@ -13,13 +13,13 @@ function add_suggestion(ytid: string): Promise<string> {
             if (song) {
                 reject("song already suggested");
             } else {
-                yts({ videoID: ytid })
+                yts({ videoId: ytid })
                     .then(async song => {
                         await suggesionTable.insert({ ytid: ytid, name: song.title, author: song.author.name, duration: song.seconds });
                         resolve("done");
                     })
                     .catch(err => {
-                        reject("no such video");
+                        reject(err);
                     })
             }
         });
