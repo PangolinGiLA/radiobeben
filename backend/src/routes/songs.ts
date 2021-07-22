@@ -1,6 +1,5 @@
 import * as express from "express";
 import { Request, Response } from "express";
-import e = require("express");
 import { login_middleware, permissions, permission_middleware } from "../app/permissions";
 import { accept_suggestion, add_suggestion, get_suggestions, reject_suggestion } from "../app/songs";
 
