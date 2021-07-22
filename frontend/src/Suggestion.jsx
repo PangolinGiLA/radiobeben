@@ -1,6 +1,7 @@
 import "./css/background.css"
 import React from "react";
 import { Form, Formik, Field, ErrorMessage } from "formik";
+import * as ytdl from "ytdl-core"
 
 class Suggestion extends React.Component {
     constructor(props) {
@@ -32,7 +33,7 @@ class Suggestion extends React.Component {
     }
 
     accept = async () => {
-        this.setState({toAccept: <SuggestionPopup id={this.props.id} name={this.props.name} author={this.props.author} done={this.whenAccepted}/>})
+        this.setState({ toAccept: <SuggestionPopup id={this.props.id} name={this.props.name} author={this.props.author} done={this.whenAccepted} /> })
     }
 
     whenAccepted = async () => {
@@ -96,12 +97,12 @@ class SuggestionPopup extends React.Component {
                             console.log("ajaj");
                         }
                         setSubmitting(false);
-                    }}  
+                    }}
                 >
                     <Form>
-                        <Field type="text" name="name"/>
+                        <Field type="text" name="name" />
                         <ErrorMessage name="name" component="span" className="error" />
-                        <Field type="text" name="author"/>
+                        <Field type="text" name="author" />
                         <ErrorMessage name="author" component="span" className="error" />
                         <button type="submit">pobierz</button>
                     </Form>
@@ -120,22 +121,69 @@ export default class Suggestions extends React.Component {
         fetch('/api/songs/suggestions', {
             method: 'GET'
         })
-        .then(async r => {
-            this.setState({suggestions: JSON.parse(await r.text()) })
-        });
+            .then(async r => {
+                this.setState({ suggestions: JSON.parse(await r.text()) })
+            });
     }
 
     render() {
         let toRender = [];
         let j = 0;
         for (let i of this.state.suggestions) {
-            toRender.push(<Suggestion key={j} id={i.id} ytid={i.ytid} name={i.name} author={i.author} status={i.status}/>);
+            toRender.push(<Suggestion key={j} id={i.id} ytid={i.ytid} name={i.name} author={i.author} status={i.status} />);
             j++;
         };
         return (
             <div>
+                <Suggest />
                 {toRender}
             </div>
         )
+    }
+}
+
+class Suggest extends React.Component {
+    render() {
+        return (
+            <div>
+                <Formik
+                    initialValues={{
+                        ytlink: ""
+                    }}
+                    validate={values => {
+                        const errors = {};
+                        if (!values.ytlink)
+                            errors.ytlink = "Wpisz link!";
+                        else if (!ytdl.validateURL(values.ytlink))
+                            errors.ytlink = "Niepoprawny link!"
+                        return errors;
+                    }}
+                    onSubmit={async (values, { setSubmitting, setFieldError }) => {
+                        const data = {
+                            ytid: ytdl.getVideoID(values.ytlink)
+                        };
+                        const r = await fetch('/api/songs/suggestions', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(data)
+                        });
+                        if (r.ok) {
+                            this.props.done();
+                        } else {
+                            console.log("ajaj");
+                        }
+                        setSubmitting(false);
+                    }}
+                >
+                    <Form>
+                        <Field type="text" name="ytlink"></Field>
+                        <ErrorMessage name="ytlink" component="span" className="error" />
+                        <button type="submit">Sugeruj</button>
+                    </Form>
+                </Formik>
+            </div>
+        );
     }
 }
