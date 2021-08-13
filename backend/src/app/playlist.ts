@@ -19,7 +19,10 @@ function get_playlist(date: Date, userid?: number): Promise<Playlist[]> {
             { date: date.toISOString().slice(0, 11) }, // toISOString().slice(0, 11) returns date in mysql format
             { relations: ["playlist", "playlist.song"] }
         );
-        resolve(day.playlist);
+        if (day)
+            resolve(day.playlist);
+        else
+            resolve(null);
     });
 }
 
@@ -122,6 +125,30 @@ function add_preset(name: string, breaktimes: Break[]): Promise<string> {
     });
 }
 
+function get_schedule(day: Date): Promise<Break[]> {
+    return new Promise<Break[]>(async (resolve, reject) => {
+        let daysTable = getRepository(Days);
+        let dayData = await daysTable.findOne({ date: day.toISOString().slice(0, 11) }, { relations: ["breaketime"] });
+        if (dayData) {
+            // schedule for this day is already known
+            // also need to check for permission
+            if (dayData.isEnabled)
+                resolve(dayData.breaketime.breaketimesJSON)
+            else
+                reject(); // can you reject like that? 
+        } else {
+            // return probable schedule depending on weekday
+            // also need to check for permission
+            let scheduleTable = getRepository(Schedule);
+            let schedule = await scheduleTable.findOne({ weekday: day.getDay() }, { relations: ["breaketime"] });
+            if (schedule.isEnabled)
+                resolve(schedule.breaketime.breaketimesJSON);
+            else
+                reject();
+        }
+    });
+}
+
 function set_weekday(weekday: number, isEnabled: boolean, breaketimeid?: number, visibility?: number): Promise<string> {
     return new Promise<string>(async (resolve, reject) => {
         let scheduleTable = getRepository(Schedule);
@@ -142,4 +169,4 @@ function set_weekday(weekday: number, isEnabled: boolean, breaketimeid?: number,
 }
 
 
-export { add_to_playlist, get_playlist, remove_from_playlist }
+export { add_to_playlist, get_playlist, remove_from_playlist, get_schedule }
