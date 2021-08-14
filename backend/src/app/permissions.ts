@@ -44,7 +44,7 @@ function get_nth_bite(n: number, number: number): boolean {
     return Boolean(number & (1 << n));
 }
 
-function can(userid: number, what: permissions): Promise<boolean> {
+export function can(userid: number, what: permissions): Promise<boolean> {
     return new Promise<boolean>(resolve => {
         get_permissions(userid).then(user_permissions => {
             resolve(get_nth_bite(what, user_permissions));
