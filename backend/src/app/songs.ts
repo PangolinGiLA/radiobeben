@@ -108,4 +108,12 @@ function delete_song(id: number): Promise<string> {
 
 }
 
-export { add_suggestion, get_suggestions, accept_suggestion, reject_suggestion }
+function get_songs(userid?: number): Promise<Song[]> {
+    return new Promise<Song[]> (async (resolve) => {
+        // later add permissions, limit, before, etc
+        let songTable = getRepository(Song);
+        resolve (await songTable.find());
+    })
+}
+
+export { add_suggestion, get_suggestions, accept_suggestion, reject_suggestion, get_songs }

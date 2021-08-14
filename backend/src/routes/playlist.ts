@@ -21,9 +21,11 @@ router.get("/playlist", async function (req: Request, res: Response) {
     */
 });
 
-router.post("/playlist", function (req: Request, res: Response) {
-    if (req.body.date && req.body.breaknumber && req.body.songid)
-        add_to_playlist(req.body.date, req.body.breaknumber, req.body.songid, req.session.userid);
+router.post("/playlist", async function (req: Request, res: Response) {
+    if (req.body.date && ( req.body.breaknumber !== undefined ) && req.body.songid) {
+        await add_to_playlist(new Date(req.body.date), req.body.breaknumber, req.body.songid, req.session.userid);
+        res.sendStatus(200);
+    }
     else
         res.sendStatus(400);
 });

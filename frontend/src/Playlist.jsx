@@ -1,24 +1,16 @@
 import React from 'react'
+import LibraryPickable from './LibraryPickable';
 
 class PlaylistSong extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            title: props.title,
-            author: props.author,
-            start: props.start,
-            end: props.end
-        };
-    }
     render() {
         return (<div>
-            {this.state.title}
+            {this.props.title}
             <br />
-            {this.state.author}
+            {this.props.author}
             <br />
-            {this.state.start}
+            {this.props.start}
             <br />
-            {this.state.end}
+            {this.props.end}
             <br />
         </div>);
     }
@@ -34,9 +26,11 @@ class Break extends React.Component {
         this.state = {
             songs: props.songs, // this is an array
             start: props.start, // this is an object with hour and minutes
-            end: props.end // same as above
+            end: props.end, // same as above
+            adding: false // show window to add song?
         };
     }
+
     render() {
         let toRender = [];
         // is playlist fetched from server?
@@ -66,8 +60,17 @@ class Break extends React.Component {
                 {toRender}
                 <br />
                 {this.state.end.hour}:{this.state.end.minutes}
+                <button onClick={this.showAdding}>dodaj</button>
+                {this.state.adding ? <LibraryPickable breaknumber={this.props.breaknumber} done={this.addingDone} /> : null}
             </div>);
-            // TODO: add song to playlist button
+    }
+
+    addingDone = (err) => {
+        this.setState({ adding: false });
+    }
+
+    showAdding = () => {
+        this.setState({ adding: true });
     }
 }
 
@@ -91,7 +94,7 @@ export default class Breaks extends React.Component {
     }
 
     render() {
-        let toRender = []
+        let toRender = [];
         if (this.state.breaks instanceof Array) {
             let songs = [];
             if (this.state.songs instanceof Array) {
@@ -107,6 +110,7 @@ export default class Breaks extends React.Component {
                     songs={temp}
                     start={this.state.breaks[i].start}
                     end={this.state.breaks[i].end}
+                    breaknumber={i}
                     key={i}
                 />)
             }

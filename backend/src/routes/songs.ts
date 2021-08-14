@@ -1,7 +1,7 @@
 import * as express from "express";
 import { Request, Response } from "express";
 import { login_middleware, permissions, permission_middleware } from "../app/permissions";
-import { accept_suggestion, add_suggestion, get_suggestions, reject_suggestion } from "../app/songs";
+import { accept_suggestion, add_suggestion, get_songs, get_suggestions, reject_suggestion } from "../app/songs";
 
 const router = express.Router();
 
@@ -50,6 +50,10 @@ router.put("/suggestions", login_middleware, permission_middleware(permissions.s
     } else {
         res.sendStatus(400);
     }
+});
+
+router.get("/library", async function (req: Request, res: Response) {
+    res.send(await get_songs());
 });
 
 export { router as songs }

@@ -22,7 +22,7 @@ function get_playlist(date: Date, userid?: number): Promise<Playlist[]> {
         if (day)
             resolve(day.playlist);
         else
-            resolve(null);
+            resolve([]);
     });
 }
 
