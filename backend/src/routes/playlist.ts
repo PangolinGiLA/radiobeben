@@ -12,13 +12,10 @@ declare module 'express-session' {
 }
 
 router.get("/playlist", async function (req: Request, res: Response) {
-    res.send(await get_playlist(new Date())); // just for testing
-    /*
-    if (req.body.date)
-        res.send(get_playlist(req.body.date, req.session.userid));
+    if (req.query.date)
+        res.send(await get_playlist(new Date(req.query.date as string), req.session.userid));
     else
         res.sendStatus(400);
-    */
 });
 
 router.post("/playlist", async function (req: Request, res: Response) {
@@ -31,13 +28,10 @@ router.post("/playlist", async function (req: Request, res: Response) {
 });
 
 router.get("/schedule", async function (req: Request, res: Response) {
-    res.send(await get_schedule(new Date()));
-    /*
-    if (req.body.date)
-        res.send(get_schedule(req.body.date));
+    if (req.query.date)
+        res.send(await get_schedule(new Date(req.query.date as string)));
     else
         res.sendStatus(400);
-    */
 });
 
 export { router as playlist }

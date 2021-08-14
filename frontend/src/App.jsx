@@ -1,13 +1,13 @@
 import LoginPage from "./Login";
 import Suggestions from "./Suggestion";
-import Breakes from "./Playlist"
+import Playlist from "./Playlist"
 
 function App() {
   return (
     <div>
       <LoginPage />
       <Suggestions />
-      <Breakes />
+      <Playlist />
     </div>
 
   )

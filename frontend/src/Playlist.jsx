@@ -61,7 +61,12 @@ class Break extends React.Component {
                 <br />
                 {this.props.end.hour}:{this.props.end.minutes}
                 <button onClick={this.showAdding}>dodaj</button>
-                {this.state.adding ? <LibraryPickable breaknumber={this.props.breaknumber} done={this.addingDone} /> : null}
+                {this.state.adding ?
+                    <LibraryPickable
+                        date={this.props.date}
+                        breaknumber={this.props.breaknumber}
+                        done={this.addingDone}
+                    /> : null}
             </div>);
     }
 
@@ -75,7 +80,7 @@ class Break extends React.Component {
     }
 }
 
-export default class Breaks extends React.Component {
+class Breaks extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -87,15 +92,20 @@ export default class Breaks extends React.Component {
     componentDidMount() {
         this.loadData();
     }
+    
+    componentDidUpdate(prevProps) {
+        if (this.props.date !== prevProps.date)
+            this.loadData();
+    }
 
     loadData = () => {
-        fetch('/api/playlist/schedule', {
-            method: 'GET'
-        })
+        fetch('/api/playlist/schedule?' + new URLSearchParams({
+            date: this.props.date
+        }))
             .then(async r_b => {
-                let r_s = await fetch('/api/playlist/playlist', {
-                    method: 'GET'
-                });
+                let r_s = await fetch('/api/playlist/playlist?' + new URLSearchParams({
+                    date: this.props.date
+                }));
                 if (r_b.ok && r_s.ok)
                     this.setState({ breaks: JSON.parse(await r_b.text()), songs: JSON.parse(await r_s.text()) })
             });
@@ -119,6 +129,7 @@ export default class Breaks extends React.Component {
                     start={this.state.breaks[i].start}
                     end={this.state.breaks[i].end}
                     breaknumber={i}
+                    date={this.props.date}
                     key={i}
                     done={this.loadData}
                 />)
@@ -129,5 +140,27 @@ export default class Breaks extends React.Component {
             <div>
                 {toRender}
             </div>);
+    }
+}
+
+export default class Playlist extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            date: new Date().toISOString().slice(0, 10)
+        }
+    }
+
+    render() {
+        return (
+            <div>
+                <input type="date" onChange={this.changeDate} />
+                <Breaks date={this.state.date} />
+            </div>
+        );
+    }
+
+    changeDate = (event) => {
+        this.setState({ date: event.target.value });
     }
 }

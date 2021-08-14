@@ -145,7 +145,7 @@ export default class Suggestions extends React.Component {
         for (let i of this.state.suggestions) {
             toRender.push(<Suggestion 
                 key={i.id} 
-                d={i.id} 
+                id={i.id} 
                 ytid={i.ytid} 
                 name={i.name} 
                 author={i.author} 

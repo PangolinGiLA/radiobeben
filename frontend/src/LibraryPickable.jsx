@@ -11,7 +11,7 @@ class SongPickable extends React.Component {
 
     addToPlaylist = () => {
         let data = {
-            date: new Date(), // need to change that later
+            date: this.props.date,
             breaknumber: this.props.breaknumber,
             songid: this.props.id
         }
@@ -59,6 +59,7 @@ export default class LibraryPickable extends React.Component {
                 author={i.author}
                 id={i.id}
                 breaknumber={this.props.breaknumber}
+                date={this.props.date}
                 done={this.props.done}
                 key={j}
                 />)
