@@ -8,11 +8,14 @@ class PlaylistSong extends React.Component {
             <br />
             {this.props.author}
             <br />
+        </div>);
+        /*
+            idk how to make jsx comments
             {this.props.start}
             <br />
             {this.props.end}
             <br />
-        </div>);
+        */
     }
 
     delete_me() {
@@ -24,9 +27,6 @@ class Break extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            songs: props.songs, // this is an array
-            start: props.start, // this is an object with hour and minutes
-            end: props.end, // same as above
             adding: false // show window to add song?
         };
     }
@@ -34,9 +34,9 @@ class Break extends React.Component {
     render() {
         let toRender = [];
         // is playlist fetched from server?
-        if (this.state.songs instanceof Array) {
+        if (this.props.songs instanceof Array) {
             let j = 0;
-            for (let i of this.state.songs) {
+            for (let i of this.props.songs) {
                 let start_date = new Date(i.estTime);
                 let end_date = new Date(i.estTime); // idk how to make a copy
                 end_date.setSeconds(start_date.getSeconds() + i.song.duration);
@@ -55,22 +55,23 @@ class Break extends React.Component {
 
         return (
             <div>
-                {this.state.start.hour}:{this.state.start.minutes}
+                {this.props.start.hour}:{this.props.start.minutes}
                 <br />
                 {toRender}
                 <br />
-                {this.state.end.hour}:{this.state.end.minutes}
+                {this.props.end.hour}:{this.props.end.minutes}
                 <button onClick={this.showAdding}>dodaj</button>
                 {this.state.adding ? <LibraryPickable breaknumber={this.props.breaknumber} done={this.addingDone} /> : null}
             </div>);
     }
 
     addingDone = (err) => {
-        this.setState({ adding: false });
+        this.setState({ adding: false }); // hide library
+        this.props.done();
     }
 
     showAdding = () => {
-        this.setState({ adding: true });
+        this.setState({ adding: true }); // show library
     }
 }
 
@@ -81,6 +82,13 @@ export default class Breaks extends React.Component {
             breaks: [],
             songs: []
         }
+    }
+
+    componentDidMount() {
+        this.loadData();
+    }
+
+    loadData = () => {
         fetch('/api/playlist/schedule', {
             method: 'GET'
         })
@@ -112,6 +120,7 @@ export default class Breaks extends React.Component {
                     end={this.state.breaks[i].end}
                     breaknumber={i}
                     key={i}
+                    done={this.loadData}
                 />)
             }
         }

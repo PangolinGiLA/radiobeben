@@ -34,6 +34,13 @@ export default class LibraryPickable extends React.Component {
         this.state = {
             songs: []
         }
+    }
+
+    componentDidMount() {
+        this.loadData()
+    }
+
+    loadData = () => {
         fetch('/api/songs/library', {
             method: 'GET'
         })
@@ -41,6 +48,7 @@ export default class LibraryPickable extends React.Component {
                 this.setState({ songs: JSON.parse(await r.text()) });
             });
     }
+
     // TODO: add search
     render() {
         let toRender = []

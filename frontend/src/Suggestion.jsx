@@ -28,12 +28,19 @@ class Suggestion extends React.Component {
         if (r.ok) {
             this.setState({ status: -1 });
         } else {
-            console.log("ajaj");
+            console.log(await r.text());
         }
     }
 
     accept = async () => {
-        this.setState({ toAccept: <SuggestionPopup id={this.props.id} name={this.props.name} author={this.props.author} done={this.whenAccepted} /> })
+        this.setState({
+            toAccept: <SuggestionPopup
+                id={this.props.id}
+                name={this.props.name}
+                author={this.props.author}
+                done={this.whenAccepted}
+            />
+        });
     }
 
     whenAccepted = async () => {
@@ -94,7 +101,7 @@ class SuggestionPopup extends React.Component {
                         if (r.ok) {
                             this.props.done();
                         } else {
-                            console.log("ajaj");
+                            console.log(await r.text());
                         }
                         setSubmitting(false);
                     }}
@@ -118,6 +125,13 @@ export default class Suggestions extends React.Component {
         this.state = {
             suggestions: []
         };
+    }
+
+    componentDidMount() {
+        this.loadData();
+    }
+
+    loadData = () => {
         fetch('/api/songs/suggestions', {
             method: 'GET'
         })
@@ -128,14 +142,20 @@ export default class Suggestions extends React.Component {
 
     render() {
         let toRender = [];
-        let j = 0;
         for (let i of this.state.suggestions) {
-            toRender.push(<Suggestion key={j} id={i.id} ytid={i.ytid} name={i.name} author={i.author} status={i.status} />);
-            j++;
+            toRender.push(<Suggestion 
+                key={i.id} 
+                d={i.id} 
+                ytid={i.ytid} 
+                name={i.name} 
+                author={i.author} 
+                status={i.status}
+                refresh={this.loadData}
+                />);
         };
         return (
             <div>
-                <Suggest />
+                <Suggest done={this.loadData} />
                 {toRender}
             </div>
         )
@@ -172,7 +192,7 @@ class Suggest extends React.Component {
                         if (r.ok) {
                             this.props.done();
                         } else {
-                            console.log("ajaj");
+                            console.log(await r.text());
                         }
                         setSubmitting(false);
                     }}
