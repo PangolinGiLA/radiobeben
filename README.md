@@ -5,7 +5,7 @@ dependencies:
 	
 You need to add both to path, then:
 
-1. set up databese ( for example with xampp and phpmyadmin ) and add its name to `ormconfig.json` in database field  
+1. set up database ( for example with xampp and phpmyadmin ) and add its name to `ormconfig.json` in database field  
 2. open new terminal in project directory  
 3. `cd backend` then `npm install`  
 4. `npm run dev` this should automatically create all tables in database  
@@ -21,6 +21,6 @@ You might need to restart backend after that
 7. `cd ..` then `cd frontend`  
 8. `npm install` then `npm start`   
 	
-This should be all you need (at least a hope so...)
+This should be all you need (at least I hope so...)
 
 Most of the code I wrote is not yet tested. I will do that after I develop frontend for that part of backend.
