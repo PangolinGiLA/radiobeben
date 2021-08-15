@@ -16,7 +16,7 @@ You need to add both to path, then:
 + in schedule add days form 0 to 6
 + add user in users table (in pass you need to put hash of password, use `bcrypt.hash(your_pass, 10)` function);  
 You might need to restart backend after that  
-<br/>
+  
 6. `mkdir Music`    
 7. `cd ..` then `cd frontend`  
 8. `npm install` then `npm start`   
