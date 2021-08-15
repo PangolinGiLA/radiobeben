@@ -1,4 +1,3 @@
-import "./css/background.css"
 import React from "react";
 import { Form, Formik, Field, ErrorMessage } from "formik";
 import * as ytdl from "ytdl-core"

@@ -1,3 +1,6 @@
+# lockfile
+package-lock.json
+
 .idea/
 .vscode/
 node_modules/
@@ -5,5 +8,4 @@ build/
 tmp/
 temp/
 sessions/
-package-lock.json
 Music/*
