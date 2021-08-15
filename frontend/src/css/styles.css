@@ -1,0 +1,161 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+
+/* colors */
+:root {
+	--light-bg-secondary: #F0F3F4;
+	--light-bg-main: #E5E7E9;
+	--light-bg-hover: #D7DBDD;
+	--light-shadow-main: #BDBDBD;
+	--light-shadow-secondary: #A0A8B0;
+	--light-font-main: #3F3844;
+}
+
+/* base styles */
+* {
+	color: var(--light-font-main);
+	font-family: "Quicksand";
+	margin: 0;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+body {
+	background-color: var(--light-bg-main);
+}
+
+.content {
+	padding: 0px 10px;
+}
+
+.divider {
+	height: 0px;
+	border-bottom: solid 1px var(--light-shadow-main);
+	margin: 10px auto;
+	max-width: 800px;
+}
+
+/* Navbar */
+.navbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	height: 60px;
+	background-color: var(--light-bg-secondary);
+	box-shadow: 0px  0px 8px var(--light-shadow-secondary);
+	position: fixed;
+	top: 0;
+	width: 100%;
+}
+
+.title {
+	margin: 6px 10px;
+	margin-right: 0px;
+	font-size: 22px;
+}
+
+.navbutton {
+	display: flex;
+	justify-self: flex-end;
+	justify-content: center;
+	align-items: center;
+	background-color: var(--light-bg-secondary);
+	border: none;
+	border-radius: 3px;
+	box-shadow: inset 0px  0px 4px var(--light-shadow-main);
+	height: 36px;
+	width: 36px;
+	margin: 6px 10px;
+	margin-left: 0px;
+	font-weight: bold;
+}
+
+/* fixes hover for mobile */
+@media (hover: hover){
+	.navbutton:hover {
+		background-color: var(--light-bg-hover);
+		cursor: pointer;
+	}
+	.breakbutton:hover {
+		background-color: var(--light-bg-hover);
+		cursor: pointer;
+	}
+	.songpanel:hover {
+		cursor: pointer;
+		background-color: var(--light-bg-main);
+	}
+}
+
+.navbutton:active {
+	background-color: var(--light-bg-hover);
+}
+.breakbutton:active {
+	background-color: var(--light-bg-hover);
+}
+.songpanel:active {
+	background-color: var(--light-bg-hover);
+}
+
+/* playlists */
+.header {
+	margin: 10px auto;
+	font-size: 20px;
+	display: flex;
+	justify-content: space-between;
+	max-width: 800px;
+}
+
+.timestamp {
+	text-align: left;
+	padding-left: 4px;
+	margin: 0px;
+}
+
+.breakpanel {
+	padding: 10px;
+	box-shadow: inset 0px  0px 4px var(--light-shadow-secondary);
+	border-radius: 5px;
+	background-color: var(--light-bg-secondary);
+	max-width: 760px;
+	margin-bottom: 10px;
+}
+
+.songpanel {
+	padding: 10px;
+	box-shadow: inset 0px  0px 4px var(--light-shadow-main);
+	border-radius: 5px;
+	background-color: var(--light-bg-secondary);
+	max-width: 760px;
+	margin-top: 10px;
+}
+
+.datecontainer {
+	display: flex;
+	margin: 0px;
+	margin-left: 10px;
+	align-items: center;
+}
+
+.breakinfo {
+	display: flex;
+	justify-content: space-between;
+}
+
+.breakbutton {
+	display: flex;
+	justify-self: flex-end;
+	justify-content: center;
+	align-items: center;
+	background-color: var(--light-bg-secondary);
+	border: none;
+	border-radius: 3px;
+	box-shadow: inset 0px  0px 4px var(--light-shadow-main);
+	height: 24px;
+	width: 24px;
+	margin: 0px;
+	font-weight: bold;
+}
+
+.navcontainer {
+	display: flex;
+	margin: 0px;
+}

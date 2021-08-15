@@ -126,8 +126,7 @@ export default class Breaks extends React.Component {
         }
 
         return (
-            <div>
-                {toRender}
-            </div>);
+            <div> { toRender } </div>
+        );
     }
 }
