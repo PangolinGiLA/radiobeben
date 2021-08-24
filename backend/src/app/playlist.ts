@@ -7,6 +7,7 @@ import { Schedule } from "../entity/Schedule"
 import { Song } from "../entity/Song";
 import { can, permissions } from "./permissions";
 import { cfg } from "../config/general";
+import { DayInfo } from "../types/DayInfo";
 
 function get_playlist(date: Date, userid?: number): Promise<Playlist[]> {
     // TODO: only if day is public or user has permission
@@ -23,6 +24,8 @@ function get_playlist(date: Date, userid?: number): Promise<Playlist[]> {
     });
 }
 
+// this function is a monster
+// i am sorry for that
 function add_to_playlist(day: Date, breaknumber: number, songid: number, userid?: number): Promise<string> {
     return new Promise<string>(async (resolve, reject) => {
         // get date from Date
@@ -39,7 +42,6 @@ function add_to_playlist(day: Date, breaknumber: number, songid: number, userid?
             return;
         }
 
-        let daysTable = getRepository(Days);
         let playlistTable = getRepository(Playlist);
 
         // first 
@@ -55,84 +57,87 @@ function add_to_playlist(day: Date, breaknumber: number, songid: number, userid?
             return;
         }
 
-        // is break not full
-        // (check if day already created in Days table)
+        // has higher permissions
+        let permitted = (userid && await can(userid, permissions.playlist))
 
-        let song_end: Date; // will be calculeted in following if
+        let song_end: Date; // preciding song end
 
-        let that_day = await daysTable.findOne({ date: date })
-        if (that_day) {
-            // and if exists is the break full
-            let last_song = await playlistTable.findOne(
-                { breakNumber: breaknumber, day: that_day },
-                { order: { estTime: "DESC" }, relations: ["song"] }
-            );
-            if (last_song) {
-                // calculate song end ( song end will be usefull later too )
-                song_end = last_song.estTime;
-                song_end.setSeconds(last_song.estTime.getSeconds() + last_song.song.duration);
+        let if_return = false;
+        // check if day exists in Days table
+        await get_day(date)
+            .then(async that_day => {
+                // exists
 
-                // calculate break end
-                let break_end = day;
-                break_end.setHours(schedule[breaknumber].end.hour);
-                break_end.setMinutes(schedule[breaknumber].end.minutes);
-                break_end.setSeconds(0);
-
-                // if last song ends later than break, break is full
-                if (song_end.getTime() >= break_end.getTime()) {
-                    reject("break is full");
-                    return;
+                // is the break full
+                let last_song = await playlistTable.findOne(
+                    { breakNumber: breaknumber, day: that_day },
+                    { order: { estTime: "DESC" }, relations: ["song"] }
+                );
+                if (last_song) {
+                    // calculate song end ( song end will be usefull later too )
+                    song_end = last_song.estTime;
+                    song_end.setSeconds(last_song.estTime.getSeconds() + last_song.song.duration);
+                    // calculate break end
+                    let break_end = setHMS(day, schedule[breaknumber].end.hour, schedule[breaknumber].end.minutes, 0);
+                    // if last song ends later than break, break is full
+                    if (song_end.getTime() >= break_end.getTime()) {
+                        reject("break is full");
+                        if_return = true;
+                        return;
+                    }
+                } else {
+                    // break is empty
+                    // just calculate new song start
+                    let break_start = setHMS(day, schedule[breaknumber].start.hour, schedule[breaknumber].start.minutes, 0);
+                    song_end = break_start;
                 }
-
-            } else {
-                // break is empty
-                // just calculate new song start
-                let break_start = day;
-                break_start.setHours(schedule[breaknumber].start.hour);
-                break_start.setMinutes(schedule[breaknumber].start.minutes);
+                // more things to check
+                // if permitted, can skip this
+                if (!permitted) {
+                    // daily song/author limit if enabled
+                    // song
+                    if (cfg.daily_limit.song !== null) {
+                        if (await playlistTable.count({ day: that_day, song: song }) >= cfg.daily_limit.song) {
+                            reject("daily song limit exceeded");
+                            if_return = true;
+                            return;
+                        }
+                    }
+                    // author
+                    if (cfg.daily_limit.author !== null) {
+                        let authors = await playlistTable.createQueryBuilder("playlist")
+                            .leftJoinAndSelect('playlist.song', 'song')
+                            .where("song.author = :author", { author: song.author })
+                            .andWhere("playlist.day = :day", { day: that_day.id })
+                            .execute();
+                        if (authors.length >= cfg.daily_limit.author) {
+                            reject("daily author limit exceeded");
+                            if_return = true;
+                            return;
+                        }
+                    }
+                }
+            })
+            .catch(() => {
+                // day does not exist yet
+                // calculate song_end, for parity
+                let break_start = setHMS(day, schedule[breaknumber].start.hour, schedule[breaknumber].start.minutes, 0);
                 song_end = break_start;
-            }
-        }
-
-        // then
-        // if logged in and permitted
-
-        if (!userid || !(userid && await can(userid, permissions.playlist))) { // userid will be passed if user is logged in
-            // not permitted, need to check more thing
-
-            // some code below will have to change, because I will have diffrent table for authors
-            // daily song/author limit if enabled
-            // song
-            if (cfg.daily_limit.song !== null) {
-                if (await playlistTable.count({ day: that_day, song: song }) >= cfg.daily_limit.song) {
-                    reject("daily song limit exceeded");
-                    return;
-                }
-            }
-
-            // author
-            if (cfg.daily_limit.author !== null) {
-                let authors = await playlistTable.createQueryBuilder("playlist")
-                    .leftJoinAndSelect('playlist.song', 'song')
-                    .where("song.author = :author", { author: song.author })
-                    .andWhere("playlist.day = :day", { day: that_day.id })
-                    .execute();
-                console.log(authors);
-                if (authors.length >= cfg.daily_limit.author) {
-                    reject("daily author limit exceeded");
-                    return;
-                }
-            }
-
+            });
+        // stop if rejected somewhere above
+        if (if_return)
+            return;
+        // even more things to check
+        if (!permitted) {
             // weekly song/author limit if enabled
-            //author
+            // author
             if (cfg.weekly_limit.author !== null) {
                 // when week starts and ends
                 let monday = getMonday(day);
                 let next_monday = new Date(monday);
                 next_monday.setDate(monday.getDate() + 7);
                 // crazy query to count
-                let songs_week = await playlistTable.createQueryBuilder("playlist")
+                let authors_week = await playlistTable.createQueryBuilder("playlist")
                     .leftJoinAndSelect('playlist.song', 'song')
                     .leftJoinAndSelect('playlist.day', 'day')
                     .where("song.author = :author", { author: song.author })
@@ -140,55 +145,99 @@ function add_to_playlist(day: Date, breaknumber: number, songid: number, userid?
                     .andWhere("day.date < :n_monday", { n_monday: jsDatetoSQLDate(next_monday) })
                     .execute();
                 // and compare
-                if (songs_week.length >= cfg.weekly_limit.author) {
+                if (authors_week.length >= cfg.weekly_limit.author) {
                     reject("weekly author limit exceeded");
                     return;
                 }
             }
-
-            // song TODO
-
+            // song
+            if (cfg.weekly_limit.song !== null) {
+                // when week starts and ends
+                let monday = getMonday(day);
+                let next_monday = new Date(monday);
+                next_monday.setDate(monday.getDate() + 7);
+                // crazy query to count
+                let songs_week = await playlistTable.createQueryBuilder("playlist")
+                    .leftJoinAndSelect('playlist.day', 'day')
+                    .where("playlist.song = :song", { song: song.id })
+                    .andWhere("day.date >= :monday", { monday: jsDatetoSQLDate(monday) })
+                    .andWhere("day.date < :n_monday", { n_monday: jsDatetoSQLDate(next_monday) })
+                    .execute();
+                // and compare
+                if (songs_week.length >= cfg.weekly_limit.song) {
+                    reject("weekly song limit exceeded");
+                    return;
+                }
+            }
             // monthly song/author limit if enabled
-            // is day private
-            // is date not too far in future
-            // is song with that id private
+            // author
+            if (cfg.monthly_limit.author !== null) {
+                let month_start = new Date(day.getFullYear(), day.getMonth(), 1);
+                let next_month_start = new Date(day.getFullYear(), day.getMonth() + 1, 1);
+                // crazy query
+                let authors_month = await playlistTable.createQueryBuilder("playlist")
+                    .leftJoinAndSelect('playlist.song', 'song')
+                    .leftJoinAndSelect('playlist.day', 'day')
+                    .where("song.author = :author", { author: song.author })
+                    .andWhere("day.date >= :month", { month: jsDatetoSQLDate(month_start) })
+                    .andWhere("day.date < :n_month", { n_month: jsDatetoSQLDate(next_month_start) })
+                    .execute();
 
+                if (authors_month.length >= cfg.monthly_limit.author) {
+                    reject("monthly author limit exceeded");
+                    return;
+                }
+            }
+            // song
+            if (cfg.monthly_limit.song !== null) {
+                let month_start = new Date(day.getFullYear(), day.getMonth(), 1);
+                let next_month_start = new Date(day.getFullYear(), day.getMonth() + 1, 1);
+                // query
+                let songs_month = await playlistTable.createQueryBuilder("playlist")
+                    .leftJoinAndSelect('playlist.day', 'day')
+                    .where("playlist.song = :song", { song: song.id })
+                    .andWhere("day.date >= :month", { month: jsDatetoSQLDate(month_start) })
+                    .andWhere("day.date < :n_month", { n_month: jsDatetoSQLDate(next_month_start) })
+                    .execute();
+                // and compare
+                if (songs_month.length >= cfg.monthly_limit.song) {
+                    reject("monthly song limit exceeded");
+                    return;
+                }
+            }
+            // is day private
+            let day_info = await get_day_info(day);
+            if (day_info.visibility < 2) {
+                reject("not permitted");
+                return;
+            }
+            // is date not too far in future
+            if (((song_end.getTime() - Date.now()) / (1000 * 60 * 60 * 24)) > cfg.days_in_future) {
+                reject("adding to far in the future")
+                return;
+            }
+            // is song with that id private
+            if (song.isPrivate) {
+                reject("song is private!");
+                return;
+            }
         }
 
-
-
-        // now if song can be added
-        // calculate when song starts
-        // depending on end of the last song
-        // let result = playlistTable.find({ where: { day: newday, breakNumber: breaknumber }, order: { estTime: "ASC" } });
-        // or if the break just begings
-        // and calculate when the song ends ( start + length )
+        // check for hard limit of future days
+        if (((song_end.getTime() - Date.now()) / (1000 * 60 * 60 * 24)) > 1000) {
+            reject("adding to far in the future")
+            return;
+        }
 
         // check if there already is database record for that day
         // if not, create it
-        let newday = await daysTable.findOne({ date: date }, { relations: ["playlist"] });
-        if (!newday) {
-            let scheduleTable = getRepository(Schedule);
-            let schedule = await scheduleTable.findOne({ weekday: day.getDay() }, { relations: ["breaketime"] })
-            newday = new Days()
-            newday.date = date;
-            newday.playlist = [];
-            newday.breaketime = schedule.breaketime;
-            newday.isEnabled = schedule.isEnabled;
-            newday.visibility = schedule.visibility;
-
-            await daysTable.insert(newday);
-        }
-
+        let newday = await create_day(day)
         let playlist = new Playlist();
         playlist.breakNumber = breaknumber;
         playlist.song = song;
         playlist.day = newday;
         playlist.estTime = song_end;
-
-
         await playlistTable.save(playlist);
-
         resolve("done");
     });
 }
@@ -225,24 +274,22 @@ function add_preset(name: string, breaktimes: Break[]): Promise<string> {
     });
 }
 
-function get_schedule(day: Date): Promise<Break[]> {
-    return new Promise<Break[]>(async (resolve) => {
-        let daysTable = getRepository(Days);
-        let dayData = await daysTable.findOne({ date: day.toISOString().slice(0, 11) }, { relations: ["breaketime"] });
-        if (dayData) {
-            // schedule for this day is already known
-            // also need to check for permission
-            if (dayData.isEnabled)
-                resolve(dayData.breaketime.breaketimesJSON);
-            else
-                resolve([]);
+function get_schedule(day: Date, userid?: number): Promise<Break[]> {
+    return new Promise<Break[]>(async (resolve, reject) => {
+        let info = await get_day_info(day);
+        if (info.visibility === 0) {
+            if (userid && await can(userid, permissions.playlist)) {
+                // just permitted users can see schedule
+                if (info.isEnabled)
+                    resolve(info.breaketime.breaketimesJSON);
+                else
+                    resolve([]);
+            } else {
+                reject("day is private");
+            }
         } else {
-            // return probable schedule depending on weekday
-            // also need to check for permission
-            let scheduleTable = getRepository(Schedule);
-            let schedule = await scheduleTable.findOne({ weekday: day.getDay() }, { relations: ["breaketime"] });
-            if (schedule.isEnabled)
-                resolve(schedule.breaketime.breaketimesJSON);
+            if (info.isEnabled)
+                resolve(info.breaketime.breaketimesJSON);
             else
                 resolve([]);
         }
@@ -266,6 +313,74 @@ function set_weekday(weekday: number, isEnabled: boolean, breaketimeid?: number,
             resolve("done");
         }
     });
+}
+
+function day_exists(date: string): Promise<boolean> {
+    return new Promise<boolean>(async (resolve) => {
+        let daysTable = getRepository(Days);
+        let that_day = await daysTable.findOne({ date: date });
+        resolve(Boolean(that_day));
+    });
+}
+
+function get_day(date: string): Promise<Days> {
+    return new Promise<Days>(async (resolve, reject) => {
+        let daysTable = getRepository(Days);
+        let that_day = await daysTable.findOne({ date: date });
+        if (that_day) {
+            resolve(that_day);
+        } else {
+            reject();
+        }
+    });
+}
+
+function get_day_info(day: Date): Promise<DayInfo> {
+    return new Promise<DayInfo>(async resolve => {
+        let date = jsDatetoSQLDate(day)
+        if (await day_exists(date)) {
+            // get info from Days
+            let daysTable = getRepository(Days);
+            resolve(await daysTable.findOne({ date: date }, { relations: ["breaketime"] }));
+        } else {
+            // get info from Schedule
+            let scheduleTable = getRepository(Schedule);
+            let schedule = await scheduleTable.findOne({ weekday: day.getDay() }, { relations: ["breaketime"] });
+            resolve(schedule);
+        }
+    });
+}
+
+function create_day(day: Date): Promise<Days> {
+    return new Promise<Days>(resolve => {
+        get_day(jsDatetoSQLDate(day))
+            .then(that_day => {
+                resolve(that_day);
+            })
+            .catch(async () => {
+                // day does not yet exist
+                let daysTable = getRepository(Days);
+                let newday = new Days()
+                let scheduleTable = getRepository(Schedule);
+                let schedule = await scheduleTable.findOne({ weekday: day.getDay() }, { relations: ["breaketime"] })
+                newday = new Days()
+                newday.date = jsDatetoSQLDate(day);
+                newday.playlist = [];
+                newday.breaketime = schedule.breaketime;
+                newday.isEnabled = schedule.isEnabled;
+                newday.visibility = schedule.visibility;
+                await daysTable.insert(newday);
+                resolve(newday);
+            })
+    });
+}
+
+function setHMS(date: Date, hours: number, minutes: number, seconds: number) {
+    date = new Date(date); // idk, just to be sure
+    date.setHours(hours);
+    date.setMinutes(minutes);
+    date.setSeconds(seconds);
+    return date;
 }
 
 // from https://stackoverflow.com/questions/4156434/javascript-get-the-first-day-of-the-week-from-current-date

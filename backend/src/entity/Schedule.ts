@@ -1,18 +1,9 @@
-import { Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
-import { Breaketimes } from "./Breaketimes";
+import { Entity, PrimaryColumn } from "typeorm";
+import { DayInfo } from "../types/DayInfo";
 
 @Entity() 
-export class Schedule {
+export class Schedule extends DayInfo {
 
     @PrimaryColumn()
     weekday: number;
-
-    @Column()
-    isEnabled: boolean;
-
-    @ManyToOne(() => Breaketimes)
-    breaketime: Breaketimes;
-
-    @Column()
-    visibility: number;
 }
