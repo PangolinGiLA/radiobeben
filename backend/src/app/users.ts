@@ -21,7 +21,7 @@ function login(username: string, password: string): Promise<number> {
 
     })
 }
-function register(username: string, password: string): Promise<string> {
+function register(username: string, password: string, permission?: number): Promise<string> {
     return new Promise<string>((resolve, reject) => {
         let userTable = getRepository(User);
         userTable.findOne({ login: username }).then(user => {
@@ -29,7 +29,8 @@ function register(username: string, password: string): Promise<string> {
                 reject("username not available");
             else{
                 bcrypt.hash(password, 10).then(hashed => {
-                    let user = userTable.create({login: username, pass: hashed});
+                    let permissions = permission ? permission : 63;
+                    let user = userTable.create({login: username, pass: hashed, permissions: permissions});
                     userTable.insert(user).then(result => {
                         resolve("done");
                     })

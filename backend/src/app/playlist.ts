@@ -8,11 +8,6 @@ import { Song } from "../entity/Song";
 import { can, permissions } from "./permissions";
 import { cfg } from "../config/general";
 
-// I assume there already is schedule database prepered,
-// that there are entries for each week day
-// for now you have to insert them manualy
-// later it will be checked and fixed on startup
-
 function get_playlist(date: Date, userid?: number): Promise<Playlist[]> {
     // TODO: only if day is public or user has permission
     return new Promise<Playlist[]>(async (resolve, reject) => {
