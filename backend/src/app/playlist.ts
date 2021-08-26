@@ -1,4 +1,4 @@
-import { Between, getManager, getRepository } from "typeorm";
+import { Between, getManager, getRepository, MoreThan, MoreThanOrEqual } from "typeorm";
 import { Breaketimes } from "../entity/Breaketimes";
 import { Days } from "../entity/Days";
 import { Playlist } from "../entity/Playlist";
@@ -10,17 +10,21 @@ import { cfg } from "../config/general";
 import { DayInfo } from "../types/DayInfo";
 
 function get_playlist(date: Date, userid?: number): Promise<Playlist[]> {
-    // TODO: only if day is public or user has permission
     return new Promise<Playlist[]>(async (resolve, reject) => {
         let daysTable = getRepository(Days);
         let day = await daysTable.findOne(
-            { date: jsDatetoSQLDate(date) }, // toISOString().slice(0, 11) returns date in mysql format
+            { date: jsDatetoSQLDate(date) },
             { relations: ["playlist", "playlist.song"] }
         );
-        if (day)
-            resolve(day.playlist);
-        else
-            resolve([]);
+        let dayInfo = await get_day_info(date);
+        if ((dayInfo.visibility !== 0) || (userid && await can(userid, permissions.playlist))) {
+            if (day)
+                resolve(day.playlist);
+            else
+                resolve([]);
+        } else {
+            reject("not permitted");
+        }
     });
 }
 
@@ -242,7 +246,7 @@ function add_to_playlist(day: Date, breaknumber: number, songid: number, userid?
     });
 }
 
-function fix_break(removedSong: Playlist): Promise<string> {
+function fix_break_after_remove(removedSong: Playlist): Promise<string> {
     return new Promise<string>(async (resolve, reject) => {
         let result = await getManager().query(
             "UPDATE playlist SET estTime=SUBTIME(estTime, ?) WHERE breakNumber=? AND dayId=? AND estTime > ?",
@@ -258,12 +262,16 @@ function remove_from_playlist(playlistid: number): Promise<string> {
         let toRemove = await playlistTable.findOne(playlistid, { relations: ["day", "song"] });
         if (toRemove) {
             playlistTable.delete(playlistid);
-            await fix_break(toRemove);
+            await fix_break_after_remove(toRemove);
             resolve("done");
         } else {
             reject("no such playlist entry");
         }
     });
+}
+
+function get_presets(): Promise<Breaketimes[]> {
+    return getRepository(Breaketimes).find();
 }
 
 function add_preset(name: string, breaktimes: Break[]): Promise<string> {
@@ -300,10 +308,24 @@ function set_weekday(weekday: number, isEnabled: boolean, breaketimeid?: number,
     return new Promise<string>(async (resolve, reject) => {
         let scheduleTable = getRepository(Schedule);
         let breaketimesTable = getRepository(Breaketimes);
+        let old_schedule = await scheduleTable.findOne({weekday: weekday}, {relations: ["breaketime"]});
         if (isEnabled) {
             let breaketime = await breaketimesTable.findOne(breaketimeid)
             if (breaketime) {
                 await scheduleTable.update(weekday, { isEnabled: true, breaketime: breaketime, visibility: visibility });
+                // migrate playlist for future days
+                let daysTable = getRepository(Days);
+                let daysToMigrate = await daysTable.createQueryBuilder("day")
+                    .select()
+                    .where("day.date >= CURRENT_DATE()")
+                    .andWhere("WEEKDAY(day.date) = :weekday", { weekday: (weekday + 6) % 7 })
+                    .andWhere("day.hasDefaultSchedule = TRUE")
+                    .execute()
+                // ik, should do it with one query but im lazy
+                for (let i of daysToMigrate) {
+                    let day = await getRepository(Days).findOne(i.day_id);
+                    await migrate_day(old_schedule.breaketime.breaketimesJSON, breaketime.breaketimesJSON, day);
+                }
                 resolve("done");
             } else {
                 reject("no such breaktime");
@@ -375,6 +397,36 @@ function create_day(day: Date): Promise<Days> {
     });
 }
 
+function migrate_day(old_breaketimes: Break[], new_breaketimes: Break[], day: Days): Promise<string> {
+    return new Promise<string>(async resolve => {
+        for (let i = 0; i < old_breaketimes.length; i++) {
+            if (new_breaketimes[i]) {
+                // move beginings of the song by time difference
+                let oldtime = new Date(day.date);
+                oldtime = setHMS(oldtime, new_breaketimes[i].start.hour, new_breaketimes[i].start.minutes, 0);
+                let newtime = new Date(day.date);
+                newtime = setHMS(newtime, new_breaketimes[i].start.hour, new_breaketimes[i].start.minutes, 0);
+                let diff = (oldtime.getTime() - newtime.getTime()) / 1000; // time difference in seconds
+                let result = await getManager().query(
+                    "UPDATE playlist SET estTime=SUBTIME(estTime, ?) WHERE breakNumber=? AND dayId=?",
+                    [diff, i, day.id]
+                );
+                // remove songs that start after break end
+                let breakend = new Date(day.date);
+                breakend = setHMS(breakend, new_breaketimes[i].end.hour, new_breaketimes[i].end.minutes, 0);
+                let playlistTable = getRepository(Playlist);
+                await playlistTable.delete({ breakNumber: i, estTime: MoreThanOrEqual(breakend) });
+            }
+        }
+        // remove song from breaks that don't exist now
+        if (old_breaketimes.length > new_breaketimes.length) {
+            let playlistTable = getRepository(Playlist);
+            await playlistTable.delete({ breakNumber: MoreThan(new_breaketimes.length) });
+        }
+        resolve("done");
+    });
+}
+
 function setHMS(date: Date, hours: number, minutes: number, seconds: number) {
     date = new Date(date); // idk, just to be sure
     date.setHours(hours);
@@ -399,4 +451,4 @@ function jsDatetoSQLDate(d: Date): string {
     return d.toISOString().slice(0, 10);
 }
 
-export { add_to_playlist, get_playlist, remove_from_playlist, get_schedule }
+export { add_to_playlist, get_playlist, remove_from_playlist, get_schedule, get_presets, add_preset, set_weekday }
