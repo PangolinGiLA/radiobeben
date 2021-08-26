@@ -1,7 +1,7 @@
 import * as express from "express";
 import { Request, Response } from "express";
 import { login_middleware, permissions, permission_middleware } from "../app/permissions";
-import { add_preset, add_to_playlist, get_playlist, get_presets, get_schedule, set_weekday } from "../app/playlist";
+import { add_preset, add_to_playlist, get_default_schedule, get_playlist, get_presets, get_schedule, set_weekday } from "../app/playlist";
 import { Break } from "../types/Time";
 
 const router = express.Router();
@@ -35,6 +35,10 @@ router.get("/schedule", async function (req: Request, res: Response) {
         res.sendStatus(400);
 });
 
+router.get("/weekdays", async function (req: Request, res: Response) {
+    res.send(await get_default_schedule());
+});
+
 router.put("/schedule", login_middleware, permission_middleware(permissions.schedule), async function (req: Request, res: Response) {
     if (req.body.weekday !== undefined && req.body.isEnabled !== undefined && req.body.isEnabled === false) {
         set_weekday(req.body.weekday, req.body.isEnabled)
@@ -46,7 +50,7 @@ router.put("/schedule", login_middleware, permission_middleware(permissions.sche
             })
     } else {
         if (req.body.weekday !== undefined && req.body.isEnabled !== undefined && req.body.breaktimeid !== undefined && req.body.visibility !== undefined) {
-            set_weekday(req.body.weekday, req.body.weekday, req.body.breaktimeid, req.body.visibility)
+            set_weekday(req.body.weekday, req.body.isEnabled, req.body.breaktimeid, req.body.visibility)
             .then(() => {
                 res.sendStatus(200);
             })

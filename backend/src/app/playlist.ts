@@ -271,7 +271,11 @@ function remove_from_playlist(playlistid: number): Promise<string> {
 }
 
 function get_presets(): Promise<Breaketimes[]> {
-    return getRepository(Breaketimes).find();
+    return getRepository(Breaketimes).find({ archived: false });
+}
+
+function get_default_schedule(): Promise<Schedule[]> {
+    return getRepository(Schedule).find({ relations: ["breaketime"] });
 }
 
 function add_preset(name: string, breaktimes: Break[]): Promise<string> {
@@ -308,7 +312,7 @@ function set_weekday(weekday: number, isEnabled: boolean, breaketimeid?: number,
     return new Promise<string>(async (resolve, reject) => {
         let scheduleTable = getRepository(Schedule);
         let breaketimesTable = getRepository(Breaketimes);
-        let old_schedule = await scheduleTable.findOne({weekday: weekday}, {relations: ["breaketime"]});
+        let old_schedule = await scheduleTable.findOne({ weekday: weekday }, { relations: ["breaketime"] });
         if (isEnabled) {
             let breaketime = await breaketimesTable.findOne(breaketimeid)
             if (breaketime) {
@@ -399,29 +403,31 @@ function create_day(day: Date): Promise<Days> {
 
 function migrate_day(old_breaketimes: Break[], new_breaketimes: Break[], day: Days): Promise<string> {
     return new Promise<string>(async resolve => {
-        for (let i = 0; i < old_breaketimes.length; i++) {
-            if (new_breaketimes[i]) {
-                // move beginings of the song by time difference
-                let oldtime = new Date(day.date);
-                oldtime = setHMS(oldtime, new_breaketimes[i].start.hour, new_breaketimes[i].start.minutes, 0);
-                let newtime = new Date(day.date);
-                newtime = setHMS(newtime, new_breaketimes[i].start.hour, new_breaketimes[i].start.minutes, 0);
-                let diff = (oldtime.getTime() - newtime.getTime()) / 1000; // time difference in seconds
-                let result = await getManager().query(
-                    "UPDATE playlist SET estTime=SUBTIME(estTime, ?) WHERE breakNumber=? AND dayId=?",
-                    [diff, i, day.id]
-                );
-                // remove songs that start after break end
-                let breakend = new Date(day.date);
-                breakend = setHMS(breakend, new_breaketimes[i].end.hour, new_breaketimes[i].end.minutes, 0);
-                let playlistTable = getRepository(Playlist);
-                await playlistTable.delete({ breakNumber: i, estTime: MoreThanOrEqual(breakend) });
+        if (old_breaketimes !== new_breaketimes) {
+            for (let i = 0; i < old_breaketimes.length; i++) {
+                if (new_breaketimes[i]) {
+                    // move beginings of the song by time difference
+                    let oldtime = new Date(day.date);
+                    oldtime = setHMS(oldtime, new_breaketimes[i].start.hour, new_breaketimes[i].start.minutes, 0);
+                    let newtime = new Date(day.date);
+                    newtime = setHMS(newtime, new_breaketimes[i].start.hour, new_breaketimes[i].start.minutes, 0);
+                    let diff = (oldtime.getTime() - newtime.getTime()) / 1000; // time difference in seconds
+                    let result = await getManager().query(
+                        "UPDATE playlist SET estTime=SUBTIME(estTime, ?) WHERE breakNumber=? AND dayId=?",
+                        [diff, i, day.id]
+                    );
+                    // remove songs that start after break end
+                    let breakend = new Date(day.date);
+                    breakend = setHMS(breakend, new_breaketimes[i].end.hour, new_breaketimes[i].end.minutes, 0);
+                    let playlistTable = getRepository(Playlist);
+                    await playlistTable.delete({ breakNumber: i, estTime: MoreThanOrEqual(breakend) });
+                }
             }
-        }
-        // remove song from breaks that don't exist now
-        if (old_breaketimes.length > new_breaketimes.length) {
-            let playlistTable = getRepository(Playlist);
-            await playlistTable.delete({ breakNumber: MoreThan(new_breaketimes.length) });
+            // remove song from breaks that don't exist now
+            if (old_breaketimes.length > new_breaketimes.length) {
+                let playlistTable = getRepository(Playlist);
+                await playlistTable.delete({ breakNumber: MoreThan(new_breaketimes.length) });
+            }
         }
         resolve("done");
     });
@@ -451,4 +457,4 @@ function jsDatetoSQLDate(d: Date): string {
     return d.toISOString().slice(0, 10);
 }
 
-export { add_to_playlist, get_playlist, remove_from_playlist, get_schedule, get_presets, add_preset, set_weekday }
+export { add_to_playlist, get_playlist, remove_from_playlist, get_schedule, get_presets, add_preset, set_weekday, get_default_schedule }
