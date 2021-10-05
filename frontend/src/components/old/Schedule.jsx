@@ -66,7 +66,7 @@ export default class Weekdays extends React.Component {
         const r2 = await fetch('/api/playlist/breaktimes', {
             method: 'GET',
         });
-        if (r.ok) {
+        if (r2.ok) {
             this.setState({ fetched: true, presets: JSON.parse(await r2.text()) });
         } else {
             console.log(await r2.text());
@@ -125,7 +125,7 @@ export default class Weekdays extends React.Component {
                     visibility={this.state.data[weekday].visibility}
                     enabled={this.state.data[weekday].isEnabled}
                     name={days[i]}
-                    breaketime={this.state.data[weekday].breaketime.id}
+                    breaketime={this.state.data[weekday].breaketime ? this.state.data[weekday].breaketime.id : null}
                     presets={this.state.presets}
                 />)
             }

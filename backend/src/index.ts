@@ -11,19 +11,19 @@ var FileStore = require('session-file-store')(session);
 const app = express();
 
 declare module 'express-session' {
-    interface SessionData {
-      userid: number;
-    }
-}  
+  interface SessionData {
+    userid: number;
+  }
+}
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(session({
-    secret: 'imamamamamamamalyge',
-    store: new FileStore(),
-    resave: false,
-    saveUninitialized: true
+  secret: 'imamamamamamamalyge',
+  store: new FileStore(),
+  resave: false,
+  saveUninitialized: true
 }));
 
 createConnection()
@@ -38,17 +38,22 @@ createConnection()
     // does schedule table have all week days?
     let scheduleTable = getRepository(Schedule);
     let schedule = await scheduleTable.find();
-    let j = 0;
-    for (let i = 0; i < 7; i++) {
-      if (j < schedule.length) {
-        if (schedule[j].weekday > i) {
-          scheduleTable.insert({weekday: i, isEnabled: false, breaketime: null, visibility: 2}); // insert missing day
-        } else {
-          j++;
+    if (schedule.length) {
+      let j = 0;
+      for (let i = 0; i < 7; i++) {
+        if (j < schedule.length) {
+          if (schedule[j].weekday > i) {
+            scheduleTable.insert({ weekday: i, isEnabled: false, breaketime: null, visibility: 2 }); // insert missing day
+          } else {
+            j++;
+          }
         }
       }
+    } else {
+      for (let i = 0; i < 7; i++) {
+        scheduleTable.insert({ weekday: i, isEnabled: false, breaketime: null, visibility: 2 }); // insert missing day
+      }
     }
-
   });
 
 app.use("/api", api);
