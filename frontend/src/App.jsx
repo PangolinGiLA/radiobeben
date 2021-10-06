@@ -10,28 +10,28 @@ import Weekday from "./components/old/Schedule.jsx";
 const App = () => {
 
   // testing only
-  let tmin = {hour: 8, minute: 0}
-  let tmax = {hour: 8, minute: 30}
-  let now = {hour: 8, minute: 20}
+  let tmin = {hour: 8, minutes: 0}
+  let tmax = {hour: 8, minutes: 30}
+  let now = {hour: 8, minutes: 20}
   let breaktimes = [
     {
       start: {
         hour: 8,
-        minute: 0
+        minutes: 0
       },
       end:{
         hour: 8,
-        minute: 10
+        minutes: 10
       }
     },
     {
       start: {
         hour: 8,
-        minute: 20
+        minutes: 20
       },
       end:{
         hour: 8,
-        minute: 30
+        minutes: 30
       }
     }
   ]

@@ -90,7 +90,8 @@ export default class Weekdays extends React.Component {
                 visibility: parseInt(event.target.elements[i + "_visibility"].value)
             }
             if (data.isEnabled !== this.state.data[weekday].isEnabled
-                || data.breaktimeid !== this.state.data[weekday].breaketime.id
+                || !this.state.data[weekday].breaketime
+                || data.breaktimeid !== this.state.data[weekday].breaketime.id 
                 || data.visibility !== this.state.data[weekday].visibility) {
                 // need to send data to sever
                 const r = await fetch('/api/playlist/schedule', {
