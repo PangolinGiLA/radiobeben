@@ -20,10 +20,13 @@ router.post("/suggestions", function (req: Request, res: Response) {
 });
 
 router.get("/suggestions", function (req: Request, res: Response) {
-    get_suggestions().then(result => {
-        res.send(result);
-        // in future add limit and before options
-    });
+    if (req.query.limit && req.query.before) {
+        get_suggestions(parseInt(req.query.limit as string), parseInt(req.query.before as string)).then(result => {
+            res.send(result);
+        });
+    } else {
+        res.sendStatus(400);
+    }
 });
 
 router.put("/suggestions", login_middleware, permission_middleware(permissions.suggestions), function (req: Request, res: Response) {

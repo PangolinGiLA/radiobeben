@@ -1,4 +1,4 @@
-import { getRepository } from "typeorm";
+import { getRepository, LessThan, MoreThan } from "typeorm";
 import { Suggestion } from "../entity/Suggestion";
 import * as yts from "yt-search"
 import { Song } from "../entity/Song";
@@ -73,8 +73,8 @@ function reject_suggestion(id: number): Promise<string> {
     });
 }
 
-function get_suggestions(): Promise<Suggestion[]> {
-    return getRepository(Suggestion).find();
+function get_suggestions(limit: number, before: number): Promise<Suggestion[]> {
+    return getRepository(Suggestion).find({where: {id: LessThan(before != -1 ? before : 100000000)}, order: {id: "DESC"}, take: limit});
 }
 
 interface SongUpdate {

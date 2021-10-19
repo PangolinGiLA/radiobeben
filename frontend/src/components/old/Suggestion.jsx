@@ -122,40 +122,68 @@ export default class Suggestions extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            suggestions: []
+            suggestions: [],
         };
+        this.loading = false;
+    }
+
+    scrollstyle = {
+        height: "150px",
+        overflowY: "scroll"
     }
 
     componentDidMount() {
         this.loadData();
     }
 
+    componentDidUpdate(prevProps, prevState) {
+        if (prevState.suggestions.length < this.state.suggestions.length) {
+            this.loading = false;
+        }
+    }
+
     loadData = () => {
-        fetch('/api/songs/suggestions', {
-            method: 'GET'
-        })
+        this.loading = true;
+        fetch('/api/songs/suggestions?' + new URLSearchParams({
+            limit: 2,
+            before: this.state.suggestions.length > 0 ? this.state.suggestions[this.state.suggestions.length - 1].id : -1
+        }))
             .then(async r => {
-                this.setState({ suggestions: JSON.parse(await r.text()) })
+                if (r.ok) {
+                    let new_suggestions = this.state.suggestions.concat(JSON.parse(await r.text()));
+                    this.setState({ suggestions: new_suggestions });
+                }
             });
+    }
+
+    handleScroll = (e) => {
+        if (e.target.scrollTop / (e.target.scrollHeight - e.target.clientHeight) > 0.95) {
+            if (!this.loading) {
+                this.loadData();
+            }
+        }
     }
 
     render() {
         let toRender = [];
         for (let i of this.state.suggestions) {
-            toRender.push(<Suggestion 
-                key={i.id} 
-                id={i.id} 
-                ytid={i.ytid} 
-                name={i.name} 
-                author={i.author} 
+            toRender.push(<Suggestion
+                key={i.id}
+                id={i.id}
+                ytid={i.ytid}
+                name={i.name}
+                author={i.author}
                 status={i.status}
                 refresh={this.loadData}
-                />);
+            />);
+
         };
         return (
             <div>
                 <Suggest done={this.loadData} />
-                {toRender}
+                <div style={this.scrollstyle} onScroll={this.handleScroll}>
+                    {toRender}
+                </div>
             </div>
         )
     }
