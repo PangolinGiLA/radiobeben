@@ -7,9 +7,8 @@ const Navbar = () => {
 			<nav className="navbar">
 				<div className="title">Playlista</div>
 				<div className="navcontainer">
-					<Navbutton content="A"/>
-					<Navbutton content="B"/>
-					<Navbutton content="C"/>
+					<Navbutton content={ <span className="material-icons-round">&#xE88A;</span> }/>
+					{/* more buttons here */}
 				</div>
 			</nav>	
 		</div>

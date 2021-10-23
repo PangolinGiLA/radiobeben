@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import Navbar from "./components/Navbar.jsx";
 import Playlist from "./components/playlist/Playlist.jsx";
 import Weekdays from "./components/old/Schedule.jsx";
+import Footer from "./components/Footer.jsx";
 
 const App = () => {
 
@@ -53,6 +54,7 @@ const App = () => {
             <Breakes/>
           </Route>
         </Switch>
+        <Footer/>
       </div>
     </Router>
   );
