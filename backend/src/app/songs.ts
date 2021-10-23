@@ -1,8 +1,9 @@
-import { getRepository, LessThan, MoreThan } from "typeorm";
+import { getRepository, LessThan, Like, MoreThan } from "typeorm";
 import { Suggestion } from "../entity/Suggestion";
 import * as yts from "yt-search"
 import { Song } from "../entity/Song";
 import { SongManager } from "../player/songs";
+import { can, permissions } from "./permissions";
 
 var songManager = new SongManager;
 
@@ -108,11 +109,14 @@ function delete_song(id: number): Promise<string> {
 
 }
 
-function get_songs(userid?: number): Promise<Song[]> {
+function get_songs(userid: number, limit: number, before: number, like: string): Promise<Song[]> {
     return new Promise<Song[]> (async (resolve) => {
-        // later add permissions, limit, before, etc
         let songTable = getRepository(Song);
-        resolve (await songTable.find());
+        if (userid && await can(userid, permissions.library)) {
+            resolve(await songTable.find({where: [{author: Like(`%${like}%`)}, {title: Like(`%${like}%`)}], skip: before, take: limit}));
+        } else {
+            resolve (await songTable.find({where: [{isPrivate: false, author: Like(`%${like}%`)}, {isPrivate: false, title: Like(`%${like}%`)}], skip: before, take: limit}));
+        }
     })
 }
 

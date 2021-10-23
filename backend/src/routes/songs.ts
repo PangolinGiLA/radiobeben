@@ -56,7 +56,17 @@ router.put("/suggestions", login_middleware, permission_middleware(permissions.s
 });
 
 router.get("/library", async function (req: Request, res: Response) {
-    res.send(await get_songs());
+    if (req.query.limit && req.query.before) {
+        let like = "%";
+        if (req.query.like) {
+            like = req.query.like as string;
+        }
+        get_songs(req.session.userid, parseInt(req.query.limit as string), parseInt(req.query.before as string), like).then(result => {
+            res.send(result);
+        });
+    } else {
+        res.sendStatus(400);
+    }
 });
 
 export { router as songs }
