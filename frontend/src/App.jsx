@@ -5,7 +5,7 @@ import BreaksInput from "./components/old/Breaketime.jsx";
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import Navbar from "./components/Navbar.jsx";
 import Playlist from "./components/playlist/Playlist.jsx";
-import Weekday from "./components/old/Schedule.jsx";
+import Weekdays from "./components/old/Schedule.jsx";
 
 const App = () => {
 
@@ -47,8 +47,10 @@ const App = () => {
             <BreaksInput breaktimes={breaktimes}/>
             <LoginPage />
             <Suggestions />
-            <Breakes />
-            <Weekday name="Poniedziałek" number="1"/>
+            <Weekdays/>
+          </Route>
+          <Route exact path="/old/playlist">
+            <Breakes/>
           </Route>
         </Switch>
       </div>

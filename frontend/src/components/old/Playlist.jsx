@@ -3,11 +3,9 @@ import LibraryPickable from './LibraryPickable';
 
 class PlaylistSong extends React.Component {
     render() {
-        return (<div>
-            {this.props.title}
-            <br />
-            {this.props.author}
-            <br />
+        return (<div className="songpanel">
+            <div>{this.props.title}</div>
+            <div>{this.props.author}</div>
         </div>);
         /*
             idk how to make jsx comments
@@ -54,13 +52,14 @@ class Break extends React.Component {
         }
 
         return (
-            <div>
-                {this.props.start.hour}:{this.props.start.minutes}
-                <br />
+            <div className="breakpanel">
+                <div className="breakinfo">
+                    <div className="timestamp"> {this.props.start.hour}:{this.props.start.minutes} </div>
+                    <div className="breakbutton" onClick={this.showAdding}>+</div>
+                </div>
                 {toRender}
                 <br />
-                {this.props.end.hour}:{this.props.end.minutes}
-                <button onClick={this.showAdding}>dodaj</button>
+                <div className="timestamp"> {this.props.end.hour}:{this.props.end.minutes} </div>
                 {this.state.adding ?
                     <LibraryPickable
                         date={this.props.date}
@@ -92,7 +91,7 @@ class Breaks extends React.Component {
     componentDidMount() {
         this.loadData();
     }
-    
+
     componentDidUpdate(prevProps) {
         if (this.props.date !== prevProps.date)
             this.loadData();
@@ -137,7 +136,7 @@ class Breaks extends React.Component {
         }
 
         return (
-            <div> { toRender } </div>
+            <div style={{ padding: "0px 10px" }} >{toRender} </div>
         );
     }
 }
@@ -150,10 +149,25 @@ export default class Playlist extends React.Component {
         }
     }
 
+    addDate = (offset) => {
+        return () => {
+            let newdate = new Date(this.state.date);
+            newdate.setDate(newdate.getDate() + offset);
+            this.setState({date: newdate.toISOString().slice(0, 10)});
+        }
+    }
+
     render() {
         return (
-            <div>
-                <input type="date" onChange={this.changeDate} />
+            <div className="content">
+                <div className="header">
+                    <input className="datecontainer" type="date" onChange={this.changeDate} value={this.state.date}/>
+                    <div className="navcontainer">
+                        <button className="navbutton" onClick={this.addDate(-1)}> {"<"} </button>
+                        <button className="navbutton" onClick={this.addDate(1)}> {">"} </button>
+                    </div>
+                </div>
+                <div className="divider"></div>
                 <Breaks date={this.state.date} />
             </div>
         );
