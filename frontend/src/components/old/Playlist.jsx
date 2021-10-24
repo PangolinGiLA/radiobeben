@@ -72,10 +72,9 @@ class Break extends React.Component {
             <div className="breakpanel">
                 <div className="breakinfo">
                     <div className="timestamp"> {this.props.start.hour}:{this.props.start.minutes} </div>
-                    <div className="breakbutton" onClick={this.showAdding}>+</div>
+                    <div className="breakbutton" onClick={this.showAdding}><span className="material-icons-round" style={{fontSize: "16px"}}>&#xE145;</span></div>
                 </div>
                 {toRender}
-                <br />
                 <div className="timestamp"> {this.props.end.hour}:{this.props.end.minutes} </div>
                 {this.state.adding ?
                     <LibraryPickable
@@ -180,12 +179,13 @@ export default class Playlist extends React.Component {
                 <div className="header">
                     <input className="datecontainer" type="date" onChange={this.changeDate} value={this.state.date}/>
                     <div className="navcontainer">
-                        <button className="navbutton" onClick={this.addDate(-1)}> {"<"} </button>
-                        <button className="navbutton" onClick={this.addDate(1)}> {">"} </button>
+                        <button className="navbutton" onClick={this.addDate(-1)}><span className="material-icons-round">&#xE408;</span></button>
+                        <button className="navbutton" onClick={this.addDate(1)}><span className="material-icons-round">&#xE409;</span></button>
                     </div>
                 </div>
                 <div className="divider"></div>
                 <Breaks date={this.state.date} />
+                <div className="divider"></div>
             </div>
         );
     }

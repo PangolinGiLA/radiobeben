@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons+Round');
 
 /* colors */
 :root {
@@ -21,16 +22,19 @@
 
 body {
 	background-color: var(--light-bg-main);
+	overflow: hidden;
 }
 
 .content {
 	padding: 0px 10px;
+	height: calc(100vh - 110px);
+	overflow-y: auto;
 }
 
 .divider {
 	height: 0px;
 	border-bottom: solid 1px var(--light-shadow-main);
-	margin: 10px auto;
+	margin: 8px auto;
 	max-width: 800px;
 }
 
@@ -47,10 +51,31 @@ body {
 	width: 100%;
 }
 
+.footer {
+	display: flex;
+	align-items: center;
+	height: 50px;
+	background-color: var(--light-bg-secondary);
+	box-shadow: 0px  0px 8px var(--light-shadow-secondary);
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+}
+
 .title {
 	margin: 6px 10px;
 	margin-right: 0px;
 	font-size: 22px;
+	white-space: nowrap;
+}
+
+.cover {
+	display: flex;
+	height: inherit;
+	background-color: var(--light-bg-secondary);
+	z-index: 2;
+	align-items: center;
+	padding-right: 5px;
 }
 
 .navbutton {
@@ -83,6 +108,11 @@ body {
 		cursor: pointer;
 		background-color: var(--light-bg-main);
 	}
+
+	.datecontainer:hover {
+		cursor: pointer;
+		background-color: var(--light-bg-main);
+	}
 }
 
 .navbutton:active {
@@ -91,7 +121,10 @@ body {
 .breakbutton:active {
 	background-color: var(--light-bg-hover);
 }
-.songpanel:active {
+.songpanel:active{
+	background-color: var(--light-bg-hover);
+}
+.datecontainer:active{
 	background-color: var(--light-bg-hover);
 }
 
@@ -129,10 +162,18 @@ body {
 }
 
 .datecontainer {
+	width: 120px;
+	height: 36px;
 	display: flex;
-	margin: 0px;
-	margin-left: 10px;
+	font-size: 14px;
+	margin: 6px 10px;
+	margin-right: 0px;
+	padding: 0px 5px 0px 10px;
 	align-items: center;
+	background-color: var(--light-bg-secondary);
+	border: none;
+	border-radius: 3px;
+	box-shadow: inset 0px  0px 4px var(--light-shadow-main);
 }
 
 .breakinfo {
@@ -158,4 +199,25 @@ body {
 .navcontainer {
 	display: flex;
 	margin: 0px;
+}
+
+.floatingtitle {
+	margin: 0;
+	text-align: left;
+	white-space: nowrap;
+	flex-grow: 2;
+	margin: 0px 10px;
+	position: relative;
+}
+
+@keyframes move {
+	0% {
+		transform: translateX(0%);
+	}
+	10% {
+		transform: translateX(0%);
+	}
+	100% {
+		transform: translateX(-102%);
+  }
 }
