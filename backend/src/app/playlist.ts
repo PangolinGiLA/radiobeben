@@ -250,7 +250,7 @@ function fix_break_after_remove(removedSong: Playlist): Promise<string> {
     return new Promise<string>(async (resolve, reject) => {
         let result = await getManager().query(
             "UPDATE playlist SET estTime=SUBTIME(estTime, ?) WHERE breakNumber=? AND dayId=? AND estTime > ?",
-            [removedSong.song.duration, removedSong.breakNumber, removedSong.day.id, removedSong.estTime]
+            [secondsToHMS(removedSong.song.duration), removedSong.breakNumber, removedSong.day.id, SQLdatetime(removedSong.estTime)]
         );
         resolve("done");
     });
@@ -441,6 +441,25 @@ function setHMS(date: Date, hours: number, minutes: number, seconds: number) {
     return date;
 }
 
+function SQLtime(date: Date): string {
+    let h = String(date.getHours()).padStart(2, "0");
+    let m = String(date.getMinutes()).padStart(2, "0");
+    let s = String(date.getSeconds()).padStart(2, "0");
+    return `${h}:${m}:${s}`;
+}
+
+function SQLdatetime(date: Date): string {
+    return SQLdate(date) + ' ' + SQLtime(date);
+}
+
+function SQLdate(date: Date): string {
+    let y = String(date.getFullYear());
+    let m = String(date.getMonth() + 1).padStart(2, "0");
+    let d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`
+}
+
+
 // from https://stackoverflow.com/questions/4156434/javascript-get-the-first-day-of-the-week-from-current-date
 function getMonday(d: Date): Date {
     d = new Date(d);
@@ -453,8 +472,14 @@ function getMonday(d: Date): Date {
     return new Date(d.setDate(diff));
 }
 
-function jsDatetoSQLDate(d: Date): string {
-    return d.toISOString().slice(0, 10);
+function jsDatetoSQLDate(d: Date): string { // TODO: replace every occurence with SQLdate
+    return SQLdate(d);
+}
+
+function secondsToHMS(seconds: number): string {
+    let d = new Date();
+    d = setHMS(d, 0, 0, seconds);
+    return SQLtime(d);
 }
 
 export { add_to_playlist, get_playlist, remove_from_playlist, get_schedule, get_presets, add_preset, set_weekday, get_default_schedule }

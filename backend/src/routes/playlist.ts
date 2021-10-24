@@ -1,7 +1,7 @@
 import * as express from "express";
 import { Request, Response } from "express";
 import { login_middleware, permissions, permission_middleware } from "../app/permissions";
-import { add_preset, add_to_playlist, get_default_schedule, get_playlist, get_presets, get_schedule, set_weekday } from "../app/playlist";
+import { add_preset, add_to_playlist, get_default_schedule, get_playlist, get_presets, get_schedule, remove_from_playlist, set_weekday } from "../app/playlist";
 import { Break } from "../types/Time";
 
 const router = express.Router();
@@ -27,6 +27,20 @@ router.post("/playlist", async function (req: Request, res: Response) {
     else
         res.sendStatus(400);
 });
+
+router.delete("/playlist", login_middleware, permission_middleware(permissions.playlist), function (req: Request, res: Response) {
+    if (req.body.id) {
+        remove_from_playlist(req.body.id)
+            .then(r => {
+                res.sendStatus(200);
+            })
+            .catch(err => {
+                res.status(500).send(err);
+            });
+    }
+    else
+        res.sendStatus(400);
+})
 
 router.get("/schedule", async function (req: Request, res: Response) {
     if (req.query.date)

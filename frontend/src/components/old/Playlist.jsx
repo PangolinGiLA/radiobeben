@@ -6,6 +6,8 @@ class PlaylistSong extends React.Component {
         return (<div className="songpanel">
             <div>{this.props.title}</div>
             <div>{this.props.author}</div>
+            <div>{this.props.start} - {this.props.end}</div>
+            <button onClick={this.delete_me}>x</button>
         </div>);
         /*
             idk how to make jsx comments
@@ -16,8 +18,21 @@ class PlaylistSong extends React.Component {
         */
     }
 
-    delete_me() {
-        // TODO
+    delete_me = () => {
+        fetch('/api/playlist/playlist', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({id: this.props.id})
+        }).then(r => {
+            if (r.ok) {
+                this.props.done();
+                // refresh playlist
+            } else {
+                console.log("failed")
+            }
+        });
     }
 }
 
@@ -40,11 +55,13 @@ class Break extends React.Component {
                 end_date.setSeconds(start_date.getSeconds() + i.song.duration);
                 toRender.push(
                     <PlaylistSong
+                        id={i.id}
                         title={i.song.title}
                         author={i.song.author}
                         start={start_date.toISOString()}
                         end={end_date.toISOString()}
                         key={j}
+                        done={this.props.done}
                     />
                 );
                 j++;
