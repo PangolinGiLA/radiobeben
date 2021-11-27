@@ -156,7 +156,12 @@ export default class BreaksInput extends React.Component {
 
     add_break = () => {
         let new_breaktimes = this.state.breaktimes;
-        if (new_breaktimes[new_breaktimes.length - 1].end !== { hour: 23, minutes: 59 }) {
+        if (new_breaktimes.length === 0) {
+            new_breaktimes.push({ start: {hour: 0, minutes: 1} , end: {hour: 0, minutes: 2}})
+            this.keys.push(this.last);
+            this.good.push(false);
+            this.last++;
+        } else if (new_breaktimes[new_breaktimes.length - 1].end !== { hour: 23, minutes: 59 }) {
             new_breaktimes.push({ start: this.add_time(1, new_breaktimes[new_breaktimes.length - 1].end), end: this.add_time(2, new_breaktimes[new_breaktimes.length - 1].end) })
             this.keys.push(this.last);
             this.good.push(false);

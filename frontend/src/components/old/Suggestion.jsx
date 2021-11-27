@@ -8,8 +8,15 @@ class Suggestion extends React.Component {
         this.id = props.id;
         this.state = {
             status: props.status,
-            toAccept: null
+            toAccept: null,
+            admin: props.admin
         };
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (prevProps.admin !== this.props.admin) {
+            this.setState({ admin: this.props.admin });
+        }
     }
 
     ytid_to_link(ytid) {
@@ -57,9 +64,9 @@ class Suggestion extends React.Component {
                 <br />
                 <a href={this.ytid_to_link(this.props.ytid)}>Link</a>
                 <br />
-                <button onClick={this.reject}>odrzuć</button>
-                <button onClick={this.accept}>akceptuj</button>
-                {this.state.toAccept}
+                {this.state.admin ? <button onClick={this.reject}>odrzuć</button>: null}
+                {this.state.admin ? <button onClick={this.accept}>akceptuj</button> : null}
+                {this.state.admin ? this.state.toAccept :null}
             </div>
         );
     }
@@ -123,6 +130,7 @@ export default class Suggestions extends React.Component {
         super(props);
         this.state = {
             suggestions: [],
+            admin: props.admin
         };
         this.loading = false;
     }
@@ -139,6 +147,9 @@ export default class Suggestions extends React.Component {
     componentDidUpdate(prevProps, prevState) {
         if (prevState.suggestions.length < this.state.suggestions.length) {
             this.loading = false;
+        }
+        if (prevProps.admin !== this.props.admin) {
+            this.setState({ admin: this.props.admin });
         }
     }
 
@@ -175,6 +186,7 @@ export default class Suggestions extends React.Component {
                 author={i.author}
                 status={i.status}
                 refresh={this.loadData}
+                admin = {this.state.admin}
             />);
 
         };

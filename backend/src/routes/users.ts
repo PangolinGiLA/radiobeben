@@ -1,7 +1,7 @@
 import * as express from "express";
 import { Request, Response } from "express";
 import { login, register } from "../app/users";
-import { login_middleware, permissions, permission_middleware } from "../app/permissions";
+import { get_permissions, login_middleware, permissions, permission_middleware } from "../app/permissions";
 
 const router = express.Router();
 
@@ -53,6 +53,16 @@ router.get("/logout", function (req: Request, res: Response) {
     req.session.destroy(function (err) {
         res.sendStatus(200);
     });
+});
+
+router.get("/permissions", async function(req: Request, res: Response) {
+    if (req.session.userid) {
+        let user_permissions = await get_permissions(req.session.userid);
+        res.status(200).send({permissions: user_permissions});
+    } else {
+        // not logged in
+        res.sendStatus(401);
+    }
 });
 
 export { router as users };

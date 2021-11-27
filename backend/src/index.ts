@@ -4,7 +4,9 @@ import { createConnection, getRepository } from "typeorm";
 import { api } from "./app";
 import { register } from "./app/users";
 import { Schedule } from "./entity/Schedule";
+import { Song } from "./entity/Song";
 import { User } from "./entity/User";
+import player from "./player/player";
 
 var FileStore = require('session-file-store')(session);
 
@@ -54,6 +56,9 @@ createConnection()
         scheduleTable.insert({ weekday: i, isEnabled: false, breaketime: null, visibility: 2 }); // insert missing day
       }
     }
+
+    let x = new player()
+    
   });
 
 app.use("/api", api);

@@ -1,7 +1,7 @@
 import { ErrorMessage, Formik, Form, Field } from "formik";
 import React, { useState } from "react";
 
-export default function LoginPage() {
+export default function LoginPage(props) {
     const [error, setError] = useState('');
     return (<div>
         <p>{error}</p>
@@ -32,6 +32,7 @@ export default function LoginPage() {
                     body: JSON.stringify(data)
                 });
                 if (r.status === 200) {
+                    props.loggedIn();
                     setError("");
                 } else {
                     setError(await r.text());

@@ -31,7 +31,7 @@ export enum permissions {
     users
 }
 
-function get_permissions(userid: number): Promise<number> {
+export function get_permissions(userid: number): Promise<number> {
     return new Promise<number>((resolve) => {
         const userTable = getRepository(User);
         userTable.findOne({ id: userid }).then(user => {

@@ -1,34 +1,17 @@
 import React from 'react'
 
-class SongPickable extends React.Component {
+class Song extends React.Component {
     render() {
         return (
-            <div onClick={this.addToPlaylist}>
-                {this.props.title} {this.props.author}
+            <div>
+               <a href="">{this.props.title}</a> {this.props.author} <button>usuń</button> <button>play</button>
             </div>
         )
     }
 
-    addToPlaylist = () => {
-        let data = {
-            date: this.props.date,
-            breaknumber: this.props.breaknumber,
-            songid: this.props.id
-        }
-        fetch('/api/playlist/playlist', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data)
-        })
-            .then(async r => {
-                this.props.done(await r.text()); // use callback to close the window
-            });
-    }
 }
 
-export default class LibraryPickable extends React.Component {
+export default class Library extends React.Component {
     constructor(props) {
         super(props);
         this.state = {

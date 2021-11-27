@@ -2,12 +2,25 @@ import React from 'react'
 import LibraryPickable from './LibraryPickable';
 
 class PlaylistSong extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            admin: props.admin
+        }
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (prevProps.admin !== this.props.admin) {
+            this.setState({ admin: this.props.admin });
+        }
+    }
+
     render() {
         return (<div className="songpanel">
             <div>{this.props.title}</div>
             <div>{this.props.author}</div>
             <div>{this.props.start} - {this.props.end}</div>
-            <button onClick={this.delete_me}>x</button>
+            {this.state.admin ? <button onClick={this.delete_me}>x</button> : null}
         </div>);
         /*
             idk how to make jsx comments
@@ -24,7 +37,7 @@ class PlaylistSong extends React.Component {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({id: this.props.id})
+            body: JSON.stringify({ id: this.props.id })
         }).then(r => {
             if (r.ok) {
                 this.props.done();
@@ -40,8 +53,15 @@ class Break extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            adding: false // show window to add song?
+            adding: false, // show window to add song?
+            admin: props.admin
         };
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (prevProps.admin !== this.props.admin) {
+            this.setState({ admin: this.props.admin });
+        }
     }
 
     render() {
@@ -55,6 +75,7 @@ class Break extends React.Component {
                 end_date.setSeconds(start_date.getSeconds() + i.song.duration);
                 toRender.push(
                     <PlaylistSong
+                        admin={this.state.admin}
                         id={i.id}
                         title={i.song.title}
                         author={i.song.author}
@@ -72,7 +93,7 @@ class Break extends React.Component {
             <div className="breakpanel">
                 <div className="breakinfo">
                     <div className="timestamp"> {this.props.start.hour}:{this.props.start.minutes} </div>
-                    <div className="breakbutton" onClick={this.showAdding}><span className="material-icons-round" style={{fontSize: "16px"}}>&#xE145;</span></div>
+                    <div className="breakbutton" onClick={this.showAdding}><span className="material-icons-round" style={{ fontSize: "16px" }}>&#xE145;</span></div>
                 </div>
                 {toRender}
                 <div className="timestamp"> {this.props.end.hour}:{this.props.end.minutes} </div>
@@ -100,7 +121,8 @@ class Breaks extends React.Component {
         super(props);
         this.state = {
             breaks: [],
-            songs: []
+            songs: [],
+            admin: props.admin
         }
     }
 
@@ -108,9 +130,14 @@ class Breaks extends React.Component {
         this.loadData();
     }
 
-    componentDidUpdate(prevProps) {
+    componentDidUpdate(prevProps, prevState) {
         if (this.props.date !== prevProps.date)
             this.loadData();
+
+        if (prevProps.admin !== this.props.admin) {
+            this.setState({ admin: this.props.admin });
+        }
+
     }
 
     loadData = () => {
@@ -131,7 +158,7 @@ class Breaks extends React.Component {
         if (this.state.breaks instanceof Array) {
             let songs = [];
             if (this.state.songs instanceof Array) {
-                songs = this.state.songs;
+                songs = [...this.state.songs];
             }
             for (let i = 0; i < this.state.breaks.length; i++) {
                 let temp = [];
@@ -140,6 +167,7 @@ class Breaks extends React.Component {
                     temp.push(songs.shift());
                 }
                 toRender.push(<Break
+                    admin={this.state.admin}
                     songs={temp}
                     start={this.state.breaks[i].start}
                     end={this.state.breaks[i].end}
@@ -161,7 +189,14 @@ export default class Playlist extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            date: new Date().toISOString().slice(0, 10)
+            date: new Date().toISOString().slice(0, 10),
+            admin: props.admin
+        }
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (prevProps.admin !== this.props.admin) {
+            this.setState({ admin: this.props.admin });
         }
     }
 
@@ -169,7 +204,7 @@ export default class Playlist extends React.Component {
         return () => {
             let newdate = new Date(this.state.date);
             newdate.setDate(newdate.getDate() + offset);
-            this.setState({date: newdate.toISOString().slice(0, 10)});
+            this.setState({ date: newdate.toISOString().slice(0, 10) });
         }
     }
 
@@ -177,14 +212,14 @@ export default class Playlist extends React.Component {
         return (
             <div className="content">
                 <div className="header">
-                    <input className="datecontainer" type="date" onChange={this.changeDate} value={this.state.date}/>
+                    <input className="datecontainer" type="date" onChange={this.changeDate} value={this.state.date} />
                     <div className="navcontainer">
                         <button className="navbutton" onClick={this.addDate(-1)}><span className="material-icons-round">&#xE408;</span></button>
                         <button className="navbutton" onClick={this.addDate(1)}><span className="material-icons-round">&#xE409;</span></button>
                     </div>
                 </div>
                 <div className="divider"></div>
-                <Breaks date={this.state.date} />
+                <Breaks date={this.state.date} admin={this.state.admin} />
                 <div className="divider"></div>
             </div>
         );

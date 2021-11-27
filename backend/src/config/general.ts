@@ -12,5 +12,6 @@ export const cfg = {
         song: 10,
         author: 10
     },
-    days_in_future: 10
+    days_in_future: 10,
+    playlist_priority: false // should manualy played song be stopped if it's time for playlist song?
 }
