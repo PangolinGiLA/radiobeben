@@ -1,3 +1,5 @@
+import { Time } from "../types/Time";
+
 function setHMS(date: Date, hours: number, minutes: number, seconds: number) {
     date = new Date(date); // idk, just to be sure
     date.setHours(hours);
@@ -47,4 +49,13 @@ function secondsToHMS(seconds: number): string {
     return SQLtime(d);
 }
 
-export {secondsToHMS, jsDatetoSQLDate, getMonday, SQLdate, SQLtime, SQLdatetime, setHMS}
+function my_time_to_Date(time: Time): Date {
+    var new_time = new Date();
+    new_time.setHours(time.hour);
+    new_time.setMinutes(time.minutes);
+    new_time.setSeconds(0);
+    new_time.setMilliseconds(0);
+    return new_time;
+}
+
+export {secondsToHMS, jsDatetoSQLDate, getMonday, SQLdate, SQLtime, SQLdatetime, setHMS, my_time_to_Date};

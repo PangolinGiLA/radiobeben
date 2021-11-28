@@ -11,6 +11,7 @@
       "typescript": "3.3.3333"
    },
    "dependencies": {
+      "@types/serialport": "^8.0.2",
       "bcrypt": "^5.0.1",
       "body-parser": "^1.18.1",
       "express": "^4.15.4",
@@ -20,6 +21,7 @@
       "hasha": "^5.2.2",
       "mysql": "^2.14.1",
       "reflect-metadata": "^0.1.10",
+      "serialport": "^9.2.8",
       "session-file-store": "^1.5.0",
       "typeorm": "0.2.34",
       "yt-search": "^2.9.0",

@@ -433,4 +433,4 @@ function migrate_day(old_breaketimes: Break[], new_breaketimes: Break[], day: Da
     });
 }
 
-export { add_to_playlist, get_playlist, remove_from_playlist, get_schedule, get_presets, add_preset, set_weekday, get_default_schedule }
+export { add_to_playlist, get_playlist, remove_from_playlist, get_schedule, get_presets, add_preset, set_weekday, get_default_schedule, get_day_info }

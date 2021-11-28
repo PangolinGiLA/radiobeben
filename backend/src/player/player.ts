@@ -5,6 +5,7 @@ import { secondsToHMS, SQLdatetime } from "../app/datetime"
 import { cfg } from "../config/general"
 import { Playlist } from "../entity/Playlist"
 import { Song } from "../entity/Song"
+import { Amp, mode } from "./amp"
 
 export default class player {
     ffplay = null
@@ -14,10 +15,27 @@ export default class player {
     counter = undefined
     from_playlist = false
     playlist_id = undefined
+    auto_disable = null;
+
+    amp = null;
 
     constructor() {
         // start watching for songs to play
         setInterval(this.check_for_song, 1000);
+        //this.amp = new Amp();
+        if (cfg.stop_on_break_end) {
+            //this.auto_disable = setInterval(this.check_for_stop, 1000);
+        }
+    }
+
+    check_for_stop = () => {
+        if (!this.amp.is_break()) {
+            this.stop();
+        }
+    }
+
+    public set_amp_mode(mode: mode) {
+        this.amp.change_mode(mode);
     }
 
     public play = (song: Song, from_playlist?: boolean, id?: number) => {
