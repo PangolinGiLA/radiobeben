@@ -130,7 +130,10 @@ export default class Suggestions extends React.Component {
         super(props);
         this.state = {
             suggestions: [],
-            admin: props.admin
+            admin: props.admin,
+            accepted: localStorage.getItem('accepted') === 'true',
+            rejected: localStorage.getItem('rejected') === 'true',
+            waiting: localStorage.getItem('waiting') === 'true',
         };
         this.loading = false;
     }
@@ -145,24 +148,38 @@ export default class Suggestions extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if (prevState.suggestions.length < this.state.suggestions.length) {
+        if (prevState.suggestions !== this.state.suggestions) {
             this.loading = false;
         }
         if (prevProps.admin !== this.props.admin) {
             this.setState({ admin: this.props.admin });
         }
+        if (prevState.accepted !== this.state.accepted || prevState.rejected !== this.state.rejected || prevState.waiting !== this.state.waiting) {
+            this.loadData(true);
+        }
     }
 
-    loadData = () => {
+    loadData = (reload = false) => {
         this.loading = true;
+        let before = this.state.suggestions.length > 0 ? this.state.suggestions[this.state.suggestions.length - 1].id : -1;
+        before = reload ? -1 : before;
         fetch('/api/songs/suggestions?' + new URLSearchParams({
             limit: 2,
-            before: this.state.suggestions.length > 0 ? this.state.suggestions[this.state.suggestions.length - 1].id : -1
+            before: before,
+            accepted: this.state.accepted,
+            rejected: this.state.rejected,
+            waiting: this.state.waiting
         }))
             .then(async r => {
                 if (r.ok) {
-                    let new_suggestions = this.state.suggestions.concat(JSON.parse(await r.text()));
-                    this.setState({ suggestions: new_suggestions });
+                    if (reload) {
+                        let new_suggestions = JSON.parse(await r.text());
+                        this.setState({ suggestions: new_suggestions });
+                    } else {
+                        let new_suggestions = this.state.suggestions.concat(JSON.parse(await r.text()));
+                        this.setState({ suggestions: new_suggestions });
+                    }
+
                 }
             });
     }
@@ -173,6 +190,11 @@ export default class Suggestions extends React.Component {
                 this.loadData();
             }
         }
+    }
+
+    handleCheckboxChange = (e) => {
+        this.setState({ [e.target.name]: e.target.checked });
+        localStorage.setItem(e.target.name, e.target.checked);
     }
 
     render() {
@@ -192,6 +214,12 @@ export default class Suggestions extends React.Component {
         };
         return (
             <div>
+                <input type="checkbox" id="accepted_checkbox" name="accepted" onChange={this.handleCheckboxChange} checked={this.state.accepted}/>
+                <label htmlFor="accepted_checkbox">Zaakceptowane</label>
+                <input type="checkbox" id="rejected_checkbox" name="rejected" onChange={this.handleCheckboxChange} checked={this.state.rejected}/>
+                <label htmlFor="rejected_checkbox">Odrzucone</label>
+                <input type="checkbox" id="waiting_checkbox" name="waiting" onChange={this.handleCheckboxChange} checked={this.state.waiting}/>
+                <label htmlFor="waiting_checkbox">Oczekujace</label>
                 <Suggest done={this.loadData} />
                 <div style={this.scrollstyle} onScroll={this.handleScroll}>
                     {toRender}

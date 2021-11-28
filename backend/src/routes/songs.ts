@@ -20,8 +20,13 @@ router.post("/suggestions", function (req: Request, res: Response) {
 });
 
 router.get("/suggestions", function (req: Request, res: Response) {
-    if (req.query.limit && req.query.before) {
-        get_suggestions(parseInt(req.query.limit as string), parseInt(req.query.before as string)).then(result => {
+    if (req.query.limit && req.query.before && req.query.accepted && req.query.rejected && req.query.waiting) {
+        get_suggestions(parseInt(req.query.limit as string), 
+        parseInt(req.query.before as string), 
+        req.query.accepted as string === "true",
+        req.query.rejected as string === "true",
+        req.query.waiting as string === "true",
+        ).then(result => {
             res.send(result);
         });
     } else {

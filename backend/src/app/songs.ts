@@ -74,8 +74,19 @@ function reject_suggestion(id: number): Promise<string> {
     });
 }
 
-function get_suggestions(limit: number, before: number): Promise<Suggestion[]> {
-    return getRepository(Suggestion).find({where: {id: LessThan(before != -1 ? before : 100000000)}, order: {id: "DESC"}, take: limit});
+function get_suggestions(limit: number, before: number, accepted: boolean, rejected: boolean, waiting: boolean): Promise<Suggestion[]> {
+    let where = [];
+    if (accepted) where.push({status: 1, id: LessThan(before != -1 ? before : 100000000)});
+    if (rejected) where.push({status: -1, id: LessThan(before != -1 ? before : 100000000)});
+    if (waiting) where.push({status: 0, id: LessThan(before != -1 ? before : 100000000)});
+    if (where.length === 0) {
+        // just return promise to empty array
+        return new Promise<Suggestion[]>((resolve) => {
+            resolve([]);
+        });
+    } else {
+        return getRepository(Suggestion).find({where: where, order: {id: "DESC"}, take: limit});
+    }
 }
 
 interface SongUpdate {
