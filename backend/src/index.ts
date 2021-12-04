@@ -1,12 +1,11 @@
 import * as express from "express";
 import * as session from "express-session"
 import { createConnection, getRepository } from "typeorm";
-import { api } from "./app";
+import { api, connection_done } from "./app";
 import { register } from "./app/users";
 import { Schedule } from "./entity/Schedule";
-import { Song } from "./entity/Song";
+import { SettingPersistence } from "./entity/SettingPersistence";
 import { User } from "./entity/User";
-import player from "./player/player";
 
 var FileStore = require('session-file-store')(session);
 
@@ -37,6 +36,13 @@ createConnection()
       // insert admin user
       await register("admin", "admin", 127); // insert admin user with maximum permissions
     }
+    // default persistent settings
+    let settingsTable = getRepository(SettingPersistence);
+    let amp_mode = await settingsTable.findOne({ where: { name: "amp_mode" } });
+    if (!amp_mode) {
+      // insert default persistent settings
+      await settingsTable.insert({ name: "amp_mode", value: 1 });
+    }
     // does schedule table have all week days?
     let scheduleTable = getRepository(Schedule);
     let schedule = await scheduleTable.find();
@@ -56,9 +62,7 @@ createConnection()
         scheduleTable.insert({ weekday: i, isEnabled: false, breaketime: null, visibility: 2 }); // insert missing day
       }
     }
-
-    let x = new player()
-    
+    connection_done();
   });
 
 app.use("/api", api);

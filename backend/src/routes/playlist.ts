@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { login_middleware, permissions, permission_middleware } from "../app/permissions";
 import { add_preset, add_to_playlist, get_default_schedule, get_playlist, get_presets, get_schedule, remove_from_playlist, set_weekday } from "../app/playlist";
 import { Break } from "../types/Time";
+import player from "../player/player";
 
 const router = express.Router();
 
@@ -90,4 +91,23 @@ router.post("/breaktimes", login_middleware, permission_middleware(permissions.s
     }
 });
 
-export { router as playlist }
+let player_instance: player;
+
+function initialize_player() {
+    player_instance = player.Instance;
+}
+
+router.put("/amp", login_middleware, permission_middleware(permissions.amp), async function (req: Request, res: Response) {
+    if (req.body.mode !== undefined) {
+        player_instance.set_amp_mode(req.body.mode);
+        res.sendStatus(200);
+    } else {
+        res.sendStatus(400);
+    }
+});
+
+router.get("/amp", login_middleware, permission_middleware(permissions.amp), async function (req: Request, res: Response) {
+    res.send({mode: player_instance.get_amp_mode()});
+});
+
+export { router as playlist, initialize_player };

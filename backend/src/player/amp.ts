@@ -1,9 +1,10 @@
 import { Break } from "../types/Time";
 import { get_day_info } from "../app/playlist"
 import { my_time_to_Date } from "../app/datetime";
-import { getRepository } from "typeorm";
+import { getConnection, getRepository } from "typeorm";
 import { SettingPersistence } from "../entity/SettingPersistence";
 import SerialPort = require('serialport');
+import { cfg } from "../config/general";
 
 export enum mode {
     ON,
@@ -17,7 +18,7 @@ export class Amp {
     break_getter = null;
     break_checker = null;
     
-    port = new SerialPort('/dev/ttyUSB0', { autoOpen: false });
+    port = new SerialPort(cfg.serial_port, { autoOpen: false });
     enabled = false;
 
     constructor() {
@@ -25,13 +26,13 @@ export class Amp {
         settingsTable.findOne({ name: "amp_mode" }).then(setting => {
             this.change_mode(setting.value, false);
         });
-
+        this.get_curr_breaks();
         // idk how this thing works
         // but i took it from previous system
         // i assume it is needed
         this.port.on('open', function () {
             this.port.write('s');
-        });
+        }.bind(this));
 
         if (!this.port.isOpen) {
             this.port.open(function (err) {
@@ -44,12 +45,11 @@ export class Amp {
     }
 
     setup_intervals() {
-        this.break_getter = setInterval(this.get_curr_breaks.bind(this), 60000);
+        this.break_getter = setInterval(this.get_curr_breaks.bind(this), 5000);
         this.break_checker = setInterval(this.autoamp.bind(this), 1000);
     }
 
     autoamp() {
-        console.log(this.is_break());
         if (this.is_break()) {
             this.port.write('+');
             this.enabled = true;
@@ -61,7 +61,14 @@ export class Amp {
 
     get_curr_breaks = async () => {
         let info = await get_day_info(new Date());
-        this.breaks = info.breaketime.breaketimesJSON;
+        if (info.isEnabled)
+        {
+            if (info.breaketime)
+                this.breaks = info.breaketime.breaketimesJSON;
+        } else {
+            this.breaks = [];
+        }
+
     }
 
     is_break = () => {
@@ -98,7 +105,7 @@ export class Amp {
         }
     }
 
-    get_mode = () => {
+    public get_mode = () => {
         return this.mode;
     }
 }

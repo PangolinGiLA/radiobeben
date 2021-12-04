@@ -9,7 +9,7 @@ import Weekdays from "./components/old/Schedule.jsx";
 import Footer from "./components/Footer.jsx";
 import React from "react";
 import Logout from "./components/old/Logout.jsx";
-
+import Amp from "./components/old/Amp.jsx";
 
 export default class App extends React.Component {
 	constructor(props) {
@@ -67,7 +67,8 @@ export default class App extends React.Component {
 							{this.can(this.permissions.schedule, this.state.permissions) ? <BreaksInput breaktimes={[]} admin={this.state.admin} /> : null }
 							{this.state.permissions ? <Logout logout={this.loggedOut}/> : <LoginPage loggedIn={this.loggedIn} /> }
 							<Suggestions admin={this.can(this.permissions.suggestions, this.state.permissions)} />
-							{this.can(this.permissions.schedule, this.state.permissions) ? <Weekdays admin={this.state.admin} /> : null}
+							{this.can(this.permissions.schedule, this.state.permissions) ? <Weekdays /> : null}
+							{this.can(this.permissions.amp, this.state.permissions) ? <Amp/> : null}
 						</Route>
 						<Route exact path="/old/playlist">
 							<Breakes admin={this.can(this.permissions.playlist, this.state.permissions)}/>

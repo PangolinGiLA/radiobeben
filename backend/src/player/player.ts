@@ -1,6 +1,6 @@
 import { spawn } from "child_process"
 import { join } from "path"
-import { Between, getManager, getRepository } from "typeorm"
+import { Between, getConnection, getManager, getRepository } from "typeorm"
 import { secondsToHMS, SQLdatetime } from "../app/datetime"
 import { cfg } from "../config/general"
 import { Playlist } from "../entity/Playlist"
@@ -8,6 +8,7 @@ import { Song } from "../entity/Song"
 import { Amp, mode } from "./amp"
 
 export default class player {
+    private static _instance: player;
     ffplay = null
     song = undefined
     playing = false
@@ -19,13 +20,18 @@ export default class player {
 
     amp = null;
 
-    constructor() {
+    private constructor() {
         // start watching for songs to play
         setInterval(this.check_for_song, 1000);
-        //this.amp = new Amp();
+        this.amp = new Amp();
         if (cfg.stop_on_break_end) {
-            //this.auto_disable = setInterval(this.check_for_stop, 1000);
+            this.auto_disable = setInterval(this.check_for_stop, 1000);
         }
+    }
+
+    public static get Instance()
+    {
+        return this._instance || (this._instance = new this());
     }
 
     check_for_stop = () => {
@@ -36,6 +42,10 @@ export default class player {
 
     public set_amp_mode(mode: mode) {
         this.amp.change_mode(mode);
+    }
+
+    public get_amp_mode = () => {
+        return this.amp.get_mode();
     }
 
     public play = (song: Song, from_playlist?: boolean, id?: number) => {
@@ -93,25 +103,29 @@ export default class player {
     }
 
     private check_for_song = async () => {
-        let result = await getManager().query(
+        getManager().query(
             `SELECT * FROM playlist 
             JOIN song ON song.id = playlist.songId 
             WHERE ? > estTime AND ? < ADDTIME(estTime, SEC_TO_TIME(duration))`,
             [SQLdatetime(new Date()), SQLdatetime(new Date())]
-        );
-        let data = result[0];
-        if (data) {
-            let to_play = new Song;
-            to_play.id = data.songId;
-            to_play.ytid = data.ytid;
-            to_play.title = data.title;
-            to_play.author = data.author;
-            to_play.duration = data.duration
-            to_play.filename = data.filename;
-            to_play.isPrivate = data.isPrivate;
-            if (!this.playing || (!this.from_playlist && cfg.playlist_priority)) {
-                this.play(to_play, true, data.id);
-            }
-        }
+        ).then(result => {
+            let data = result[0];
+            if (data) {
+                let to_play = new Song;
+                to_play.id = data.songId;
+                to_play.ytid = data.ytid;
+                to_play.title = data.title;
+                to_play.author = data.author;
+                to_play.duration = data.duration
+                to_play.filename = data.filename;
+                to_play.isPrivate = data.isPrivate;
+                if (!this.playing || (!this.from_playlist && cfg.playlist_priority)) {
+                    this.play(to_play, true, data.id);
+                }
+            }  
+        })
+        .catch(error => {
+            //console.log(error);
+        });
     }
 }
