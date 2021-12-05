@@ -72,8 +72,10 @@ export class Amp {
     }
 
     is_break = () => {
+        let now = new Date();
+        now.setSeconds(now.getSeconds() + cfg.time_offset);
         for (let i of this.breaks) {
-            if (my_time_to_Date(i.start) <= new Date() && my_time_to_Date(i.end) >= new Date()) {
+            if (my_time_to_Date(i.start) <= now && my_time_to_Date(i.end) >= now) {
                 return true;
             }
         }

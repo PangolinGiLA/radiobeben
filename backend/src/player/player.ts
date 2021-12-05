@@ -64,7 +64,7 @@ export default class player {
     }
     private start = (song: Song, from_playlist?: boolean, id?: number) => {
         console.log("starting")
-        this.ffplay = spawn("ffplay", ["-nodisp", "-autoexit", join(cfg.song_folder, song.filename)]);
+        this.ffplay = spawn("ffplay", ["-nodisp", "-autoexit", join(cfg.song_folder, song.filename)], {stdio: 'ignore'});
         this.song = song;
         if (from_playlist) {
             this.from_playlist = true;
@@ -74,7 +74,7 @@ export default class player {
             this.playlist_id = undefined;
         }
         this.ffplay.on('spawn', this.song_started);
-        this.ffplay.on('close', this.handleClose);
+        //this.ffplay.on('close', this.handleClose);
         this.ffplay.on('exit', this.handleClose);
     }
 
@@ -106,11 +106,13 @@ export default class player {
     }
 
     private check_for_song = async () => {
+        let temp_date = new Date();
+        temp_date.setSeconds(temp_date.getSeconds() + cfg.time_offset);
         getManager().query(
             `SELECT * FROM playlist 
             JOIN song ON song.id = playlist.songId 
             WHERE ? > estTime AND ? < ADDTIME(estTime, SEC_TO_TIME(duration))`,
-            [SQLdatetime(new Date()), SQLdatetime(new Date())]
+            [SQLdatetime(temp_date), SQLdatetime(temp_date)]
         ).then(result => {
             let data = result[0];
             if (data) {

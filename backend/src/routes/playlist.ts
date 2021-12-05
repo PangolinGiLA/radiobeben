@@ -4,6 +4,8 @@ import { login_middleware, permissions, permission_middleware } from "../app/per
 import { add_preset, add_to_playlist, get_default_schedule, get_playlist, get_presets, get_schedule, remove_from_playlist, set_weekday } from "../app/playlist";
 import { Break } from "../types/Time";
 import player from "../player/player";
+import { getRepository } from "typeorm";
+import { Song } from "../entity/Song";
 
 const router = express.Router();
 
@@ -116,6 +118,22 @@ router.get("/amp", login_middleware, permission_middleware(permissions.amp), asy
 
 router.get("/playing", function (req: Request, res: Response) {
     res.send({playing: player_instance.playing, what: player_instance.song, progress: player_instance.song_progress});
+}); 
+
+router.put("/play", login_middleware, permission_middleware(permissions.playlist), async function (req: Request, res: Response) {
+    if (req.body.id) {
+        console.log(req.body.id);
+        let song = await getRepository(Song).findOne(req.body.id);
+        if (song) {
+            console.log(song);
+            player_instance.play(song, false);
+            res.sendStatus(200);
+        } else {
+            res.sendStatus(400);
+        }
+    } else {
+        res.sendStatus(400);
+    }
 });
 
 export { router as playlist, initialize_player };
