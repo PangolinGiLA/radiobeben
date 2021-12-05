@@ -18,6 +18,9 @@ export class Suggestion {
     @Column()
     duration: number;
 
+    @Column()
+    views: number;
+
     @Column({default: 0})
     status: number;
 }

@@ -1,7 +1,7 @@
 import * as express from "express";
 import { Request, Response } from "express";
 import { login_middleware, permissions, permission_middleware } from "../app/permissions";
-import { accept_suggestion, add_suggestion, get_songs, get_suggestions, reject_suggestion } from "../app/songs";
+import { accept_suggestion, add_suggestion, get_authors, get_songs, get_suggestions, reject_suggestion } from "../app/songs";
 
 const router = express.Router();
 
@@ -69,6 +69,18 @@ router.get("/library", async function (req: Request, res: Response) {
         get_songs(req.session.userid, parseInt(req.query.limit as string), parseInt(req.query.before as string), like).then(result => {
             res.send(result);
         });
+    } else {
+        res.sendStatus(400);
+    }
+});
+
+router.get("/authors", login_middleware, permission_middleware(permissions.library), async function (req: Request, res: Response) {
+    if (req.query.limit && req.query.before) {
+        let like = "%";
+        if (req.query.like) {
+            like = req.query.like as string;
+        }
+        res.send(await get_authors(parseInt(req.query.before as string), parseInt(req.query.like as string), like));
     } else {
         res.sendStatus(400);
     }

@@ -4,6 +4,7 @@ import * as yts from "yt-search"
 import { Song } from "../entity/Song";
 import { SongManager } from "../player/songs";
 import { can, permissions } from "./permissions";
+import { Author } from "../entity/Author";
 
 var songManager = new SongManager;
 
@@ -16,7 +17,7 @@ function add_suggestion(ytid: string): Promise<string> {
             } else {
                 yts({ videoId: ytid })
                     .then(async song => {
-                        await suggesionTable.insert({ ytid: ytid, name: song.title, author: song.author.name, duration: song.seconds });
+                        await suggesionTable.insert({ ytid: ytid, name: song.title, author: song.author.name, duration: song.seconds, views: song.views });
                         resolve("done");
                     })
                     .catch(err => {
@@ -27,17 +28,43 @@ function add_suggestion(ytid: string): Promise<string> {
     });
 }
 
-function accept_suggestion(id: number, name?: string, author?: string): Promise<string> {
+function find_add_author(author: string|number): Promise<Author> {
+    return new Promise<Author>(async (resolve, reject) => {
+        let authorTable = getRepository(Author);
+        let new_author = new Author;
+        if (typeof author === "number") {
+            new_author = await authorTable.findOne(author);
+            if (author) {
+                resolve(new_author);
+            } else {
+                reject("no such author");
+            }
+        } else if(typeof author === "string") {
+            new_author.displayName = author;
+            await authorTable.save(new_author);
+            resolve(new_author);
+        } else {
+            reject("invalid author");
+        }
+    });
+}
+
+function accept_suggestion(id: number, name?: string, author?: string|number): Promise<string> {
     return new Promise<string>(async (resolve, reject) => {
         let suggesionTable = getRepository(Suggestion);
         let to_accept = await suggesionTable.findOne(id);
         if (to_accept) {
             if (to_accept.status == 0) {
-                songManager.DownloadQueue(to_accept.ytid).then(new_name => {
+                songManager.DownloadQueue(to_accept.ytid).then(async new_name => {
                     let songTable = getRepository(Song);
                     let song = new Song;
                     song.title = (name) ? name : to_accept.name;
-                    song.author = (author) ? author : to_accept.author;
+                    try  {
+                        song.author = await find_add_author(author);
+                    }
+                    catch (err) {
+                        reject(err);
+                    }
                     song.duration = to_accept.duration;
                     song.filename = new_name;
                     song.ytid = to_accept.ytid;
@@ -90,16 +117,23 @@ function get_suggestions(limit: number, before: number, accepted: boolean, rejec
 }
 
 interface SongUpdate {
-    author?: string,
+    author?: Author,
     name?: string,
     isPrivate?: boolean
 }
 
-function update_song(id: number, author?: string, name?: string, isPrivate?: boolean): Promise<string> {
+function update_song(id: number, author?: string|number, name?: string, isPrivate?: boolean): Promise<string> {
     return new Promise<string>(async (resolve, reject) => {
         let song: SongUpdate;
         if (author)
-            song.author = author;
+        {
+            try {
+                song.author = await find_add_author(author);
+            }
+            catch (err) {
+                reject(err);
+            }
+        }
         if (name)
             song.name = name;
         if (isPrivate)
@@ -131,4 +165,11 @@ function get_songs(userid: number, limit: number, before: number, like: string):
     })
 }
 
-export { add_suggestion, get_suggestions, accept_suggestion, reject_suggestion, get_songs }
+function get_authors(limit: number, before: number, like: string): Promise<Author[]> {
+    return new Promise<Author[]> (async (resolve) => {
+        let authorTable = getRepository(Author);
+        resolve(await authorTable.find({where: [{displayName: Like(`%${like}%`)}], skip: before, take: limit}));
+    })
+}
+
+export { add_suggestion, get_suggestions, accept_suggestion, reject_suggestion, get_songs, get_authors }

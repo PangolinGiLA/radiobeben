@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import { Author } from "./Author";
 
 @Entity()
 export class Song {
@@ -14,8 +15,8 @@ export class Song {
     @Column()
     title: string;
 
-    @Column()
-    author: string;
+    @ManyToOne(() => Author, {eager: true})
+    author: Author;
 
     @Column()
     filename: string;

@@ -6,6 +6,19 @@ const Footer = () => {
 	let [animate, setAnimate] = useState("paused");
 	let title = useRef(null);
 
+	let get_song = async () => {
+		const r = await fetch("/api/playlist/playling");
+		const data = await r.json();
+		console.log(data);
+		// data.playing
+		// data.progress
+		// data.what.title
+		// and more
+		// just call this function from time to time
+		// to get the current song
+		// and update the progress bar as you wish
+		}
+
 	// if not enough space to fit text it will float from right to left (check in dev tools with mobile view)
 	// listen to current song change as well once it's implemented
 	useEffect(() => {

@@ -18,7 +18,7 @@ class PlaylistSong extends React.Component {
     render() {
         return (<div className="songpanel">
             <div>{this.props.title}</div>
-            <div>{this.props.author}</div>
+            <div>{this.props.author.displayName}</div>
             <div>{this.props.start} - {this.props.end}</div>
             {this.state.admin ? <button onClick={this.delete_me}>x</button> : null}
         </div>);

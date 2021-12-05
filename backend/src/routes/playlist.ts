@@ -22,8 +22,12 @@ router.get("/playlist", async function (req: Request, res: Response) {
 
 router.post("/playlist", async function (req: Request, res: Response) {
     if (req.body.date && (req.body.breaknumber !== undefined) && req.body.songid) {
-        await add_to_playlist(new Date(req.body.date), req.body.breaknumber, req.body.songid, req.session.userid);
-        res.sendStatus(200);
+        try {
+            await add_to_playlist(new Date(req.body.date), req.body.breaknumber, req.body.songid, req.session.userid);
+            res.sendStatus(200);
+        } catch (e) {
+            res.status(402).send({error:e});
+        }
     }
     else
         res.sendStatus(400);
@@ -108,6 +112,10 @@ router.put("/amp", login_middleware, permission_middleware(permissions.amp), asy
 
 router.get("/amp", login_middleware, permission_middleware(permissions.amp), async function (req: Request, res: Response) {
     res.send({mode: player_instance.get_amp_mode()});
+});
+
+router.get("/playing", function (req: Request, res: Response) {
+    res.send({playing: player_instance.playing, what: player_instance.song, progress: player_instance.song_progress});
 });
 
 export { router as playlist, initialize_player };

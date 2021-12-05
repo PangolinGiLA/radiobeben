@@ -4,7 +4,7 @@ class SongPickable extends React.Component {
     render() {
         return (
             <div onClick={this.addToPlaylist}>
-                {this.props.title} {this.props.author}
+                {this.props.title} {this.props.author.displayName}
             </div>
         )
     }

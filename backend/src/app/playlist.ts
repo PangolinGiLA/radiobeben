@@ -111,7 +111,7 @@ function add_to_playlist(day: Date, breaknumber: number, songid: number, userid?
                     if (cfg.daily_limit.author !== null) {
                         let authors = await playlistTable.createQueryBuilder("playlist")
                             .leftJoinAndSelect('playlist.song', 'song')
-                            .where("song.author = :author", { author: song.author })
+                            .where("song.authorId = :author", { author: song.author.id })
                             .andWhere("playlist.day = :day", { day: that_day.id })
                             .execute();
                         if (authors.length >= cfg.daily_limit.author) {
@@ -144,7 +144,7 @@ function add_to_playlist(day: Date, breaknumber: number, songid: number, userid?
                 let authors_week = await playlistTable.createQueryBuilder("playlist")
                     .leftJoinAndSelect('playlist.song', 'song')
                     .leftJoinAndSelect('playlist.day', 'day')
-                    .where("song.author = :author", { author: song.author })
+                    .where("song.authorId = :author", { author: song.author.id })
                     .andWhere("day.date >= :monday", { monday: jsDatetoSQLDate(monday) })
                     .andWhere("day.date < :n_monday", { n_monday: jsDatetoSQLDate(next_monday) })
                     .execute();
@@ -182,7 +182,7 @@ function add_to_playlist(day: Date, breaknumber: number, songid: number, userid?
                 let authors_month = await playlistTable.createQueryBuilder("playlist")
                     .leftJoinAndSelect('playlist.song', 'song')
                     .leftJoinAndSelect('playlist.day', 'day')
-                    .where("song.author = :author", { author: song.author })
+                    .where("song.authorId = :author", { author: song.author.id })
                     .andWhere("day.date >= :month", { month: jsDatetoSQLDate(month_start) })
                     .andWhere("day.date < :n_month", { n_month: jsDatetoSQLDate(next_month_start) })
                     .execute();

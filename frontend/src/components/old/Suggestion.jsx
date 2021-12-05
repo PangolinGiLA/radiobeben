@@ -20,7 +20,7 @@ class Suggestion extends React.Component {
     }
 
     ytid_to_link(ytid) {
-        return "youtu.be/" + ytid;
+    return "https://youtu.be/" + ytid;
     }
 
     reject = async () => {
@@ -56,14 +56,15 @@ class Suggestion extends React.Component {
     render() {
         return (
             <div className={
-                (this.state.status === 1) ? 'accepted-bg' : ((this.state.status === -1) ? 'rejected-bg' : 'neutral-bg')
+                (this.state.status === 1) ? 'accepted-bg suggestionpanel' : ((this.state.status === -1) ? 'rejected-bg suggestionpanel' : 'neutral-bg suggestionpanel')
             }>
-                {this.props.name}
-                <br />
-                {this.props.author}
-                <br />
-                <a href={this.ytid_to_link(this.props.ytid)}>Link</a>
-                <br />
+                <div>
+                    <a href={this.ytid_to_link(this.props.ytid)}>{this.props.name}</a>
+                </div>
+                <div>
+                    {this.props.author}
+                </div>
+                <div>wyświetlenia: {this.props.views}</div>
                 {this.state.admin ? <button onClick={this.reject}>odrzuć</button>: null}
                 {this.state.admin ? <button onClick={this.accept}>akceptuj</button> : null}
                 {this.state.admin ? this.state.toAccept :null}
@@ -138,11 +139,6 @@ export default class Suggestions extends React.Component {
         this.loading = false;
     }
 
-    scrollstyle = {
-        height: "150px",
-        overflowY: "scroll"
-    }
-
     componentDidMount() {
         this.loadData();
     }
@@ -164,7 +160,7 @@ export default class Suggestions extends React.Component {
         let before = this.state.suggestions.length > 0 ? this.state.suggestions[this.state.suggestions.length - 1].id : -1;
         before = reload ? -1 : before;
         fetch('/api/songs/suggestions?' + new URLSearchParams({
-            limit: 2,
+            limit: 20,
             before: before,
             accepted: this.state.accepted,
             rejected: this.state.rejected,
@@ -207,6 +203,7 @@ export default class Suggestions extends React.Component {
                 name={i.name}
                 author={i.author}
                 status={i.status}
+                views={i.views}
                 refresh={this.loadData}
                 admin = {this.state.admin}
             />);
@@ -221,7 +218,7 @@ export default class Suggestions extends React.Component {
                 <input type="checkbox" id="waiting_checkbox" name="waiting" onChange={this.handleCheckboxChange} checked={this.state.waiting}/>
                 <label htmlFor="waiting_checkbox">Oczekujace</label>
                 <Suggest done={this.loadData} />
-                <div style={this.scrollstyle} onScroll={this.handleScroll}>
+                <div className="allsuggestionspanel" onScroll={this.handleScroll}>
                     {toRender}
                 </div>
             </div>
@@ -257,7 +254,7 @@ class Suggest extends React.Component {
                             body: JSON.stringify(data)
                         });
                         if (r.ok) {
-                            this.props.done();
+                            this.props.done(true);
                         } else {
                             console.log(await r.text());
                         }
@@ -273,4 +270,8 @@ class Suggest extends React.Component {
             </div>
         );
     }
+}
+
+class AuthorDropdown extends React.Component {
+
 }

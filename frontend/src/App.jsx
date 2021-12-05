@@ -66,12 +66,14 @@ export default class App extends React.Component {
 						<Route exact path="/old">
 							{this.can(this.permissions.schedule, this.state.permissions) ? <BreaksInput breaktimes={[]} admin={this.state.admin} /> : null }
 							{this.state.permissions ? <Logout logout={this.loggedOut}/> : <LoginPage loggedIn={this.loggedIn} /> }
-							<Suggestions admin={this.can(this.permissions.suggestions, this.state.permissions)} />
 							{this.can(this.permissions.schedule, this.state.permissions) ? <Weekdays /> : null}
 							{this.can(this.permissions.amp, this.state.permissions) ? <Amp/> : null}
 						</Route>
-						<Route exact path="/old/playlist">
+						<Route exact path="/playlist">
 							<Breakes admin={this.can(this.permissions.playlist, this.state.permissions)}/>
+						</Route>
+						<Route exact path="/suggestions">
+							<Suggestions admin={this.can(this.permissions.suggestions, this.state.permissions)} />
 						</Route>
 					</Switch>
 					<Footer />

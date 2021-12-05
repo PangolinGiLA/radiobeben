@@ -23,9 +23,9 @@ export default class player {
     private constructor() {
         // start watching for songs to play
         setInterval(this.check_for_song, 1000);
-        this.amp = new Amp();
+       // this.amp = new Amp();
         if (cfg.stop_on_break_end) {
-            this.auto_disable = setInterval(this.check_for_stop, 1000);
+           // this.auto_disable = setInterval(this.check_for_stop, 1000);
         }
     }
 
@@ -45,7 +45,8 @@ export default class player {
     }
 
     public get_amp_mode = () => {
-        return this.amp.get_mode();
+        return 0;
+        //        return this.amp.get_mode();
     }
 
     public play = (song: Song, from_playlist?: boolean, id?: number) => {
@@ -74,6 +75,7 @@ export default class player {
         }
         this.ffplay.on('spawn', this.song_started);
         this.ffplay.on('close', this.handleClose);
+        this.ffplay.on('exit', this.handleClose);
     }
 
     public stop = () => {
@@ -83,6 +85,7 @@ export default class player {
     }
 
     private handleClose = () => {
+        console.log("closed")
         this.from_playlist = false;
         this.playlist_id = undefined;
         clearInterval(this.counter);
