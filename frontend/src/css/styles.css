@@ -9,6 +9,8 @@
 	--light-shadow-main: #BDBDBD;
 	--light-shadow-secondary: #A0A8B0;
 	--light-font-main: #3F3844;
+	--accepted: #e0eee6;
+	--rejected: #ebe1e0;
 }
 
 /* base styles */
@@ -240,4 +242,12 @@ body {
 	background-color: var(--light-bg-secondary);
 	max-width: 760px;
 	margin-bottom: 10px;
+}
+
+.accepted-bg {
+	background-color: var(--accepted);
+}
+
+.rejected-bg {
+	background-color: var(--rejected);
 }

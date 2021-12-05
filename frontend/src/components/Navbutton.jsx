@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const Navbutton = (props) => {
 
 	const doAlert = () => {
@@ -5,7 +7,7 @@ const Navbutton = (props) => {
 	}
 
 	return (
-		<button className="navbutton" onClick={doAlert}>{props.content}</button>
+		<Link to={props.to} className="navbutton">{props.content}</Link>
 	);
 }
  

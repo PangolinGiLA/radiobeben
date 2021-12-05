@@ -33,6 +33,7 @@ class Suggestion extends React.Component {
         });
         if (r.ok) {
             this.setState({ status: -1 });
+            this.props.refresh(true);
         } else {
             console.log(await r.text());
         }
@@ -51,6 +52,7 @@ class Suggestion extends React.Component {
 
     whenAccepted = async () => {
         this.setState({ status: 1, toAccept: null });
+        this.props.refresh(true);
     }
 
     render() {
@@ -64,7 +66,7 @@ class Suggestion extends React.Component {
                 <div>
                     {this.props.author}
                 </div>
-                <div>wyświetlenia: {this.props.views}</div>
+                <div>{this.props.views.toLocaleString("en-US")} wyświetleń</div>
                 {this.state.admin ? <button onClick={this.reject}>odrzuć</button>: null}
                 {this.state.admin ? <button onClick={this.accept}>akceptuj</button> : null}
                 {this.state.admin ? this.state.toAccept :null}

@@ -79,8 +79,8 @@ class Break extends React.Component {
                         id={i.id}
                         title={i.song.title}
                         author={i.song.author}
-                        start={start_date.toISOString()}
-                        end={end_date.toISOString()}
+                        start={this.formated_time(start_date)}
+                        end={this.formated_time(end_date)}
                         key={j}
                         done={this.props.done}
                     />
@@ -92,11 +92,11 @@ class Break extends React.Component {
         return (
             <div className="breakpanel">
                 <div className="breakinfo">
-                    <div className="timestamp"> {this.props.start.hour}:{this.props.start.minutes} </div>
+                    <div className="timestamp"> {String(this.props.start.hour).padStart(2, "0")}:{String(this.props.start.minutes).padStart(2, "0")} </div>
                     <div className="breakbutton" onClick={this.showAdding}><span className="material-icons-round" style={{ fontSize: "16px" }}>&#xE145;</span></div>
                 </div>
                 {toRender}
-                <div className="timestamp"> {this.props.end.hour}:{this.props.end.minutes} </div>
+                <div className="timestamp"> {String(this.props.end.hour).padStart(2, "0")}:{String(this.props.end.minutes).padStart(2, "0")} </div>
                 {this.state.adding ?
                     <LibraryPickable
                         date={this.props.date}
@@ -113,6 +113,13 @@ class Break extends React.Component {
 
     showAdding = () => {
         this.setState({ adding: true }); // show library
+    }
+
+    formated_time = (date) => {
+        let h = String(date.getHours()).padStart(2, "0");
+        let m = String(date.getMinutes()).padStart(2, "0");
+        let s = String(date.getSeconds()).padStart(2, "0");
+        return `${h}:${m}:${s}`;
     }
 }
 
