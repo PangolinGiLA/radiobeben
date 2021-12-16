@@ -3,8 +3,18 @@ import React from 'react'
 class SongPickable extends React.Component {
     render() {
         return (
-            <div onClick={this.addToPlaylist}>
-                {this.props.title} {this.props.author.displayName}
+            <div onClick={this.addToPlaylist} className='songpanel'>
+                <div>
+                {this.props.title}
+                <div className='floatright'>
+                {String(Math.floor(this.props.duration/60))}:{String(this.props.duration%60).padStart(2, '0')}
+                </div>
+                </div>
+                <div>
+                {this.props.author.displayName}
+                </div>
+                
+                 
             </div>
         )
     }
@@ -39,7 +49,6 @@ export default class LibraryPickable extends React.Component {
     }
 
     scrollstyle = {
-        height: "10px",
         overflowY: "scroll"
     }
 
@@ -61,7 +70,7 @@ export default class LibraryPickable extends React.Component {
         else
             new_songs = this.state.songs;
         fetch('/api/songs/library?' + new URLSearchParams({
-            limit: 2,
+            limit: 20,
             before: new_songs.length,
             like: this.searchText
         }))
@@ -98,13 +107,15 @@ export default class LibraryPickable extends React.Component {
                 breaknumber={this.props.breaknumber}
                 date={this.props.date}
                 done={this.props.done}
+                duration={i.duration}
                 key={i.id}
             />)
         }
 
         return (
-            <div>
-                <input type="text" name="searchbox" id="library_search" onChange={this.handleTextChange} />
+            <div className='popup'>
+                <div className='popup-header'>Szukaj <button onClick={this.props.close} className="navbutton"><span className="material-icons-round">close</span></button></div> 
+                <input class="textbox" type="text" name="searchbox" id="library_search" onChange={this.handleTextChange} />
                 <div style={this.scrollstyle} onScroll={this.handleScroll}>{toRender}</div>
             </div>
         )

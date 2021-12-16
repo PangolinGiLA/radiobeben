@@ -64,6 +64,10 @@ class Break extends React.Component {
         }
     }
 
+    close = () => {
+        this.setState({ adding: false });
+    }
+
     render() {
         let toRender = [];
         // is playlist fetched from server?
@@ -99,6 +103,7 @@ class Break extends React.Component {
                 <div className="timestamp"> {String(this.props.end.hour).padStart(2, "0")}:{String(this.props.end.minutes).padStart(2, "0")} </div>
                 {this.state.adding ?
                     <LibraryPickable
+                        close={this.close}
                         date={this.props.date}
                         breaknumber={this.props.breaknumber}
                         done={this.addingDone}
