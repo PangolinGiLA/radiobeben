@@ -433,4 +433,35 @@ function migrate_day(old_breaketimes: Break[], new_breaketimes: Break[], day: Da
     });
 }
 
-export { add_to_playlist, get_playlist, remove_from_playlist, get_schedule, get_presets, add_preset, set_weekday, get_default_schedule, get_day_info }
+function reset_day_schedule(day: Days): Promise<string> {
+    return new Promise<string>(async resolve => {
+        let scheduleTable = getRepository(Schedule);
+        let schedule = await scheduleTable.findOne({ weekday: new Date(day.date).getDay() }, { relations: ["breaketime"] });
+        await migrate_day(day.breaketime.breaketimesJSON, schedule.breaketime.breaketimesJSON, day);
+        resolve("done");
+    });
+}
+
+function set_day_schedule(date: string, breaketimeid: number, isEnabled: boolean, visibility: number): Promise<string> {
+    return new Promise<string>(async resolve => {
+        let breaketimeTable = getRepository(Breaketimes);
+        let breaketime = await breaketimeTable.findOne(breaketimeid);
+        get_day(date).then(async day => {
+            day.isEnabled = isEnabled;
+            day.visibility = visibility;
+            await migrate_day(day.breaketime.breaketimesJSON, breaketime.breaketimesJSON, day);
+            resolve("done");
+        })
+        .catch(async () => {
+            create_day(new Date(date)).then(async day => {
+                day.isEnabled = isEnabled;
+                day.visibility = visibility;
+                day.breaketime = breaketime;
+                await getManager().save(day);
+                resolve("done");
+            })
+        });
+    });
+}
+
+export { add_to_playlist, get_playlist, remove_from_playlist, get_schedule, get_presets, add_preset, set_weekday, get_default_schedule, get_day_info, reset_day_schedule, set_day_schedule };

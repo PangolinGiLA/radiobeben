@@ -1,7 +1,7 @@
 import * as express from "express";
 import { Request, Response } from "express";
 import { login_middleware, permissions, permission_middleware } from "../app/permissions";
-import { add_preset, add_to_playlist, get_default_schedule, get_playlist, get_presets, get_schedule, remove_from_playlist, set_weekday } from "../app/playlist";
+import { add_preset, add_to_playlist, get_default_schedule, get_playlist, get_presets, get_schedule, remove_from_playlist, reset_day_schedule, set_day_schedule, set_weekday } from "../app/playlist";
 import { Break } from "../types/Time";
 import player from "../player/player";
 import { getRepository } from "typeorm";
@@ -131,6 +131,29 @@ router.put("/play", login_middleware, permission_middleware(permissions.playlist
         } else {
             res.sendStatus(400);
         }
+    } else {
+        res.sendStatus(400);
+    }
+});
+
+router.get("/stop", login_middleware, permission_middleware(permissions.playlist), async function (req: Request, res: Response) {
+    player_instance.stop();
+    res.sendStatus(200);
+});
+
+router.delete("/day", login_middleware, permission_middleware(permissions.schedule), async function (req: Request, res: Response) {
+    if (req.body.day) {
+        await reset_day_schedule(req.body.day);
+        res.sendStatus(200);
+    } else {
+        res.sendStatus(400);
+    }
+});
+
+router.put("/day", login_middleware, permission_middleware(permissions.schedule), async function (req: Request, res: Response) {
+    if (req.body.day && req.body.breaktimeid && req.body.visibility && req.body.isEnabled) {
+        await set_day_schedule(req.body.day, req.body.breaktimeid, req.body.isEnabled, req.body.visibility);
+        res.sendStatus(200);
     } else {
         res.sendStatus(400);
     }

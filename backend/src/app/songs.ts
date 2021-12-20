@@ -172,4 +172,4 @@ function get_authors(limit: number, before: number, like: string): Promise<Autho
     })
 }
 
-export { add_suggestion, get_suggestions, accept_suggestion, reject_suggestion, get_songs, get_authors }
+export { add_suggestion, get_suggestions, accept_suggestion, reject_suggestion, get_songs, get_authors, delete_song }

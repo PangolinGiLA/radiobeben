@@ -17,7 +17,14 @@ const Footer = () => {
 		// just call this function from time to time
 		// to get the current song
 		// and update the progress bar as you wish
+	}
+
+	let stop = async () => {
+		const r = await fetch("/api/playlist/stop");
+		if (r.ok) {
+			//ok
 		}
+	}
 
 	// if not enough space to fit text it will float from right to left (check in dev tools with mobile view)
 	// listen to current song change as well once it's implemented

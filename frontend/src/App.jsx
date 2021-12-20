@@ -10,6 +10,7 @@ import Footer from "./components/Footer.jsx";
 import React from "react";
 import Logout from "./components/old/Logout.jsx";
 import Amp from "./components/old/Amp.jsx";
+import Library from "./components/old/Library.jsx";
 
 export default class App extends React.Component {
 	constructor(props) {
@@ -87,6 +88,7 @@ export default class App extends React.Component {
 						<Route exact path="/suggestions">
 							<Suggestions admin={this.can(this.permissions.suggestions, this.state.permissions)} />
 						</Route>
+						{this.can(this.permissions.library, this.state.permissions) ? <Route exact path="/library"> <Library/></Route> : null}
 					</Switch>
 					<Footer />
 				</div>

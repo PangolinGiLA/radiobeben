@@ -1,12 +1,43 @@
 import React from 'react'
 
 class Song extends React.Component {
+    delete = () => {
+        fetch('/api/songs/song', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                id: this.props.id
+            })
+        })
+            .then(async r => {
+                if (r.ok) {
+                    this.props.refresh(true);
+                }
+            })
+    }
+
+	play = () => {
+		fetch("/api/playlist/play", {
+			method: "PUT",
+			headers: {
+                'Content-Type': 'application/json'
+            },
+			body: JSON.stringify({
+				id: this.props.id
+			})});
+	}
+    
     render() {
-        return (
-            <div>
-               <a href="">{this.props.title}</a> {this.props.author} <button>usuń</button> <button>play</button>
-            </div>
-        )
+        if (this.props.ytid !== undefined)
+        {
+            let link = "https://www.youtube.com/watch?v=" + this.props.ytid;
+            var songjsx = <div><a href={link}>{this.props.title}</a> {this.props.author} <button onClick={this.delete}>usuń</button> <button onClick={this.play}>play</button></div>
+        } else {
+            var songjsx = <div>{this.props.title} {this.props.author} <button onClick={this.delete}>usuń</button> <button onClick={this.play}>play</button> </div>
+        }
+        return songjsx;
     }
 
 }
@@ -22,7 +53,7 @@ export default class Library extends React.Component {
     }
 
     scrollstyle = {
-        height: "10px",
+        height: "200px",
         overflowY: "scroll"
     }
 
@@ -44,7 +75,7 @@ export default class Library extends React.Component {
         else
             new_songs = this.state.songs;
         fetch('/api/songs/library?' + new URLSearchParams({
-            limit: 2,
+            limit: 20,
             before: new_songs.length,
             like: this.searchText
         }))
@@ -74,13 +105,12 @@ export default class Library extends React.Component {
     render() {
         let toRender = []
         for (let i of this.state.songs) {
-            toRender.push(<SongPickable
+            toRender.push(<Song
                 title={i.title}
-                author={i.author}
+                author={i.author.displayName}
+                ytid={i.ytid}
                 id={i.id}
-                breaknumber={this.props.breaknumber}
-                date={this.props.date}
-                done={this.props.done}
+                refresh={this.props.loadData}
                 key={i.id}
             />)
         }

@@ -1,7 +1,7 @@
 import * as express from "express";
 import { Request, Response } from "express";
 import { login_middleware, permissions, permission_middleware } from "../app/permissions";
-import { accept_suggestion, add_suggestion, get_authors, get_songs, get_suggestions, reject_suggestion } from "../app/songs";
+import { accept_suggestion, add_suggestion, delete_song, get_authors, get_songs, get_suggestions, reject_suggestion } from "../app/songs";
 
 const router = express.Router();
 
@@ -81,6 +81,15 @@ router.get("/authors", login_middleware, permission_middleware(permissions.libra
             like = req.query.like as string;
         }
         res.send(await get_authors(parseInt(req.query.before as string), parseInt(req.query.like as string), like));
+    } else {
+        res.sendStatus(400);
+    }
+});
+
+router.delete("/song", login_middleware, permission_middleware(permissions.library), async function (req: Request, res: Response) {
+    if (req.body.id) {
+        await delete_song(req.body.id);
+        res.sendStatus(200);
     } else {
         res.sendStatus(400);
     }
