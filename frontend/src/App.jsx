@@ -70,7 +70,7 @@ export default class App extends React.Component {
 		return (
 			<Router>
 				<div className="App">
-					<Navbar />
+					<Navbar admin={this.can(this.permissions.library, this.state.permissions)}/>
 					<Switch>
 						<Route exact path="/">
 							<Playlist />
@@ -90,7 +90,7 @@ export default class App extends React.Component {
 						</Route>
 						{this.can(this.permissions.library, this.state.permissions) ? <Route exact path="/library"> <Library/></Route> : null}
 					</Switch>
-					<Footer />
+					<Footer admin={this.can(this.permissions.library, this.state.permissions)}/>
 				</div>
 			</Router>
 		);

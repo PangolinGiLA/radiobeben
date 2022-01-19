@@ -17,10 +17,12 @@ class PlaylistSong extends React.Component {
 
     render() {
         return (<div className="songpanel">
-            <div>{this.props.title}</div>
+            <div className='breakinfo'>
+            <div className="songtitle">{this.props.title}</div>
+            {this.state.admin ? <div className="removebutton" onClick={this.delete_me}><span className="material-icons-round" style={{ fontSize: "16px" }}>close</span></div> : null}
+            </div>
             <div>{this.props.author.displayName}</div>
             <div>{this.props.start} - {this.props.end}</div>
-            {this.state.admin ? <button onClick={this.delete_me}>x</button> : null}
         </div>);
         /*
             idk how to make jsx comments
@@ -96,7 +98,7 @@ class Break extends React.Component {
                     <div className="breakbutton" onClick={this.showAdding}><span className="material-icons-round" style={{ fontSize: "16px" }}>&#xE145;</span></div>
                 </div>
                 {toRender}
-                <div className="timestamp"> {String(this.props.end.hour).padStart(2, "0")}:{String(this.props.end.minutes).padStart(2, "0")} </div>
+                <div className="timestampbot"> {String(this.props.end.hour).padStart(2, "0")}:{String(this.props.end.minutes).padStart(2, "0")} </div>
             </div>);
     }
 

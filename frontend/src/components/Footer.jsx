@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import "../css/styles.css";
 
-const Footer = () => {
+const Footer = (props) => {
 
 	let [speed, setSpeed] = useState("10s");
 	let [animation, setAnimation] = useState(0);
@@ -43,11 +43,11 @@ const Footer = () => {
 			if (floating.current.offsetWidth > footerWidth) {
 				const root = document.querySelector(':root');
 				root.style.setProperty("--tx", offscreenWidth.toString() + "px");
-				setSpeed( Math.abs(offscreenWidth/DefaultSpeed).toString() + "s" ); // const floating speed
+				setSpeed(Math.abs(offscreenWidth / DefaultSpeed).toString() + "s"); // const floating speed
 
 				floating.current.style.animation = null;
 				void floating.current.offsetWidth; // hack to reset animation
-	
+
 				if (animation === 0) {
 					floating.current.style.animation = `move ${speed} linear 1s normal 1 running forwards`;
 					floating.current.onanimationend = () => setAnimation(animation === 1 ? 0 : 1);
@@ -64,7 +64,7 @@ const Footer = () => {
 				floating.current.style.animation = `move ${speed} linear 1s normal 1 paused forwards`;
 			}
 		}
-	
+
 		const updateTitle = async () => {
 			let data = await get_song(); // fetch
 			let newTitle = data.playing ? data.what.title : DefaultSongName;
@@ -97,15 +97,20 @@ const Footer = () => {
 	});
 
 	return (
-		<div style={{height: "50px"}}>
-			<nav className="footer" style={{justifyContent: "none"}} ref={footer}>
+		<div style={{ height: "50px" }}>
+			<nav className="footer" style={{ justifyContent: "none" }} ref={footer}>
+				{props.admin ? <div className="navcontainer">
+					<button onClick={stop} className="controlbutton material-icons-round">library_add</button>
+					<button onClick={stop} className="controlbutton material-icons-round">pause</button>
+				</div> : null}
+
 				<div className="cover" ref={cover}><div className="title">Teraz gra:</div></div>
 				<div className="floatingtitle" ref={floating}>
-					<span ref={title} style={{textAlign: "left"}} >{ /* title will be here */ }</span>
+					<span ref={title} style={{ textAlign: "left" }} >{ /* title will be here */}</span>
 				</div>
-			</nav>	
+			</nav>
 		</div>
 	);
 }
- 
+
 export default Footer;

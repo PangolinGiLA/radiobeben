@@ -163,13 +163,13 @@ function get_suggestions(limit: number, before: number, accepted: boolean, rejec
     if (rejected) where.push({ status: -1, id: LessThan(before != -1 ? before : 100000000) });
     if (waiting) where.push({ status: 0, id: LessThan(before != -1 ? before : 100000000) });
     if (where.length === 0) {
-        // just return promise to empty array
-        return new Promise<Suggestion[]>((resolve) => {
-            resolve([]);
-        });
-    } else {
-        return getRepository(Suggestion).find({ where: where, order: { id: "DESC" }, take: limit });
+        // show all
+        where.push({ status: 1, id: LessThan(before != -1 ? before : 100000000) });
+        where.push({ status: -1, id: LessThan(before != -1 ? before : 100000000) });
+        where.push({ status: 0, id: LessThan(before != -1 ? before : 100000000) });
     }
+    
+    return getRepository(Suggestion).find({ where: where, order: { id: "DESC" }, take: limit });
 }
 
 interface SongUpdate {

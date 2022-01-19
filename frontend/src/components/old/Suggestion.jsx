@@ -20,7 +20,7 @@ class Suggestion extends React.Component {
     }
 
     ytid_to_link(ytid) {
-    return "https://youtu.be/" + ytid;
+        return "https://youtu.be/" + ytid;
     }
 
     reject = async () => {
@@ -67,9 +67,9 @@ class Suggestion extends React.Component {
                     {this.props.author}
                 </div>
                 <div>{this.props.views.toLocaleString("en-US")} wyświetleń</div>
-                {this.state.admin ? <button onClick={this.reject}>odrzuć</button>: null}
+                {this.state.admin ? <button onClick={this.reject}>odrzuć</button> : null}
                 {this.state.admin ? <button onClick={this.accept}>akceptuj</button> : null}
-                {this.state.admin ? this.state.toAccept :null}
+                {this.state.admin ? this.state.toAccept : null}
             </div>
         );
     }
@@ -207,22 +207,44 @@ export default class Suggestions extends React.Component {
                 status={i.status}
                 views={i.views}
                 refresh={this.loadData}
-                admin = {this.state.admin}
+                admin={this.state.admin}
             />);
 
         };
         return (
             <div>
-                <input type="checkbox" id="accepted_checkbox" name="accepted" onChange={this.handleCheckboxChange} checked={this.state.accepted}/>
-                <label htmlFor="accepted_checkbox">Zaakceptowane</label>
-                <input type="checkbox" id="rejected_checkbox" name="rejected" onChange={this.handleCheckboxChange} checked={this.state.rejected}/>
-                <label htmlFor="rejected_checkbox">Odrzucone</label>
-                <input type="checkbox" id="waiting_checkbox" name="waiting" onChange={this.handleCheckboxChange} checked={this.state.waiting}/>
-                <label htmlFor="waiting_checkbox">Oczekujace</label>
-                <Suggest done={this.loadData} />
-                <div className="allsuggestionspanel" onScroll={this.handleScroll}>
-                    {toRender}
+                <div className="content">
+                    <div className="filters">
+                        <div>   
+                            <label className="filter" htmlFor="waiting_checkbox">Oczekujace
+                            <input type="checkbox" id="waiting_checkbox" name="waiting" onChange={this.handleCheckboxChange} checked={this.state.waiting} />
+                            <span className="newcheckbox"></span>
+                            </label>
+                            
+                        </div>
+                        <div>
+                            <label className="filter" htmlFor="accepted_checkbox"> Zaakceptowane
+                            <input type="checkbox" id="accepted_checkbox" name="accepted" onChange={this.handleCheckboxChange} checked={this.state.accepted} />
+                            <span className="newcheckbox"></span>
+                            
+                            </label>
+                        </div>
+                        <div>
+                            <label className="filter" htmlFor="rejected_checkbox"> Odrzucone
+                            <input type="checkbox" id="rejected_checkbox" name="rejected" onChange={this.handleCheckboxChange} checked={this.state.rejected} />
+                            <span className="newcheckbox"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div className="filters">
+                        <Suggest done={this.loadData} />
+                    </div>
+                    <div className="divider"></div>
+                    <div className="allsuggestionspanel" onScroll={this.handleScroll}>
+                        {toRender}
+                    </div>
                 </div>
+
             </div>
         )
     }
@@ -264,9 +286,11 @@ class Suggest extends React.Component {
                     }}
                 >
                     <Form>
-                        <Field type="text" name="ytlink"></Field>
-                        <ErrorMessage name="ytlink" component="span" className="error" />
-                        <button type="submit">Sugeruj</button>
+                        <div className="suggestbox">
+                            <Field className="textbox" type="text" name="ytlink"></Field>
+                            <button type="submit">Sugeruj</button>
+                        </div>
+                        <ErrorMessage className="errormsg" name="ytlink" component="span" />
                     </Form>
                 </Formik>
             </div>

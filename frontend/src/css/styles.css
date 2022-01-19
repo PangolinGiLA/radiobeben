@@ -56,6 +56,7 @@ body {
 .footer {
 	display: flex;
 	align-items: center;
+	justify-content: space-between;
 	height: 50px;
 	background-color: var(--light-bg-secondary);
 	box-shadow: 0px  0px 8px var(--light-shadow-secondary);
@@ -93,6 +94,24 @@ body {
 	width: 36px;
 	margin: 6px 10px;
 	margin-left: 0px;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+.controlbutton {
+	cursor: pointer;
+	display: flex;
+	justify-self: flex-end;
+	justify-content: center;
+	align-items: center;
+	background-color: var(--light-bg-secondary);
+	border: none;
+	border-radius: 3px;
+	box-shadow: inset 0px  0px 4px var(--light-shadow-main);
+	height: 36px;
+	width: 36px;
+	margin: 6px 10px;
+	margin-right: 0px;
 	font-weight: bold;
 	text-decoration: none;
 }
@@ -140,9 +159,29 @@ body {
 	max-width: 800px;
 }
 
+.filters {
+	margin: 10px auto;
+	font-size: 20px;
+	display: flex;
+	justify-content: space-between;
+	max-width: 800px;
+}
+
 .timestamp {
 	text-align: left;
 	padding-left: 4px;
+	margin: 0px;
+}
+
+.timestampbot {
+	text-align: left;
+	padding-left: 4px;
+	padding-top: 5px;
+	margin: 0px;
+}
+
+.songtitle {
+	text-align: left;
 	margin: 0px;
 }
 
@@ -195,6 +234,21 @@ body {
 	box-shadow: inset 0px  0px 4px var(--light-shadow-main);
 	height: 24px;
 	width: 24px;
+	margin: 0px;
+	font-weight: bold;
+}
+
+.removebutton {
+	display: flex;
+	justify-self: flex-end;
+	justify-content: center;
+	align-items: center;
+	background-color: var(--light-bg-main);
+	border: none;
+	border-radius: 3px;
+	box-shadow: inset 0px  0px 4px var(--light-shadow-main);
+	height: 20px;
+	width: 20px;
 	margin: 0px;
 	font-weight: bold;
 }
@@ -307,4 +361,88 @@ body {
 
 .floatright {
 	float: right;
+}
+
+.filter {
+	display: block;
+	position: relative;
+	padding-left: 26px;
+	margin-bottom: 12px;
+	margin-top: 30px;
+	cursor: pointer;
+	font-size: 18px;
+}
+
+.filter input {
+	position: absolute;
+	opacity: 0;
+	cursor: pointer;
+	height: 0;
+	width: 0;
+}
+
+.newcheckbox {
+	position: absolute;
+	top: 2px;
+	left: 0;
+	height: 20px;
+	width: 20px;
+	background-color: var(--light-bg-secondary);
+	border-radius: 5px;
+}
+
+.filter:hover input ~ .newcheckbox {
+	background-color: var(--light-bg-hover);
+}
+
+.filter input:checked ~ .newcheckbox {
+	background-color: var(--light-font-main);
+}
+
+.newcheckbox:after {
+	content: "";
+	position: absolute;
+	display: none;
+}
+
+.filter input:checked ~ .newcheckbox:after {
+	display: block;
+}
+
+.filter .newcheckbox:after {
+	left: 7px;
+	top: 2px;
+	width: 3px;
+	height: 10px;
+	border: solid white;
+	border-width: 0 3px 3px 0;
+	-webkit-transform: rotate(45deg);
+	-ms-transform: rotate(45deg);
+	transform: rotate(45deg);
+}
+
+.suggestbox {
+	display: flex;
+}
+
+.suggestbox .textbox {
+	width: 600px;
+	height: 40px;
+	font-size: 18px;
+}
+
+.suggestbox button {
+	width: 100px;
+	margin-left: 8px;
+	box-sizing: border-box;
+	background-color: var(--light-bg-secondary);
+	box-shadow: inset 0px  0px 4px var(--light-shadow-main);
+	border: none;
+	border-radius: 5px;
+	padding: 2px 6px;
+}
+
+.errormsg {
+	text-align: center;
+	font-size: 18px
 }
