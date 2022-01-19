@@ -187,7 +187,7 @@ class Breaks extends React.Component {
         }
 
         return (
-            <div style={{ padding: "0px 10px" }} >
+            <div style={{ padding: "0px 10px",  position: "relative" }} >
                 {this.state.popup ? <LibraryPickable
                 close={this.closePopup}
                 date={this.props.date}
