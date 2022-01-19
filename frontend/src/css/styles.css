@@ -94,6 +94,7 @@ body {
 	margin: 6px 10px;
 	margin-left: 0px;
 	font-weight: bold;
+	text-decoration: none;
 }
 
 /* fixes hover for mobile */
@@ -204,24 +205,29 @@ body {
 }
 
 .floatingtitle {
-	margin: 0;
 	text-align: left;
 	white-space: nowrap;
 	flex-grow: 2;
 	margin: 0px 10px;
-	position: relative;
+	position: sticky;
 }
 
 @keyframes move {
+
 	0% {
 		transform: translateX(0%);
 	}
-	10% {
-		transform: translateX(0%);
-	}
+
 	100% {
-		transform: translateX(-102%);
-  }
+		transform: translateX(var(--tx));
+  	}
+}
+
+@keyframes wait {
+
+	0%, 100% {
+		transform: translateX(var(--tx));
+	}
 }
 
 .suggestionpanel {
@@ -252,18 +258,28 @@ body {
 	background-color: var(--rejected);
 }
 
+.popupwrapper {
+	position: absolute;
+    box-sizing: border-box;
+	display: flex;
+	justify-content: center;
+	top: 136px;
+}
+
 .popup {
-	padding: 10px;
+	width: 90%;
+	max-width: 600px;
+	height: 400px;
+	display: flex;
+	justify-content: space-between;
+	z-index: 1;
+	background-color: black;
 	box-shadow: inset 0px  0px 4px var(--light-shadow-main);
 	border-radius: 5px;
-	background-color: var(--light-bg-secondary);
-	margin-top: 10px;
-  	position: fixed;
-	background-color: var(--light-bg-secondary);
-	height: 70%;
-  	top: 12%;
-  	z-index: 9;
-	width: 40%;
+}
+
+.popup-header {
+	display: flex;
 }
 
 .textbox {
