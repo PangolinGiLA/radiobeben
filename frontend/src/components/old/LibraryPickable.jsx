@@ -121,6 +121,7 @@ export default class LibraryPickable extends React.Component {
                 <input className="textbox" type="text" name="searchbox" id="library_search" onChange={this.handleTextChange} />
                 <div className="divider" style={{width: "100%"}}></div>
                 <div className="songselect" style={this.scrollstyle} onScroll={this.handleScroll}>{toRender}</div>
+                <div className="divider" style={{width: "100%", border: "none"}}></div>
             </div>
         )
     }

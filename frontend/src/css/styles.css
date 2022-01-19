@@ -300,6 +300,8 @@ body {
 
 .songselect {
 	overflow-y: scroll;
+	box-sizing: border-box;
+	padding-right: 5px;
 	width: 100%;
 }
 
