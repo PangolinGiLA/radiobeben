@@ -64,10 +64,6 @@ class Break extends React.Component {
         }
     }
 
-    close = () => {
-        this.setState({ adding: false });
-    }
-
     render() {
         let toRender = [];
         // is playlist fetched from server?
@@ -101,23 +97,11 @@ class Break extends React.Component {
                 </div>
                 {toRender}
                 <div className="timestamp"> {String(this.props.end.hour).padStart(2, "0")}:{String(this.props.end.minutes).padStart(2, "0")} </div>
-                {this.state.adding ?
-                    <LibraryPickable
-                        close={this.close}
-                        date={this.props.date}
-                        breaknumber={this.props.breaknumber}
-                        done={this.addingDone}
-                    /> : null}
             </div>);
     }
 
-    addingDone = (err) => {
-        this.setState({ adding: false }); // hide library
-        this.props.done();
-    }
-
     showAdding = () => {
-        this.setState({ adding: true }); // show library
+        this.props.openPopup(this.props.breaknumber)
     }
 
     formated_time = (date) => {
@@ -134,7 +118,9 @@ class Breaks extends React.Component {
         this.state = {
             breaks: [],
             songs: [],
-            admin: props.admin
+            admin: props.admin,
+            popup: false,
+            popup_break: 0,
         }
     }
 
@@ -161,8 +147,16 @@ class Breaks extends React.Component {
                     date: this.props.date
                 }));
                 if (r_b.ok && r_s.ok)
-                    this.setState({ breaks: JSON.parse(await r_b.text()), songs: JSON.parse(await r_s.text()) })
+                    this.setState({ breaks: JSON.parse(await r_b.text()), songs: JSON.parse(await r_s.text()), popup: false });
             });
+    }
+
+    openPopup = (break_numer) => {
+        this.setState({ popup: true, popup_break: break_numer });
+    }
+
+    closePopup = () => {
+        this.setState({ popup: false });
     }
 
     render() {
@@ -187,12 +181,21 @@ class Breaks extends React.Component {
                     date={this.props.date}
                     key={i}
                     done={this.loadData}
+                    openPopup={this.openPopup}
                 />)
             }
         }
 
         return (
-            <div style={{ padding: "0px 10px" }} >{toRender} </div>
+            <div style={{ padding: "0px 10px" }} >
+                {this.state.popup ? <LibraryPickable
+                close={this.closePopup}
+                date={this.props.date}
+                breaknumber={this.state.popup_break}
+                done={this.loadData}
+                /> : null}
+                {toRender} 
+            </div>
         );
     }
 }
