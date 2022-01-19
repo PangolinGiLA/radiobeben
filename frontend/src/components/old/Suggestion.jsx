@@ -60,16 +60,18 @@ class Suggestion extends React.Component {
             <div className={
                 (this.state.status === 1) ? 'accepted-bg suggestionpanel' : ((this.state.status === -1) ? 'rejected-bg suggestionpanel' : 'neutral-bg suggestionpanel')
             }>
-                <div>
-                    <a href={this.ytid_to_link(this.props.ytid)}>{this.props.name}</a>
+                <div className="suggsongtitle">
+                    <a className="suggsongtitle" href={this.ytid_to_link(this.props.ytid)}>{this.props.name}</a>
                 </div>
                 <div>
                     {this.props.author}
                 </div>
                 <div>{this.props.views.toLocaleString("en-US")} wyświetleń</div>
-                {this.state.admin ? <button onClick={this.reject}>odrzuć</button> : null}
-                {this.state.admin ? <button onClick={this.accept}>akceptuj</button> : null}
-                {this.state.admin ? this.state.toAccept : null}
+                <div className="navcontainer">
+                {this.state.admin ? <button className="navbutton" onClick={this.accept}><span className="material-icons-round">done</span></button> : null}
+                {this.state.admin ? <button className="navbutton" onClick={this.reject}><span className="material-icons-round">close</span></button> : null}
+                </div>
+               {this.state.admin ? this.state.toAccept : null}
             </div>
         );
     }

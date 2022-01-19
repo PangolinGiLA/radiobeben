@@ -17,12 +17,15 @@ class PlaylistSong extends React.Component {
 
     render() {
         return (<div className="songpanel">
-            <div className='breakinfo'>
+            <div className="songtime">{this.props.end}</div>
+
             <div className="songtitle">{this.props.title}</div>
-            {this.state.admin ? <div className="removebutton" onClick={this.delete_me}><span className="material-icons-round" style={{ fontSize: "16px" }}>close</span></div> : null}
+
+            <div className='breakinfo'>
+                <div className='songauthor'>{this.props.author.displayName}</div>
+                {this.state.admin ? <div className="removebutton" onClick={this.delete_me}><span className="material-icons-round" style={{ fontSize: "16px" }}>close</span></div> : null}
             </div>
-            <div>{this.props.author.displayName}</div>
-            <div>{this.props.start} - {this.props.end}</div>
+
         </div>);
         /*
             idk how to make jsx comments
@@ -189,14 +192,14 @@ class Breaks extends React.Component {
         }
 
         return (
-            <div style={{ padding: "0px 10px",  position: "relative" }} >
+            <div style={{ padding: "0px 10px", position: "relative" }} >
                 {this.state.popup ? <LibraryPickable
-                close={this.closePopup}
-                date={this.props.date}
-                breaknumber={this.state.popup_break}
-                done={this.loadData}
+                    close={this.closePopup}
+                    date={this.props.date}
+                    breaknumber={this.state.popup_break}
+                    done={this.loadData}
                 /> : null}
-                {toRender} 
+                {toRender}
             </div>
         );
     }

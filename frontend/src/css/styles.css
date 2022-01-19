@@ -181,8 +181,29 @@ body {
 }
 
 .songtitle {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	text-align: left;
+	font-weight: 450;
+	padding-bottom: 8px;
+	margin: 0px;
+}
+
+.songauthor {
 	text-align: left;
 	margin: 0px;
+}
+
+.suggsongtitle {
+	font-size: 18px;
+	padding-bottom: 6px;
+	text-decoration: none;
+	text-align: left;
+	padding-right: 40px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .breakpanel {
@@ -432,6 +453,7 @@ body {
 }
 
 .suggestbox button {
+	font-size: 16px;
 	width: 100px;
 	margin-left: 8px;
 	box-sizing: border-box;
@@ -445,4 +467,11 @@ body {
 .errormsg {
 	text-align: center;
 	font-size: 18px
+}
+
+.songtime {
+	padding-left: 50px;
+	float: right;
+	font-size: 16px;
+	color: #82798b;
 }
