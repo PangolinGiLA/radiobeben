@@ -516,6 +516,12 @@ body {
 	padding: 2px 6px;
 	height: 32px;
 }
+
+.nicebutton:hover {
+	background-color: var(--light-bg-hover);
+	cursor: pointer;
+}
+
 .authorselect {
 	overflow-y: scroll;
 	box-sizing: border-box;

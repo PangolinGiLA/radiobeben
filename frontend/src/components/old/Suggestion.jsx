@@ -319,12 +319,13 @@ class AuthorPickable extends React.Component {
     }
 }
 
-class AuthorsPickable extends React.Component {
+export class AuthorsPickable extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             authors: [],
-            selected: this.props.author
+            selected: this.props.author,
+            inputText: this.props.author
         }
         this.loading = false;
         this.searchText = "";
@@ -371,16 +372,16 @@ class AuthorsPickable extends React.Component {
     handleTextChange = (e) => {
         if (e.target.value !== this.searchText) {
             this.searchText = e.target.value;
+            this.setState({ inputText: e.target.value });
             this.loadData(true);
         }
     }
 
     done = (selected) => {
-        this.setState({ selected: selected });
+        this.setState({ inputText: selected, selected: selected });
     }
 
     searching_start = () => {
-        this.searchText = this.state.selected;
         this.setState({ selected: "" });
         this.loadData(true);
     }
@@ -399,9 +400,7 @@ class AuthorsPickable extends React.Component {
 
         return (
             <div>
-                {this.state.selected === "" ?
-                    <input className="textbox2" type="text" name="author" id="library_search_active" autoComplete="off" onChange={this.handleTextChange} /> :
-                    <input className="textbox2" type="text" name="author" id="library_search" value={this.state.selected} onChange={this.doNothing} onFocus={this.searching_start} />}
+                    <input className="textbox2" placeholder="Autor" type="text" name="author" id="library_search_active" autoComplete="off" value={this.state.inputText} onChange={this.handleTextChange}  onFocus={this.searching_start} /> 
                 {this.state.selected === "" ?
                     <div className="authorselect" style={this.scrollstyle} onScroll={this.handleScroll}>{toRender}</div> : null}
             </div>

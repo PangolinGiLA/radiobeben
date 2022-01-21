@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import "../css/styles.css";
 
 const Footer = (props) => {
@@ -106,7 +107,7 @@ const Footer = (props) => {
 		<div style={{ height: "50px" }}>
 			<nav className="footer" style={{ justifyContent: "none" }} ref={footer}>
 				{props.admin ? <div className="navcontainer">
-					<button onClick={stop} className="controlbutton material-icons-round">library_add</button>
+					<Link to="/addsong" className="controlbutton material-icons-round">library_add</Link>
 					<button onClick={stop} className="controlbutton material-icons-round">pause</button>
 				</div> : null}
 

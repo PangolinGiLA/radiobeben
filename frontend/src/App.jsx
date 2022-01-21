@@ -11,6 +11,7 @@ import React from "react";
 import Logout from "./components/old/Logout.jsx";
 import Amp from "./components/old/Amp.jsx";
 import Library from "./components/old/Library.jsx";
+import AddSong from "./components/old/AddSong.jsx";
 
 export default class App extends React.Component {
 	constructor(props) {
@@ -101,6 +102,7 @@ export default class App extends React.Component {
 							<Suggestions sendNotification={this.showNotification} admin={this.can(this.permissions.suggestions, this.state.permissions)} />
 						</Route>
 						{this.can(this.permissions.library, this.state.permissions) ? <Route exact path="/library"> <Library/></Route> : null}
+						{this.can(this.permissions.library, this.state.permissions) ? <Route exact path="/addsong"> <AddSong sendNotification={this.showNotification}/></Route> : null}
 					</Switch>
 					<Footer admin={this.can(this.permissions.library, this.state.permissions)}/>
 				</div>

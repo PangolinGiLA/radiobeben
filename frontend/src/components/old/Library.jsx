@@ -30,12 +30,13 @@ class Song extends React.Component {
 	}
     
     render() {
+        var songjsx
         if (this.props.ytid !== undefined)
         {
             let link = "https://www.youtube.com/watch?v=" + this.props.ytid;
-            var songjsx = <div><a href={link}>{this.props.title}</a> {this.props.author} <button onClick={this.delete}>usuń</button> <button onClick={this.play}>play</button></div>
+            songjsx = <div><a href={link}>{this.props.title}</a> {this.props.author} <button onClick={this.delete}>usuń</button> <button onClick={this.play}>play</button></div>
         } else {
-            var songjsx = <div>{this.props.title} {this.props.author} <button onClick={this.delete}>usuń</button> <button onClick={this.play}>play</button> </div>
+            songjsx = <div>{this.props.title} {this.props.author} <button onClick={this.delete}>usuń</button> <button onClick={this.play}>play</button> </div>
         }
         return songjsx;
     }
