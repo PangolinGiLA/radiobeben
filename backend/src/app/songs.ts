@@ -89,9 +89,14 @@ function find_add_author(author: string | number): Promise<Author> {
                 reject("Nie ma takiego autora");
             }
         } else if (typeof author === "string") {
-            new_author.displayName = author;
-            await authorTable.save(new_author);
-            resolve(new_author);
+            let possible_author = await authorTable.findOne({ displayName: author });
+            if (possible_author) {
+                resolve(possible_author);
+            } else {
+                new_author.displayName = author;
+                await authorTable.save(new_author);
+                resolve(new_author);
+            }
         } else {
             reject("Niepoprawny autor");
         }
@@ -213,9 +218,9 @@ function get_songs(userid: number, limit: number, before: number, like: string):
     return new Promise<Song[]>(async (resolve) => {
         let songTable = getRepository(Song);
         if (userid && await can(userid, permissions.library)) {
-            resolve(await songTable.find({ where: [{ author: Like(`%${like}%`) }, { title: Like(`%${like}%`) }], skip: before, take: limit }));
+            resolve(await songTable.find({ where: [{ author: {displayName: Like(`%${like}%`)} }, { title: Like(`%${like}%`) }], skip: before, take: limit , relations: ["author"] }));
         } else {
-            resolve(await songTable.find({ where: [{ isPrivate: false, author: Like(`%${like}%`) }, { isPrivate: false, title: Like(`%${like}%`) }], skip: before, take: limit }));
+            resolve(await songTable.find({ where: [{ isPrivate: false, author: {displayName: Like(`%${like}%`) }}, { isPrivate: false, title: Like(`%${like}%`) }], skip: before, take: limit, relations: ["author"] }));
         }
     })
 }

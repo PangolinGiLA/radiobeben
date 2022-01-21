@@ -3,18 +3,18 @@ import "../css/styles.css";
 
 const Footer = (props) => {
 
-	let [speed, setSpeed] = useState("10s");
-	let [animation, setAnimation] = useState(0);
-
-	let footer = useRef(null);
-	let title = useRef(null);
-	let floating = useRef(null);
-	let cover = useRef(null);
-	let isMount = useRef(true);
-
 	const DefaultUpdateInterval = 5e3; // footer update interval - 5 sec
 	const DefaultSongName = "nic";
 	const DefaultSpeed = 40; // px per sec
+
+	let [speed, setSpeed] = useState("10s");
+	let [animation, setAnimation] = useState(0);
+	let [title, setTitle] = useState(DefaultSongName);
+
+	let footer = useRef(null);
+	let floating = useRef(null);
+	let cover = useRef(null);
+	let isMount = useRef(true);
 
 	let get_song = async () => {
 		const r = await fetch("/api/playlist/playing");
@@ -73,8 +73,9 @@ const Footer = (props) => {
 		const updateTitle = async () => {
 			let data = await get_song(); // fetch
 			let newTitle = data.playing ? data.what.title : DefaultSongName;
-			if (title.current.innerHTML !== newTitle) {
-				title.current.innerHTML = newTitle;
+			if (title !== newTitle) {
+				setTitle(newTitle);
+				title = newTitle;
 				restartAnimation();
 			}
 		}
@@ -111,7 +112,7 @@ const Footer = (props) => {
 
 				<div className="cover" ref={cover}><div className="title">Teraz gra:</div></div>
 				<div className="floatingtitle" ref={floating}>
-					<span ref={title} style={{ textAlign: "left" }} >{ /* title will be here */}</span>
+					<span style={{ textAlign: "left" }} >{title}</span>
 				</div>
 			</nav>
 		</div>

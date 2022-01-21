@@ -94,7 +94,7 @@ router.get("/authors", login_middleware, permission_middleware(permissions.libra
         if (req.query.like) {
             like = req.query.like as string;
         }
-        res.send(await get_authors(parseInt(req.query.before as string), parseInt(req.query.like as string), like));
+        res.send(await get_authors(parseInt(req.query.limit as string), parseInt(req.query.before as string), like));
     } else {
         res.sendStatus(400);
     }
