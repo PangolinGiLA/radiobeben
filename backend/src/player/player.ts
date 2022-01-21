@@ -85,7 +85,6 @@ export default class player {
     }
 
     private handleClose = () => {
-        console.log("closed")
         this.from_playlist = false;
         this.playlist_id = undefined;
         clearInterval(this.counter);
@@ -95,12 +94,10 @@ export default class player {
     }
 
     private increase_progress = () => {
-        console.log(this.song_progress);
         this.song_progress += 1;
     }
 
     private song_started = () => {
-        console.log("spawned")
         this.counter = setInterval(this.increase_progress, 1000);
         this.playing = true;
     }

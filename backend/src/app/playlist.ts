@@ -42,7 +42,8 @@ function add_to_playlist(day: Date, breaknumber: number, songid: number, userid?
         let songTable = getRepository(Song);
         let song = await songTable.findOne(songid);
         if (!song) {
-            reject("no such song");
+            // no such song
+            reject("Nie ma takiej piosenki!");
             return;
         }
 
@@ -51,13 +52,13 @@ function add_to_playlist(day: Date, breaknumber: number, songid: number, userid?
         // first 
         // is date in future
         if (jsDatetoSQLDate(day) < jsDatetoSQLDate(new Date())) {
-            reject("invalid time");
+            reject("Nie możesz dodawać piosenek w przeszłości!");
             return;
         }
 
         // break exists
         if (breaknumber >= schedule.length) {
-            reject("break does not exist");
+            reject("Przerwa nie istnieje!");
             return;
         }
 
@@ -85,7 +86,7 @@ function add_to_playlist(day: Date, breaknumber: number, songid: number, userid?
                     let break_end = setHMS(day, schedule[breaknumber].end.hour, schedule[breaknumber].end.minutes, 0);
                     // if last song ends later than break, break is full
                     if (song_end.getTime() >= break_end.getTime()) {
-                        reject("break is full");
+                        reject("Przerwa jest pełna!");
                         if_return = true;
                         return;
                     }
@@ -102,7 +103,7 @@ function add_to_playlist(day: Date, breaknumber: number, songid: number, userid?
                     // song
                     if (cfg.daily_limit.song !== null) {
                         if (await playlistTable.count({ day: that_day, song: song }) >= cfg.daily_limit.song) {
-                            reject("daily song limit exceeded");
+                            reject("Przekroczono dzienny limit piosenki!");
                             if_return = true;
                             return;
                         }
@@ -115,7 +116,7 @@ function add_to_playlist(day: Date, breaknumber: number, songid: number, userid?
                             .andWhere("playlist.day = :day", { day: that_day.id })
                             .execute();
                         if (authors.length >= cfg.daily_limit.author) {
-                            reject("daily author limit exceeded");
+                            reject("Przekroczono dzienny limit autora!");
                             if_return = true;
                             return;
                         }
@@ -150,7 +151,7 @@ function add_to_playlist(day: Date, breaknumber: number, songid: number, userid?
                     .execute();
                 // and compare
                 if (authors_week.length >= cfg.weekly_limit.author) {
-                    reject("weekly author limit exceeded");
+                    reject("Przekroczono tydodniowy limit autora!");
                     return;
                 }
             }
@@ -169,7 +170,7 @@ function add_to_playlist(day: Date, breaknumber: number, songid: number, userid?
                     .execute();
                 // and compare
                 if (songs_week.length >= cfg.weekly_limit.song) {
-                    reject("weekly song limit exceeded");
+                    reject("Przekroczono tydodniowy limit piosenki!");
                     return;
                 }
             }
@@ -188,7 +189,7 @@ function add_to_playlist(day: Date, breaknumber: number, songid: number, userid?
                     .execute();
 
                 if (authors_month.length >= cfg.monthly_limit.author) {
-                    reject("monthly author limit exceeded");
+                    reject("Przekroczono miesięczny limit autora!");
                     return;
                 }
             }
@@ -205,31 +206,31 @@ function add_to_playlist(day: Date, breaknumber: number, songid: number, userid?
                     .execute();
                 // and compare
                 if (songs_month.length >= cfg.monthly_limit.song) {
-                    reject("monthly song limit exceeded");
+                    reject("Przekroczono miesięczny limit piosenki!");
                     return;
                 }
             }
             // is day private
             let day_info = await get_day_info(day);
             if (day_info.visibility < 2) {
-                reject("not permitted");
+                reject("Nie możesz dodać piosenki do prywatnego dnia!");
                 return;
             }
             // is date not too far in future
             if (((song_end.getTime() - Date.now()) / (1000 * 60 * 60 * 24)) > cfg.days_in_future) {
-                reject("adding to far in the future")
+                reject("Dzień jest za daleko w przyszłości!");
                 return;
             }
             // is song with that id private
             if (song.isPrivate) {
-                reject("song is private!");
+                reject("Piosenka jest prywatna!");
                 return;
             }
         }
 
         // check for hard limit of future days
         if (((song_end.getTime() - Date.now()) / (1000 * 60 * 60 * 24)) > 1000) {
-            reject("adding to far in the future")
+            reject("Dzień jest za daleko w przyszłości!");
             return;
         }
 
@@ -265,7 +266,7 @@ function remove_from_playlist(playlistid: number): Promise<string> {
             await fix_break_after_remove(toRemove);
             resolve("done");
         } else {
-            reject("no such playlist entry");
+            reject("Nie ma takiej piosenki w playliście!");
         }
     });
 }
@@ -297,7 +298,7 @@ function get_schedule(day: Date, userid?: number): Promise<Break[]> {
                 else
                     resolve([]);
             } else {
-                reject("day is private");
+                reject("Dzień jest prywatny!");
             }
         } else {
             if (info.isEnabled)

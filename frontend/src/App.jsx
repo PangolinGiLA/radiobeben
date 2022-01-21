@@ -16,10 +16,12 @@ export default class App extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			permissions: 0
+			permissions: 0,
+			notification: ""
 		}
 	}
-
+	timeout = undefined;
+	
 	componentDidMount() {
 		this.get_permissions();
 	}
@@ -66,11 +68,21 @@ export default class App extends React.Component {
 			})});
 	}
 
+	showNotification = (message, time) => {
+		if (this.timeout) {
+			clearTimeout(this.timeout);
+		}
+		this.setState({notification: message});
+		this.timeout =  setTimeout(() => {
+			this.setState({notification: ""});
+		}, time);
+	}
+
 	render() {
 		return (
 			<Router>
 				<div className="App">
-					<Navbar admin={this.can(this.permissions.library, this.state.permissions)}/>
+					<Navbar notification={this.state.notification} admin={this.can(this.permissions.library, this.state.permissions)}/>
 					<Switch>
 						<Route exact path="/">
 							<Playlist />
@@ -83,10 +95,10 @@ export default class App extends React.Component {
 							<button onClick={this.playTest}>Play Test</button>
 						</Route>
 						<Route exact path="/playlist">
-							<Breakes admin={this.can(this.permissions.playlist, this.state.permissions)}/>
+							<Breakes sendNotification={this.showNotification} admin={this.can(this.permissions.playlist, this.state.permissions)}/>
 						</Route>
 						<Route exact path="/suggestions">
-							<Suggestions admin={this.can(this.permissions.suggestions, this.state.permissions)} />
+							<Suggestions sendNotification={this.showNotification} admin={this.can(this.permissions.suggestions, this.state.permissions)} />
 						</Route>
 						{this.can(this.permissions.library, this.state.permissions) ? <Route exact path="/library"> <Library/></Route> : null}
 					</Switch>

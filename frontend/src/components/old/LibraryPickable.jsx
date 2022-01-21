@@ -33,7 +33,13 @@ class SongPickable extends React.Component {
             body: JSON.stringify(data)
         })
             .then(async r => {
-                this.props.done(await r.text()); // use callback to close the window
+                var response = await r.text();
+                if (!r.ok) {
+                    this.props.sendNotification(JSON.parse(response).error, 8000);
+                } else {
+                    this.props.sendNotification("Pomyślnie dodano piosenkę do playlisty!", 8000);
+                }
+                this.props.done(response); // use callback to close the window
             });
     }
 }
@@ -109,6 +115,7 @@ export default class LibraryPickable extends React.Component {
                 done={this.props.done}
                 duration={i.duration}
                 key={i.id}
+                sendNotification={this.props.sendNotification}
             />)
         }
 

@@ -18,8 +18,13 @@ const Footer = (props) => {
 
 	let get_song = async () => {
 		const r = await fetch("/api/playlist/playing");
-		const data = await r.json();
-		return data;
+		if (r.ok) {
+			const data = await r.json();
+			return data;
+		} else {
+			return {playing: false, what: {name: DefaultSongName}};
+		}
+
 	}
 
 	let stop = async () => {

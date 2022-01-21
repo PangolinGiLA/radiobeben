@@ -13,7 +13,7 @@ function add_song(ytid: string, author?: string | number, name?: string, isPriva
         let songTable = getRepository(Song);
         if (await songTable.findOne({ ytid: ytid })) {
             reject(
-                "Song already exists"
+                "Piosenka już jest w bibliotece!"
             );
         } else {
             let song = new Song;
@@ -42,10 +42,10 @@ function add_song(ytid: string, author?: string | number, name?: string, isPriva
                     if (suggestion) {
                         await suggestionTable.update(suggestion.id, { status: 1 });
                     }
-                    resolve("added to download queue");
+                    resolve("Dodano piosenkę!");
                 })
                 .catch(err => {
-                    reject("no song found");
+                    reject("Nie znaleziono piosenki!");
                 });
 
         }
@@ -56,12 +56,12 @@ function add_suggestion(ytid: string): Promise<string> {
     return new Promise<string>(async (resolve, reject) => {
         let songsTable = getRepository(Song);
         if (await songsTable.findOne({ ytid: ytid })) {
-            reject("song already in library");
+            reject("Piosenka już jest w bibliotece!");
         } else {
             let suggesionTable = getRepository(Suggestion);
             suggesionTable.findOne({ ytid: ytid }).then(song => {
                 if (song) {
-                    reject("song already suggested");
+                    reject("Piosenka już jest sugerowana!");
                 } else {
                     yts({ videoId: ytid })
                         .then(async song => {
@@ -86,14 +86,14 @@ function find_add_author(author: string | number): Promise<Author> {
             if (author) {
                 resolve(new_author);
             } else {
-                reject("no such author");
+                reject("Nie ma takiego autora");
             }
         } else if (typeof author === "string") {
             new_author.displayName = author;
             await authorTable.save(new_author);
             resolve(new_author);
         } else {
-            reject("invalid author");
+            reject("Niepoprawny autor");
         }
     });
 }
@@ -105,7 +105,7 @@ function accept_suggestion(id: number, name?: string, author?: string | number):
         if (to_accept) {
             let songsTable = getRepository(Song);
             if (await songsTable.findOne({ ytid: to_accept.ytid })) {
-                reject("song already in library");
+                reject("Piosenka już jest w bibliotece!");
             } else {
                 if (to_accept.status == 0) {
                     songManager.DownloadQueue(to_accept.ytid).then(async new_name => {
@@ -127,13 +127,13 @@ function accept_suggestion(id: number, name?: string, author?: string | number):
                         reject(err);
                     });
                     suggesionTable.update(id, { status: 1 });
-                    resolve("added to download queue");
+                    resolve("Piosenka została dodana!");
                 } else {
-                    reject("suggestion already accepted/rejected");
+                    reject("Sugestia już była rozpatrzona!");
                 }
             }
         } else {
-            reject("no suggestion with that id");
+            reject("Nie ma takiej sugestii!");
         }
 
     });
@@ -145,13 +145,13 @@ function reject_suggestion(id: number): Promise<string> {
         let suggestion = await suggesionTable.findOne(id);
         if (suggestion) {
             if (suggestion.status != 0) {
-                reject("suggestion already accepted/rejected");
+                reject("Sugestia już była rozpatrzona");
             } else {
                 await suggesionTable.update(id, { status: -1 });
                 resolve("done");
             }
         } else {
-            reject("no such suggestion!");
+            reject("Nie ma takiej sugestii!");
         }
 
     });

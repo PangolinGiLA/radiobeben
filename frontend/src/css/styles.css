@@ -334,6 +334,7 @@ body {
 }
 
 .popup {
+	min-height: 600px;
 	display: flex;
 	flex-direction: column;
 	position: absolute;
@@ -474,4 +475,20 @@ body {
 	float: right;
 	font-size: 16px;
 	color: #82798b;
+}
+
+.notification {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 80%;
+	margin-top: 10px;
+	margin-bottom: 10px;	
+	padding: 10px;
+	box-shadow: inset 0px  0px 4px var(--light-shadow-main);
+	border-radius: 5px;
+	background-color: var(--light-bg-secondary);
+	max-width: 760px;
+	margin-left: 10px;
+	margin-right: 10px;
 }

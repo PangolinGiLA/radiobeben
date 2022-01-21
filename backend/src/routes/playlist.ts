@@ -117,15 +117,16 @@ router.get("/amp", login_middleware, permission_middleware(permissions.amp), asy
 });
 
 router.get("/playing", function (req: Request, res: Response) {
-    res.send({playing: player_instance.playing, what: player_instance.song, progress: player_instance.song_progress});
+    if (player_instance)
+        res.send({playing: player_instance.playing, what: player_instance.song, progress: player_instance.song_progress});
+    else
+        res.sendStatus(500);
 }); 
 
 router.put("/play", login_middleware, permission_middleware(permissions.playlist), async function (req: Request, res: Response) {
     if (req.body.id) {
-        console.log(req.body.id);
         let song = await getRepository(Song).findOne(req.body.id);
         if (song) {
-            console.log(song);
             player_instance.play(song, false);
             res.sendStatus(200);
         } else {

@@ -198,6 +198,7 @@ class Breaks extends React.Component {
                     date={this.props.date}
                     breaknumber={this.state.popup_break}
                     done={this.loadData}
+                    sendNotification={this.props.sendNotification}
                 /> : null}
                 {toRender}
             </div>
@@ -239,7 +240,7 @@ export default class Playlist extends React.Component {
                     </div>
                 </div>
                 <div className="divider"></div>
-                <Breaks date={this.state.date} admin={this.state.admin} />
+                <Breaks sendNotification={this.props.sendNotification} date={this.state.date} admin={this.state.admin} />
                 <div className="divider"></div>
             </div>
         );

@@ -35,7 +35,7 @@ class Suggestion extends React.Component {
             this.setState({ status: -1 });
             this.props.refresh(true);
         } else {
-            console.log(await r.text());
+            this.props.sendNotification(await r.text(), 8000);
         }
     }
 
@@ -46,6 +46,7 @@ class Suggestion extends React.Component {
                 name={this.props.name}
                 author={this.props.author}
                 done={this.whenAccepted}
+                sendNotification={this.props.sendNotification}
             />
         });
     }
@@ -112,7 +113,7 @@ class SuggestionPopup extends React.Component {
                         if (r.ok) {
                             this.props.done();
                         } else {
-                            console.log(await r.text());
+                            this.props.sendNotification(await r.text(), 8000);
                         }
                         setSubmitting(false);
                     }}
@@ -210,6 +211,7 @@ export default class Suggestions extends React.Component {
                 views={i.views}
                 refresh={this.loadData}
                 admin={this.state.admin}
+                sendNotification={this.props.sendNotification}
             />);
 
         };
@@ -239,12 +241,13 @@ export default class Suggestions extends React.Component {
                         </div>
                     </div>
                     <div className="filters">
-                        <Suggest done={this.loadData} />
+                        <Suggest done={this.loadData} sendNotification={this.props.sendNotification}/>
                     </div>
                     <div className="divider"></div>
                     <div className="allsuggestionspanel" onScroll={this.handleScroll}>
                         {toRender}
                     </div>
+                    <div className="divider"></div>
                 </div>
 
             </div>
@@ -282,7 +285,7 @@ class Suggest extends React.Component {
                         if (r.ok) {
                             this.props.done(true);
                         } else {
-                            console.log(await r.text());
+                            this.props.sendNotification(await r.text(), 8000);
                         }
                         setSubmitting(false);
                     }}

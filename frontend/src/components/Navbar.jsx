@@ -1,8 +1,15 @@
 import "../css/styles.css";
 import Navbutton from "./Navbutton";
 import { withRouter } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 const Navbar = (props) => {
+
+	const [notification, setNotification] = useState("");
+
+	useEffect(() => {
+		setNotification(props.notification);
+	}, [props.notification]);
 
 	const address_map = {
 		"/library": "Biblioteka",
@@ -15,6 +22,7 @@ const Navbar = (props) => {
 		<div style={{height: "60px"}}>
 			<nav className="navbar">
 				<div className="title">{address_map[props.location.pathname]}</div>
+				{(notification !== "") ? <div className="notification">{notification}</div> : null}
 				<div className="navcontainer">
 					<Navbutton to="/suggestions" content={ <span className="material-icons-round">add_comment</span> }/>
 					<Navbutton to="/playlist" content={ <span className="material-icons-round">playlist_add_check</span> }/>
