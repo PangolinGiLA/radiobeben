@@ -200,6 +200,15 @@ export default class Suggestions extends React.Component {
         localStorage.setItem(e.target.name, e.target.checked);
     }
 
+    handleKeypress = (e) => {
+        let code = e.charCode;
+        if( code === 32 || code === 13 ) { // enter or space
+            let event = new MouseEvent("click"); // wrong event but should work 
+            document.getElementById(e.target.attributes.forwarid.value).dispatchEvent(event);
+            this.handleCheckboxChange(event);
+        }
+    }
+
     render() {
         let toRender = [];
         for (let i of this.state.suggestions) {
@@ -218,40 +227,31 @@ export default class Suggestions extends React.Component {
 
         };
         return (
-            <div>
-                <div className="content">
-                    <div className="filters">
-                        <div>
-                            <label className="filter" htmlFor="waiting_checkbox">Oczekujace
-                                <input type="checkbox" id="waiting_checkbox" name="waiting" onChange={this.handleCheckboxChange} checked={this.state.waiting} />
-                                <span className="newcheckbox"></span>
-                            </label>
+            <div className="content">
 
-                        </div>
-                        <div>
-                            <label className="filter" htmlFor="accepted_checkbox"> Zaakceptowane
-                                <input type="checkbox" id="accepted_checkbox" name="accepted" onChange={this.handleCheckboxChange} checked={this.state.accepted} />
-                                <span className="newcheckbox"></span>
+                <div className="filters">
+                    <label className="filter" htmlFor="waiting_checkbox">Oczekujace
+                        <input type="checkbox" id="waiting_checkbox" name="waiting" onChange={this.handleCheckboxChange} checked={this.state.waiting} tabIndex={-1} />
+                        <span className="newcheckbox" tabIndex={0} onKeyPress={this.handleKeypress} forwarid="waiting_checkbox"></span>
+                    </label>
 
-                            </label>
-                        </div>
-                        <div>
-                            <label className="filter" htmlFor="rejected_checkbox"> Odrzucone
-                                <input type="checkbox" id="rejected_checkbox" name="rejected" onChange={this.handleCheckboxChange} checked={this.state.rejected} />
-                                <span className="newcheckbox"></span>
-                            </label>
-                        </div>
-                    </div>
-                    <div className="filters">
-                        <Suggest done={this.loadData} sendNotification={this.props.sendNotification} />
-                    </div>
-                    <div className="divider"></div>
-                    <div className="allsuggestionspanel" onScroll={this.handleScroll}>
-                        {toRender}
-                    </div>
-                    <div className="divider"></div>
+                    <label className="filter" htmlFor="accepted_checkbox"> Zaakceptowane
+                        <input type="checkbox" id="accepted_checkbox" name="accepted" onChange={this.handleCheckboxChange} checked={this.state.accepted} tabIndex={-1} />
+                        <span className="newcheckbox" tabIndex={0} onKeyPress={this.handleKeypress} forwarid="accepted_checkbox"></span>
+                    </label>
+                    <label className="filter" htmlFor="rejected_checkbox"> Odrzucone
+                        <input type="checkbox" id="rejected_checkbox" name="rejected" onChange={this.handleCheckboxChange} checked={this.state.rejected} tabIndex={-1} />
+                        <span className="newcheckbox" tabIndex={0} onKeyPress={this.handleKeypress} forwarid="rejected_checkbox"></span>
+                    </label>
                 </div>
 
+                <Suggest done={this.loadData} sendNotification={this.props.sendNotification} />
+
+                <div className="divider"></div>
+                <div className="allsuggestionspanel" onScroll={this.handleScroll}>
+                    <div style={{overflowY: "scroll", maxHeight: "100%", paddingRight: "8px"}}>{toRender}</div>
+                </div>
+                <div className="divider"></div>
             </div>
         )
     }
@@ -260,48 +260,48 @@ export default class Suggestions extends React.Component {
 class Suggest extends React.Component {
     render() {
         return (
-            <div>
-                <Formik
-                    initialValues={{
-                        ytlink: ""
-                    }}
-                    validate={values => {
-                        const errors = {};
-                        if (!values.ytlink)
-                            errors.ytlink = "Wpisz link!";
-                        else if (!ytdl.validateURL(values.ytlink))
-                            errors.ytlink = "Niepoprawny link!"
-                        return errors;
-                    }}
-                    onSubmit={async (values, { setSubmitting, resetForm }) => {
-                        resetForm({})
-                        const data = {
-                            ytid: ytdl.getVideoID(values.ytlink)
-                        };
-                        const r = await fetch('/api/songs/suggestions', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify(data)
-                        });
-                        if (r.ok) {
-                            this.props.done(true);
-                        } else {
-                            this.props.sendNotification(await r.text(), 8000);
-                        }
-                        setSubmitting(false);
-                    }}
-                >
-                    <Form>
-                        <div className="suggestbox">
-                            <Field className="textbox" type="text" name="ytlink"></Field>
-                            <button type="submit">Sugeruj</button>
-                        </div>
-                        <ErrorMessage className="errormsg" name="ytlink" component="span" />
-                    </Form>
-                </Formik>
-            </div>
+            <Formik
+                initialValues={{
+                    ytlink: ""
+                }}
+                validate={values => {
+                    const errors = {};
+                    if (!values.ytlink)
+                        errors.ytlink = "Wpisz link!";
+                    else if (!ytdl.validateURL(values.ytlink))
+                        errors.ytlink = "Niepoprawny link!"
+                    return errors;
+                }}
+                onSubmit={async (values, { setSubmitting, resetForm }) => {
+                    resetForm({})
+                    const data = {
+                        ytid: ytdl.getVideoID(values.ytlink)
+                    };
+                    const r = await fetch('/api/songs/suggestions', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    if (r.ok) {
+                        this.props.done(true);
+                    } else {
+                        this.props.sendNotification(await r.text(), 8000);
+                    }
+                    setSubmitting(false);
+                }}
+            >
+                <Form>
+                    <div className="formwrapper">
+                        <Field className="textbox" style={{maxWidth: "640px"}} type="text" name="ytlink" autoComplete="off" placeholder="tutaj wpisz link"></Field>
+                        <button className="formbutton" type="submit">Sugeruj</button>
+                    </div>
+                    <ErrorMessage className="errormsg" name="ytlink" component="span">
+                        { msg => <div className="formwrapper"><div className="formerror">{msg}</div></div> }
+                    </ErrorMessage>
+                </Form>
+            </Formik>
         );
     }
 }

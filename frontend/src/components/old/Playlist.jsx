@@ -211,14 +211,35 @@ export default class Playlist extends React.Component {
         super(props);
         this.state = {
             date: new Date().toISOString().slice(0, 10),
-            admin: props.admin
+            admin: props.admin,
+            day: ""
         }
+        this.dateinput = React.createRef();
+        this.daystring = React.createRef();
+        this.container = React.createRef();
+    }
+
+    updateDayString = () => {
+        // I tried to support small screens like 360px width samsungs and xiaomis
+        // if sliced name look stupid you can just change it to render empty string
+        let name = this.dateinput.current.valueAsDate.toLocaleDateString(undefined, { weekday: 'long' });
+        this.daystring.current.innerHTML = (this.container.current.offsetWidth < 380) ? name.slice(0, 3) + "." : name;
+    }
+
+    componentDidMount() {
+        window.addEventListener("resize", this.updateDayString);
+        this.updateDayString(this);
+    }
+
+    componentWillUnmount(){
+        window.removeEventListener("resize", this.updateDayString);
     }
 
     componentDidUpdate(prevProps, prevState) {
         if (prevProps.admin !== this.props.admin) {
             this.setState({ admin: this.props.admin });
         }
+        this.updateDayString(this);
     }
 
     addDate = (offset) => {
@@ -232,8 +253,11 @@ export default class Playlist extends React.Component {
     render() {
         return (
             <div className="content">
-                <div className="header">
-                    <input className="datecontainer" type="date" onChange={this.changeDate} value={this.state.date} />
+                <div className="header" ref={this.container}>
+                    <div className="datecontainer">
+                        <input className="dateinput" ref={this.dateinput} type="date" onChange={this.changeDate} value={this.state.date} />
+                        <span ref={this.daystring}>{/* Monday */}</span>
+                    </div>
                     <div className="navcontainer">
                         <button className="navbutton" onClick={this.addDate(-1)}><span className="material-icons-round">&#xE408;</span></button>
                         <button className="navbutton" onClick={this.addDate(1)}><span className="material-icons-round">&#xE409;</span></button>

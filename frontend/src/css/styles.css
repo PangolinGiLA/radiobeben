@@ -17,9 +17,7 @@
 * {
 	color: var(--light-font-main);
 	font-family: "Quicksand";
-	margin: 0;
-	margin-left: auto;
-	margin-right: auto;
+	margin: 0 auto;
 }
 
 body {
@@ -35,9 +33,61 @@ body {
 
 .divider {
 	height: 0px;
+	width: 100%;
 	border-bottom: solid 1px var(--light-shadow-main);
 	margin: 8px auto;
 	max-width: 800px;
+}
+
+/* Remove outline for non-keyboard :focus */
+*:focus { 
+	outline: none;
+  }
+  
+*:focus-visible {
+	/* high contrast only for testing */
+	outline: red solid 2px;
+}
+
+/* Hover for mobile */
+@media (hover: hover) {
+	.navbutton:hover {
+		background-color: var(--light-bg-hover);
+		cursor: pointer;
+	}
+	.breakbutton:hover {
+		background-color: var(--light-bg-hover);
+		cursor: pointer;
+	}
+	.songpanel:hover {
+		cursor: pointer;
+		background-color: var(--light-bg-hover);
+	}
+
+	.dateinput:hover {
+		cursor: pointer;
+		background-color: var(--light-bg-hover);
+	}
+	.formbutton:hover {
+		cursor: pointer;
+		background-color: var(--light-bg-hover);
+	}
+}
+
+.navbutton:active {
+	background-color: var(--light-bg-hover);
+}
+.breakbutton:active {
+	background-color: var(--light-bg-hover);
+}
+.songpanel:active{
+	background-color: var(--light-bg-hover);
+}
+.dateinput:active{
+	background-color: var(--light-bg-hover);
+}
+.formbutton:active {
+	background-color: var(--light-bg-hover);;
 }
 
 /* Navbar */
@@ -51,8 +101,10 @@ body {
 	position: fixed;
 	top: 0;
 	width: 100%;
+	z-index: 2;
 }
 
+/* Footer */
 .footer {
 	display: flex;
 	align-items: center;
@@ -63,6 +115,7 @@ body {
 	position: fixed;
 	bottom: 0;
 	width: 100%;
+	z-index: 2;
 }
 
 .title {
@@ -79,6 +132,37 @@ body {
 	z-index: 2;
 	align-items: center;
 	padding-right: 5px;
+}
+
+.navcontainer {
+	display: flex;
+	margin: 0px;
+}
+
+.floatingtitle {
+	text-align: left;
+	white-space: nowrap;
+	flex-grow: 2;
+	margin: 0px 10px;
+	position: sticky;
+}
+
+@keyframes move {
+
+	0% {
+		transform: translateX(0%);
+	}
+
+	100% {
+		transform: translateX(var(--tx));
+  	}
+}
+
+@keyframes wait {
+
+	0%, 100% {
+		transform: translateX(var(--tx));
+	}
 }
 
 .navbutton {
@@ -116,50 +200,65 @@ body {
 	text-decoration: none;
 }
 
-/* fixes hover for mobile */
-@media (hover: hover){
-	.navbutton:hover {
-		background-color: var(--light-bg-hover);
-		cursor: pointer;
-	}
-	.breakbutton:hover {
-		background-color: var(--light-bg-hover);
-		cursor: pointer;
-	}
-	.songpanel:hover {
-		cursor: pointer;
-		background-color: var(--light-bg-main);
-	}
-
-	.datecontainer:hover {
-		cursor: pointer;
-		background-color: var(--light-bg-main);
-	}
+/* Playlist -> Popup */
+.popup {
+	height: calc(100% - 150px);
+	width: 100%;
+	max-width: 760px;
+	display: flex;
+	flex-direction: column;
+	z-index: 1;
+	padding: 0px 10px;
+	background-color: var(--light-bg-secondary);
+	box-shadow: inset 0px  0px 4px var(--light-shadow-main);
+	border-radius: 5px;
 }
 
-.navbutton:active {
-	background-color: var(--light-bg-hover);
-}
-.breakbutton:active {
-	background-color: var(--light-bg-hover);
-}
-.songpanel:active{
-	background-color: var(--light-bg-hover);
-}
-.datecontainer:active{
-	background-color: var(--light-bg-hover);
+.popupcover {
+	background-color: var(--light-bg-main);
+	position: fixed;
+	display: flex;
+	align-items: center;
+	z-index: 1;
+	box-sizing: border-box;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	padding: 0 10px;
 }
 
-/* playlists */
-.header {
-	margin: 10px auto;
-	font-size: 20px;
+.popupheader {
 	display: flex;
 	justify-content: space-between;
-	max-width: 800px;
+	align-items: center;
+	width: 100%;
+	margin-top: 2px;
 }
 
-.filters {
+.headertext {
+	margin: 0px;
+	font-size: 20px;
+}
+
+.textbox {
+	width: 100%;
+	font-size: 18px; /* input height = font-size */
+	box-sizing: border-box;
+	background-color: var(--light-bg-secondary);
+	box-shadow: inset 0px  0px 4px var(--light-shadow-main);
+	border: none;
+	border-radius: 5px;
+	padding: 2px 6px;
+}
+
+.textbox::placeholder {
+	font-size: 14px;
+	color: var(--light-shadow-secondary);
+}
+
+/* Playlists */
+.header {
 	margin: 10px auto;
 	font-size: 20px;
 	display: flex;
@@ -176,8 +275,8 @@ body {
 .timestampbot {
 	text-align: left;
 	padding-left: 4px;
-	padding-top: 5px;
-	margin: 0px;
+	margin: 0;
+	margin-top: 10px;
 }
 
 .songtitle {
@@ -225,12 +324,17 @@ body {
 }
 
 .datecontainer {
+	display: flex;
+	align-items: center;
+	margin: 0;
+}
+
+.dateinput {
 	width: 120px;
 	height: 36px;
 	display: flex;
 	font-size: 14px;
 	margin: 6px 10px;
-	margin-right: 0px;
 	padding: 0px 5px 0px 10px;
 	align-items: center;
 	background-color: var(--light-bg-secondary);
@@ -274,36 +378,7 @@ body {
 	font-weight: bold;
 }
 
-.navcontainer {
-	display: flex;
-	margin: 0px;
-}
-
-.floatingtitle {
-	text-align: left;
-	white-space: nowrap;
-	flex-grow: 2;
-	margin: 0px 10px;
-	position: sticky;
-}
-
-@keyframes move {
-
-	0% {
-		transform: translateX(0%);
-	}
-
-	100% {
-		transform: translateX(var(--tx));
-  	}
-}
-
-@keyframes wait {
-
-	0%, 100% {
-		transform: translateX(var(--tx));
-	}
-}
+/* Suggestions */
 
 .suggestionpanel {
 	padding: 10px;
@@ -315,13 +390,14 @@ body {
 }
 
 .allsuggestionspanel {
-	max-height: 600px;
-	overflow-y: scroll;
+	height: calc(100% - 150px);
+	width: 100%;
+	max-width: 760px;
+	box-sizing: border-box;
 	padding: 10px;
 	box-shadow: inset 0px  0px 4px var(--light-shadow-secondary);
 	border-radius: 5px;
 	background-color: var(--light-bg-secondary);
-	max-width: 760px;
 	margin-bottom: 10px;
 }
 
@@ -333,46 +409,6 @@ body {
 	background-color: var(--rejected);
 }
 
-.popup {
-	min-height: 600px;
-	display: flex;
-	flex-direction: column;
-	position: absolute;
-	left: 0;
-	right: 0;
-	z-index: 1;
-	max-width: 760px;
-	height: 100%;
-	padding: 0px 10px;
-	background-color: var(--light-bg-secondary);
-	box-shadow: inset 0px  0px 4px var(--light-shadow-main);
-	border-radius: 5px;
-}
-
-.popupheader {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	width: 100%;
-	margin-top: 2px;
-}
-
-.headertext {
-	margin: 0px;
-	font-size: 20px;
-}
-
-.textbox {
-	width: 100%;
-	height: 32px;
-	box-sizing: border-box;
-	background-color: var(--light-bg-secondary);
-	box-shadow: inset 0px  0px 4px var(--light-shadow-main);
-	border: none;
-	border-radius: 5px;
-	padding: 2px 6px;
-	font-size: 16px;
-}
 .textbox2 {
 	width: 100%;
 	height: 32px;
@@ -397,14 +433,50 @@ body {
 	float: right;
 }
 
+.filters {
+	width: 100%;
+	max-width: 720px;
+	margin: 20px auto;
+	font-size: 20px;
+	display: flex;
+	justify-content: space-around;
+	flex-wrap: wrap;
+}
+
 .filter {
-	display: block;
 	position: relative;
+	display: flex;
 	padding-left: 26px;
-	margin-bottom: 12px;
-	margin-top: 30px;
+	margin-top: 12px;
+	margin-left: 10px;
+	margin-right: 10px;
 	cursor: pointer;
 	font-size: 18px;
+}
+
+.formwrapper {
+	width: 100%;
+	height: 32px;
+	max-width: 760px;
+	display: flex;
+	align-items: stretch;
+}
+
+.formerror {
+	align-self: flex-end;
+	font-size: 18px;
+}
+
+.formbutton {
+	font-size: 16px;
+	width: 100px;
+	margin-left: 8px;
+	box-sizing: border-box;
+	background-color: var(--light-bg-secondary);
+	box-shadow: inset 0px  0px 4px var(--light-shadow-main);
+	border: none;
+	border-radius: 5px;
+	padding: 2px 6px;
 }
 
 .filter input {
@@ -453,28 +525,6 @@ body {
 	-webkit-transform: rotate(45deg);
 	-ms-transform: rotate(45deg);
 	transform: rotate(45deg);
-}
-
-.suggestbox {
-	display: flex;
-}
-
-.suggestbox .textbox {
-	width: 600px;
-	height: 40px;
-	font-size: 18px;
-}
-
-.suggestbox button {
-	font-size: 16px;
-	width: 100px;
-	margin-left: 8px;
-	box-sizing: border-box;
-	background-color: var(--light-bg-secondary);
-	box-shadow: inset 0px  0px 4px var(--light-shadow-main);
-	border: none;
-	border-radius: 5px;
-	padding: 2px 6px;
 }
 
 .errormsg {

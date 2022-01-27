@@ -120,15 +120,17 @@ export default class LibraryPickable extends React.Component {
         }
 
         return (
-            <div className='popup'>
-                <div className='popupheader'>
-                    <span className="headertext">Szukaj</span>
-                    <button onClick={this.props.close} className="navbutton" style={{marginRight: "0px"}}><span className="material-icons-round">close</span></button>
-                </div> 
-                <input className="textbox" type="text" name="searchbox" id="library_search" onChange={this.handleTextChange} />
-                <div className="divider" style={{width: "100%"}}></div>
-                <div className="songselect" style={this.scrollstyle} onScroll={this.handleScroll}>{toRender}</div>
-                <div className="divider" style={{width: "100%", border: "none"}}></div>
+            <div className="popupcover">
+                <div className='popup'>
+                    <div className='popupheader'>
+                        <span className="headertext">Szukaj</span>
+                        <button onClick={this.props.close} className="navbutton" style={{marginRight: "0px"}}><span className="material-icons-round">close</span></button>
+                    </div> 
+                    <input className="textbox" type="text" name="searchbox" id="library_search" onChange={this.handleTextChange} />
+                    <div className="divider"></div>
+                    <div className="songselect" style={this.scrollstyle} onScroll={this.handleScroll}>{toRender}</div>
+                    <div className="divider" style={{border: "none"}}></div>
+                </div>
             </div>
         )
     }
