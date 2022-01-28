@@ -64,7 +64,7 @@ export default class player {
     }
     private start = (song: Song, from_playlist?: boolean, id?: number) => {
         console.log("starting")
-        this.ffplay = spawn("ffplay", ["-nodisp", "-autoexit", join(cfg.song_folder, song.filename)], {stdio: 'ignore'});
+        this.ffplay = spawn(process.env.FFPLAY_PATH || "ffplay", ["-nodisp", "-autoexit", join(cfg.song_folder, song.filename)], {stdio: 'ignore'});
         this.song = song;
         if (from_playlist) {
             this.from_playlist = true;

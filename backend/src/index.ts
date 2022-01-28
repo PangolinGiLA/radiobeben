@@ -6,6 +6,10 @@ import { register } from "./app/users";
 import { Schedule } from "./entity/Schedule";
 import { SettingPersistence } from "./entity/SettingPersistence";
 import { User } from "./entity/User";
+import * as path from "path";
+
+import * as ffmpeg from "fluent-ffmpeg";
+if(process.env.FFMPEG_PATH) ffmpeg.setFfmpegPath(process.env.FFMPEG_PATH);
 
 var FileStore = require('session-file-store')(session);
 
@@ -65,6 +69,11 @@ createConnection()
     connection_done();
   });
 
+
+app.use(express.static(path.join(__dirname, 'public')));
 app.use("/api", api);
+app.use('/*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 app.listen(8080);
