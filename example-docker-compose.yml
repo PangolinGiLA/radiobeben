@@ -1,0 +1,45 @@
+version: '3.3'
+services:
+  radio-db:
+    restart: unless-stopped
+    image: mysql:8
+    environment:
+      MYSQL_DATABASE: 'radio'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    cap_add:
+      - SYS_NICE
+    ports: #remove from production
+      - '127.0.0.1:3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - ./container-persist/db:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+  radiobeben:
+    restart: unless-stopped
+    build: ./radio
+    devices:
+      - /dev/snd #sound
+      #- /dev/ttyACM0:/dev/ttyACM0 #serial
+    environment:
+      NODE_ENV: production
+      DB_HOST: radio-db
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASS: ""
+      DB_NAME: radio
+      #pulseaudio stuff
+      PULSE_SERVER: unix:${XDG_RUNTIME_DIR}/pulse/native
+    depends_on:
+      - radio-db
+    expose:
+      - '8080'
+    ports:
+      - 8080:8080 #change in production
+      - '127.0.0.1:9229:9229' #chrome developer tools, remove from production
+    volumes:
+      - ./container-persist/music:/usr/src/app/Music
+      - ./container-persist/sessions:/usr/src/app/sessions
+      #pulseaudio stuff
+      - ${XDG_RUNTIME_DIR}/pulse/native:${XDG_RUNTIME_DIR}/pulse/native
+      - ~/.config/pulse/cookie:/root/.config/pulse/cookie

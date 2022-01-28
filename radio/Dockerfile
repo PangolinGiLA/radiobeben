@@ -1,8 +1,9 @@
-FROM node:16
-RUN npm i -g ffbinaries
-RUN ffbinaries ffmpeg ffplay -q -v=3.2 -o=/usr/local/bin
-ENV FFMPEG_PATH="/usr/local/bin/ffmpeg" FFPLAY_PATH="/usr/local/bin/ffplay"
-RUN npm r -g ffbinaries
+FROM ubuntu:20.04
+
+RUN apt-get -y update && apt-get -y upgrade && apt-get -y install curl ffmpeg
+RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
+RUN apt-get -y install nodejs
+
 WORKDIR /usr/src/app
 COPY build/package*.json ./
 RUN npm install --production
