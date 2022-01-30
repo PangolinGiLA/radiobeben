@@ -1,4 +1,5 @@
 import React from 'react'
+import Navbutton from '../Navbutton';
 import LibraryPickable from './LibraryPickable';
 
 class PlaylistSong extends React.Component {
@@ -17,18 +18,18 @@ class PlaylistSong extends React.Component {
 
     render() {
         return (<div className="songpanel">
-            <div className="songtime">{this.props.end}</div>
-
-            <div className="songtitle">{this.props.title}</div>
-
+            <div className="songtime">{ this.props.end }</div>
+            <div className="songtitle">{ this.props.title }</div>
             <div className='breakinfo'>
-                <div className='songauthor'>{this.props.author.displayName}</div>
-                {this.state.admin ? <div className="removebutton" onClick={this.delete_me}><span className="material-icons-round" style={{ fontSize: "16px" }}>close</span></div> : null}
+                <div className='songauthor'>{ this.props.author.displayName }</div>
+                { this.state.admin ? /* only admin */
+                    <button className="removebutton" onClick={ this.delete_me }>
+                        <span className="material-icons-round" style={{ fontSize: "16px" }}>close</span>
+                    </button>
+                : null }
             </div>
-
         </div>);
         /*
-            idk how to make jsx comments
             {this.props.start}
             <br />
             {this.props.end}
@@ -95,13 +96,13 @@ class Break extends React.Component {
         }
 
         return (
-            <div className="breakpanel">
+            <div className="breakpanel" style={ this.props.popup ? {visibility: 'hidden'} : null}>
                 <div className="breakinfo">
-                    <div className="timestamp"> {String(this.props.start.hour).padStart(2, "0")}:{String(this.props.start.minutes).padStart(2, "0")} </div>
-                    <div className="breakbutton" onClick={this.showAdding}><span className="material-icons-round" style={{ fontSize: "16px" }}>&#xE145;</span></div>
+                    <div className="timestamp">{ String(this.props.start.hour).padStart(2, "0")}:{String(this.props.start.minutes).padStart(2, "0") }</div>
+                    <button className="breakbutton" onClick={this.showAdding}><span className="material-icons-round" style={{ fontSize: "16px" }}>add</span></button>
                 </div>
-                {toRender}
-                <div className="timestampbot"> {String(this.props.end.hour).padStart(2, "0")}:{String(this.props.end.minutes).padStart(2, "0")} </div>
+                { toRender }
+                <div className="timestampbot">{ String(this.props.end.hour).padStart(2, "0")}:{String(this.props.end.minutes).padStart(2, "0") }</div>
             </div>);
     }
 
@@ -154,14 +155,17 @@ class Breaks extends React.Component {
                 if (r_b.ok && r_s.ok)
                     this.setState({ breaks: JSON.parse(await r_b.text()), songs: JSON.parse(await r_s.text()), popup: false });
             });
+        this.closePopup();
     }
 
     openPopup = (break_numer) => {
         this.setState({ popup: true, popup_break: break_numer });
+        this.props.popup(true);
     }
 
     closePopup = () => {
         this.setState({ popup: false });
+        this.props.popup(false);
     }
 
     render() {
@@ -186,6 +190,7 @@ class Breaks extends React.Component {
                     date={this.props.date}
                     key={i}
                     done={this.loadData}
+                    popup={this.state.popup}
                     openPopup={this.openPopup}
                 />)
             }
@@ -193,14 +198,16 @@ class Breaks extends React.Component {
 
         return (
             <div style={{ padding: "0px 10px", position: "relative" }} >
-                {this.state.popup ? <LibraryPickable
-                    close={this.closePopup}
-                    date={this.props.date}
-                    breaknumber={this.state.popup_break}
-                    done={this.loadData}
-                    sendNotification={this.props.sendNotification}
-                /> : null}
-                {toRender}
+                { this.state.popup ? 
+                    <LibraryPickable
+                        close={this.closePopup}
+                        date={this.props.date}
+                        breaknumber={this.state.popup_break}
+                        done={this.loadData}
+                        sendNotification={this.props.sendNotification}
+                    />
+                : null }
+                { toRender }
             </div>
         );
     }
@@ -212,18 +219,27 @@ export default class Playlist extends React.Component {
         this.state = {
             date: new Date().toISOString().slice(0, 10),
             admin: props.admin,
-            day: ""
+            popup: false
         }
         this.dateinput = React.createRef();
         this.daystring = React.createRef();
         this.container = React.createRef();
     }
 
+    setPopupState = (newState) => {
+        this.setState({popup : newState});
+    }
+
     updateDayString = () => {
         // I tried to support small screens like 360px width samsungs and xiaomis
         // if sliced name look stupid you can just change it to render empty string
-        let name = this.dateinput.current.valueAsDate.toLocaleDateString(undefined, { weekday: 'long' });
-        this.daystring.current.innerHTML = (this.container.current.offsetWidth < 380) ? name.slice(0, 3) + "." : name;
+        if (this.dateinput.current.valueAsDate) {
+            let name = this.dateinput.current.valueAsDate.toLocaleDateString(undefined, { weekday: 'long' });
+            this.daystring.current.innerHTML = (this.container.current.offsetWidth < 380) ? name.slice(0, 3) + "." : name;
+        }
+        else { // if no day selected in input
+            this.daystring.current.innerHTML = "";
+        }
     }
 
     componentDidMount() {
@@ -253,18 +269,18 @@ export default class Playlist extends React.Component {
     render() {
         return (
             <div className="content">
-                <div className="header" ref={this.container}>
+                <div className="header" ref={this.container} style={ this.state.popup ? {visibility: 'hidden'} : null}>
                     <div className="datecontainer">
                         <input className="dateinput" ref={this.dateinput} type="date" onChange={this.changeDate} value={this.state.date} />
                         <span ref={this.daystring}>{/* Monday */}</span>
                     </div>
                     <div className="navcontainer">
-                        <button className="navbutton" onClick={this.addDate(-1)}><span className="material-icons-round">&#xE408;</span></button>
-                        <button className="navbutton" onClick={this.addDate(1)}><span className="material-icons-round">&#xE409;</span></button>
+                        <Navbutton onClick={this.addDate(-1)} iconid="navigate_before"/>
+                        <Navbutton onClick={this.addDate(1)} iconid="navigate_next"/>
                     </div>
                 </div>
                 <div className="divider"></div>
-                <Breaks sendNotification={this.props.sendNotification} date={this.state.date} admin={this.state.admin} />
+                <Breaks sendNotification={this.props.sendNotification} date={this.state.date} admin={this.state.admin} popup={this.setPopupState} />
                 <div className="divider"></div>
             </div>
         );

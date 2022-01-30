@@ -2,6 +2,7 @@ import React from "react";
 import { AuthorsPickable } from "./Suggestion";
 import * as ytdl from "ytdl-core"
 import { withRouter } from "react-router-dom";
+import Navbutton from "../Navbutton";
 
 class AddSong extends React.Component {
     render() {
@@ -65,7 +66,7 @@ class AddSongPopup extends React.Component {
                 <form onSubmit={this.handleSubmit}>
                     <div className="popupheader">
                         <div className="headertext">Dodaj piosenkę</div>
-                        <button onClick={this.close} className="navbutton" style={{marginRight: "0px"}}><span className="material-icons-round">close</span></button>
+                        <Navbutton onClick={this.close} iconid="close" style={{marginRight: "0px"}}/>
                     </div>
                     
                     <div className="songtitle">puste pole oznacza zostawienie wartości z youtuba</div>

@@ -9,8 +9,9 @@
 	--light-shadow-main: #BDBDBD;
 	--light-shadow-secondary: #A0A8B0;
 	--light-font-main: #3F3844;
-	--accepted: #e0eee6;
-	--rejected: #ebe1e0;
+	--light-accepted: #e0eee6;
+	--light-rejected: #ebe1e0;
+	--light-highlight: #e95d3e;
 }
 
 /* base styles */
@@ -39,14 +40,8 @@ body {
 	max-width: 800px;
 }
 
-/* Remove outline for non-keyboard :focus */
-*:focus { 
-	outline: none;
-  }
-  
 *:focus-visible {
-	/* high contrast only for testing */
-	outline: red solid 2px;
+	outline: var(--light-highlight) solid 2px;
 }
 
 /* Hover for mobile */
@@ -72,6 +67,10 @@ body {
 		cursor: pointer;
 		background-color: var(--light-bg-hover);
 	}
+	.removebutton:hover {
+		cursor: pointer;
+		background-color: var(--light-rejected);
+	}
 }
 
 .navbutton:active {
@@ -87,7 +86,10 @@ body {
 	background-color: var(--light-bg-hover);
 }
 .formbutton:active {
-	background-color: var(--light-bg-hover);;
+	background-color: var(--light-bg-hover);
+}
+.removebutton:active {
+	background-color: var(--light-rejected);
 }
 
 /* Navbar */
@@ -102,6 +104,28 @@ body {
 	top: 0;
 	width: 100%;
 	z-index: 2;
+}
+
+.navbutton {
+	display: flex;
+	justify-self: flex-end;
+	justify-content: center;
+	align-items: center;
+	background-color: var(--light-bg-secondary);
+	border: none;
+	border-radius: 3px;
+	box-shadow: inset 0px  0px 4px var(--light-shadow-main);
+	height: 36px;
+	width: 36px;
+	margin: 6px 10px;
+	margin-left: 0px;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+.navcontainer {
+	display: flex;
+	margin: 0px;
 }
 
 /* Footer */
@@ -134,11 +158,6 @@ body {
 	padding-right: 5px;
 }
 
-.navcontainer {
-	display: flex;
-	margin: 0px;
-}
-
 .floatingtitle {
 	text-align: left;
 	white-space: nowrap;
@@ -163,41 +182,6 @@ body {
 	0%, 100% {
 		transform: translateX(var(--tx));
 	}
-}
-
-.navbutton {
-	display: flex;
-	justify-self: flex-end;
-	justify-content: center;
-	align-items: center;
-	background-color: var(--light-bg-secondary);
-	border: none;
-	border-radius: 3px;
-	box-shadow: inset 0px  0px 4px var(--light-shadow-main);
-	height: 36px;
-	width: 36px;
-	margin: 6px 10px;
-	margin-left: 0px;
-	font-weight: bold;
-	text-decoration: none;
-}
-
-.controlbutton {
-	cursor: pointer;
-	display: flex;
-	justify-self: flex-end;
-	justify-content: center;
-	align-items: center;
-	background-color: var(--light-bg-secondary);
-	border: none;
-	border-radius: 3px;
-	box-shadow: inset 0px  0px 4px var(--light-shadow-main);
-	height: 36px;
-	width: 36px;
-	margin: 6px 10px;
-	margin-right: 0px;
-	font-weight: bold;
-	text-decoration: none;
 }
 
 /* Playlist -> Popup */
@@ -294,17 +278,6 @@ body {
 	margin: 0px;
 }
 
-.suggsongtitle {
-	font-size: 18px;
-	padding-bottom: 6px;
-	text-decoration: none;
-	text-align: left;
-	padding-right: 40px;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
 .breakpanel {
 	padding: 10px;
 	box-shadow: inset 0px  0px 4px var(--light-shadow-secondary);
@@ -315,12 +288,12 @@ body {
 }
 
 .songpanel {
+	font-size: 16px;
 	padding: 10px;
+	margin-top: 10px;
+	background-color: var(--light-bg-secondary);
 	box-shadow: inset 0px  0px 4px var(--light-shadow-main);
 	border-radius: 5px;
-	background-color: var(--light-bg-secondary);
-	max-width: 760px;
-	margin-top: 10px;
 }
 
 .datecontainer {
@@ -368,7 +341,7 @@ body {
 	justify-self: flex-end;
 	justify-content: center;
 	align-items: center;
-	background-color: var(--light-bg-main);
+	background-color: var(--light-bg-secondary);
 	border: none;
 	border-radius: 3px;
 	box-shadow: inset 0px  0px 4px var(--light-shadow-main);
@@ -380,13 +353,28 @@ body {
 
 /* Suggestions */
 
+.suggsongtitle {
+	display: inline-block;
+	box-sizing: border-box;
+	width: 100%;
+	text-decoration: none;
+	text-align: left;
+	padding-right: 10px;
+	border-radius: 4px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
 .suggestionpanel {
+	position: relative;
 	padding: 10px;
 	box-shadow: inset 0px  0px 4px var(--light-shadow-main);
 	border-radius: 5px;
 	background-color: var(--light-bg-secondary);
 	max-width: 760px;
 	margin-top: 10px;
+	overflow: hidden;
 }
 
 .allsuggestionspanel {
@@ -402,11 +390,11 @@ body {
 }
 
 .accepted-bg {
-	background-color: var(--accepted);
+	background-color: var(--light-accepted);
 }
 
 .rejected-bg {
-	background-color: var(--rejected);
+	background-color: var(--light-rejected);
 }
 
 .textbox2 {
@@ -423,10 +411,15 @@ body {
 }
 
 .songselect {
+	box-sizing: border-box;
+	width: 100%;
 	overflow-y: scroll;
 	box-sizing: border-box;
 	padding-right: 5px;
-	width: 100%;
+	padding-bottom: 10px;
+	/* hack to fix outline */
+	margin-left: -5px;
+	padding-left: 5px;
 }
 
 .floatright {
@@ -533,7 +526,7 @@ body {
 }
 
 .songtime {
-	padding-left: 50px;
+	padding-left: 30px;
 	float: right;
 	font-size: 16px;
 	color: #82798b;

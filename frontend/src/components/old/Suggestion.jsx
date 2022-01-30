@@ -1,6 +1,7 @@
 import React from "react";
 import { Form, Formik, Field, ErrorMessage } from "formik";
 import * as ytdl from "ytdl-core"
+import Navbutton from "../Navbutton";
 
 class Suggestion extends React.Component {
     constructor(props) {
@@ -59,20 +60,19 @@ class Suggestion extends React.Component {
     render() {
         return (
             <div className={
-                (this.state.status === 1) ? 'accepted-bg suggestionpanel' : ((this.state.status === -1) ? 'rejected-bg suggestionpanel' : 'neutral-bg suggestionpanel')
+                (this.state.status === 1) ? 'accepted-bg suggestionpanel' : (
+                (this.state.status === -1) ? 'rejected-bg suggestionpanel' : 'suggestionpanel' )
             }>
-                <div className="suggsongtitle">
-                    <a className="suggsongtitle" href={this.ytid_to_link(this.props.ytid)}>{this.props.name}</a>
-                </div>
-                <div>
-                    {this.props.author}
-                </div>
-                <div>{this.props.views.toLocaleString("en-US")} wyświetleń</div>
+                <a className="suggsongtitle" href={this.ytid_to_link(this.props.ytid)}>{ this.props.name }</a>
+                <div>{ this.props.author }</div>
+                <div>{ this.props.views.toLocaleString("en-US") } wyświetleń</div>
                 <div className="navcontainer">
-                    {this.state.admin && this.state.status === 0 ? <button className="navbutton" onClick={this.accept}><span className="material-icons-round">done</span></button> : null}
-                    {this.state.admin && this.state.status === 0 ? <button className="navbutton" onClick={this.reject}><span className="material-icons-round">close</span></button> : null}
+                    { this.state.admin && this.state.status === 0 ? <>
+                        <Navbutton onClick={this.accept} iconid="done" style={{marginBottom: "0px"}}/>
+                        <Navbutton onClick={this.reject} iconid="close" style={{marginBottom: "0px"}}/>
+                    </>: null }
                 </div>
-                {this.state.admin ? this.state.toAccept : null}
+                { this.state.admin ? this.state.toAccept : null }
             </div>
         );
     }
@@ -142,6 +142,7 @@ export default class Suggestions extends React.Component {
             accepted: localStorage.getItem('accepted') === 'true',
             rejected: localStorage.getItem('rejected') === 'true',
             waiting: localStorage.getItem('waiting') === 'true',
+            submit: false,
         };
         this.loading = false;
     }
@@ -203,9 +204,7 @@ export default class Suggestions extends React.Component {
     handleKeypress = (e) => {
         let code = e.charCode;
         if( code === 32 || code === 13 ) { // enter or space
-            let event = new MouseEvent("click"); // wrong event but should work 
-            document.getElementById(e.target.attributes.forwarid.value).dispatchEvent(event);
-            this.handleCheckboxChange(event);
+            document.getElementById(e.target.attributes.forwarid.value).click();
         }
     }
 
@@ -261,19 +260,23 @@ class Suggest extends React.Component {
     render() {
         return (
             <Formik
+                validateOnChange={false}
+                validateOnBlur={false}
                 initialValues={{
                     ytlink: ""
                 }}
                 validate={values => {
                     const errors = {};
-                    if (!values.ytlink)
+                    if (!values.ytlink) {
                         errors.ytlink = "Wpisz link!";
-                    else if (!ytdl.validateURL(values.ytlink))
-                        errors.ytlink = "Niepoprawny link!"
+                    }
+                    else if (!ytdl.validateURL(values.ytlink)) {
+                        errors.ytlink = "Niepoprawny link!";
+                    }
                     return errors;
                 }}
                 onSubmit={async (values, { setSubmitting, resetForm }) => {
-                    resetForm({})
+                    resetForm({}) // why reset?
                     const data = {
                         ytid: ytdl.getVideoID(values.ytlink)
                     };

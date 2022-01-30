@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
 import "../css/styles.css";
+import Navbutton from "./Navbutton";
 
 const Footer = (props) => {
 
@@ -104,8 +104,8 @@ const Footer = (props) => {
 					
 					{ props.admin ? /* only admin */
 						<div className="navcontainer">
-							<Link to="/addsong" className="controlbutton material-icons-round">library_add</Link>
-							<button onClick={stop} className="controlbutton material-icons-round">pause</button>
+							<Navbutton to="/addsong" iconid="library_add" style={{marginLeft: "10px", marginRight: "0px"}}/>
+							<Navbutton onClick={stop} iconid="pause" style={{marginLeft: "10px", marginRight: "0px"}}/>
 						</div>
 					: null }
 

@@ -2,13 +2,17 @@ import { Link } from "react-router-dom";
 
 const Navbutton = (props) => {
 
-	const doAlert = () => {
-		alert("This is just a template element to show some styles")
-	}
-
 	return (
-		<Link to={props.to} className="navbutton">{props.content}</Link>
+	<> {  (props.to) ?
+		<Link to={props.to} className="navbutton" {...props}>
+			<span className="material-icons-round">{props.iconid}</span>
+		</Link>
+		:
+		<button className="navbutton" {...props}>
+			<span className="material-icons-round">{props.iconid}</span>
+		</button>
+	} </>
 	);
 }
- 
+
 export default Navbutton;

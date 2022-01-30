@@ -22,14 +22,17 @@ const Navbar = (props) => {
 	return (
 		<div style={{height: "60px"}}>
 			<nav className="navbar">
-				<div className="title">{address_map[props.location.pathname]}</div>
-				{(notification !== "") ? <div className="notification">{notification}</div> : null}
+				<div className="title">{ address_map[props.location.pathname] }</div>
+				{ (notification !== "") ? /* show only when there is a notification */
+					/* TODO move this or make mobile friendly */
+					<div className="notification">{ notification }</div>
+				: null }
 				<div className="navcontainer">
-					<Navbutton to="/suggestions" content={ <span className="material-icons-round">add_comment</span> }/>
-					<Navbutton to="/playlist" content={ <span className="material-icons-round">playlist_add_check</span> }/>
-					{props.admin ?
-					<Navbutton to="/library" content={ <span className="material-icons-round">library_books</span> }/> : null }
-					{/* more buttons here */}
+					<Navbutton to="/suggestions" iconid="add_comment"/>
+					<Navbutton to="/playlist" iconid="playlist_add_check"/>
+					{ props.admin ? /* only admin */
+						<Navbutton to="/library" iconid="library_books"/>
+					: null }
 				</div>
 			</nav>	
 		</div>
