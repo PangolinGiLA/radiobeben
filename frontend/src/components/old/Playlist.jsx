@@ -217,7 +217,7 @@ export default class Playlist extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            date: new Date().toISOString().slice(0, 10),
+            date: this.SQLdate(new Date()),
             admin: props.admin,
             popup: false
         }
@@ -262,8 +262,18 @@ export default class Playlist extends React.Component {
         return () => {
             let newdate = new Date(this.state.date);
             newdate.setDate(newdate.getDate() + offset);
-            this.setState({ date: newdate.toISOString().slice(0, 10) });
+            this.setState({ date: this.SQLdate(newdate) });
         }
+    }
+    SQLdate = (date) => {
+        let y = String(date.getFullYear());
+        let m = String(date.getMonth() + 1).padStart(2, "0");
+        let d = String(date.getDate()).padStart(2, "0");
+        return `${y}-${m}-${d}`
+    }
+
+    setDefaultDate = () => {
+        this.setState({ date: this.SQLdate(new Date()) });
     }
 
     render() {
@@ -287,6 +297,7 @@ export default class Playlist extends React.Component {
     }
 
     changeDate = (event) => {
-        this.setState({ date: event.target.value });
+        if (event.target.value === "") {this.setDefaultDate(); }
+        else { this.setState({ date: event.target.value }); }
     }
 }

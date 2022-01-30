@@ -71,6 +71,10 @@ body {
 		cursor: pointer;
 		background-color: var(--light-rejected);
 	}
+	.smallbutton:hover {
+		cursor: pointer;
+		background-color: var(--light-bg-hover);
+	}
 }
 
 .navbutton:active {
@@ -264,18 +268,25 @@ body {
 }
 
 .songtitle {
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
 	text-align: left;
 	font-weight: 450;
-	padding-bottom: 8px;
+	padding-bottom: 25px;
 	margin: 0px;
 }
 
+.songtitleinner {
+	float: left;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	width: 90%;
+}
+
 .songauthor {
+	display: contents;
 	text-align: left;
 	margin: 0px;
+	white-space: nowrap;
 }
 
 .breakpanel {
@@ -580,4 +591,27 @@ body {
 	background-color: var(--light-bg-secondary);
 	max-width: 760px;
 	margin-top: 3px;
+}
+
+.privatebackground {
+	background-color: var(--light-bg-main);
+	overflow: hidden;
+	padding-bottom: 8px;
+}
+
+/* button used for delete and play in library */
+.smallbutton {
+	display: flex;
+	justify-self: flex-end;
+	justify-content: center;
+	align-items: center;
+	background-color: var(--light-bg-secondary);
+	border: none;
+	border-radius: 3px;
+	box-shadow: inset 0px  0px 4px var(--light-shadow-main);
+	height: 20px;
+	width: 20px;
+	margin: 0px;
+	margin-left: 4px;
+	font-weight: bold;
 }

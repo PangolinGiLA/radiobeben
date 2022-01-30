@@ -18,27 +18,50 @@ class Song extends React.Component {
             })
     }
 
-	play = () => {
-		fetch("/api/playlist/play", {
-			method: "PUT",
-			headers: {
+    play = () => {
+        fetch("/api/playlist/play", {
+            method: "PUT",
+            headers: {
                 'Content-Type': 'application/json'
             },
-			body: JSON.stringify({
-				id: this.props.id
-			})});
-	}
-    
+            body: JSON.stringify({
+                id: this.props.id
+            })
+        });
+    }
+
     render() {
         var songjsx
-        if (this.props.ytid !== undefined)
-        {
+        if (this.props.ytid !== undefined) {
             let link = "https://www.youtube.com/watch?v=" + this.props.ytid;
-            songjsx = <div><a href={link}>{this.props.title}</a> {this.props.author} <button onClick={this.delete}>usuń</button> <button onClick={this.play}>play</button></div>
+            songjsx = <a href={link}>{this.props.title}</a>
         } else {
-            songjsx = <div>{this.props.title} {this.props.author} <button onClick={this.delete}>usuń</button> <button onClick={this.play}>play</button> </div>
+            songjsx = this.props.title
         }
-        return songjsx;
+        return (
+            <div className='songpanel'>
+                <div className="songtitle">
+                    <div className='songtitleinner'>
+                        {songjsx}
+                    </div>
+                    <div className='floatright'>
+                        {String(Math.floor(this.props.duration / 60))}:{String(this.props.duration % 60).padStart(2, '0')}
+                    </div>
+                </div>
+                <div className='breakinfo'>
+                    <div className="songauthor">{this.props.author}</div>
+                    <div className='navcontainer'>
+                        <button className="smallbutton" onClick={this.play}>
+                            <span className="material-icons-round" style={{ fontSize: "16px" }}>play_arrow</span>
+                        </button>
+                        <button className="smallbutton" onClick={this.delete}>
+                            <span className="material-icons-round" style={{ fontSize: "16px" }}>delete</span>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        )
     }
 
 }
@@ -54,7 +77,7 @@ export default class Library extends React.Component {
     }
 
     scrollstyle = {
-        height: "200px",
+        maxHeight: "100%",
         overflowY: "scroll"
     }
 
@@ -113,14 +136,20 @@ export default class Library extends React.Component {
                 id={i.id}
                 refresh={this.props.loadData}
                 key={i.id}
+                duration={i.duration}
             />)
         }
 
-        return (
-            <div>
-                <input type="text" name="searchbox" id="library_search" onChange={this.handleTextChange} />
+        return (<div className='content'>
+            <div className='header'></div>
+            <div className='formwrapper'>
+                <input className='textbox2' placeholder='Szukaj' type="text" name="searchbox" id="library_search" onChange={this.handleTextChange} />
+            </div>
+            <div className='divider'></div>
+            <div className='allsuggestionspanel'>
                 <div style={this.scrollstyle} onScroll={this.handleScroll}>{toRender}</div>
             </div>
+        </div>
         )
     }
 }

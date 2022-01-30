@@ -5,21 +5,23 @@ class SongPickable extends React.Component {
 
     handleKeypress = (e) => {
         let code = e.charCode;
-        if( code === 32 || code === 13 ) { // enter or space
-           e.target.click();
+        if (code === 32 || code === 13) { // enter or space
+            e.target.click();
         }
     }
 
     render() {
         return (
             <div onClick={this.addToPlaylist} className='songpanel' tabIndex={0} onKeyPress={this.handleKeypress}>
-                <div className="songtitle"> 
-                    { this.props.title }
+                <div className="songtitle">
+                    <div className='songtitleinner'>
+                        {this.props.title}
+                    </div>
                     <div className='floatright'>
-                        { String(Math.floor(this.props.duration/60)) }:{ String(this.props.duration%60).padStart(2, '0') }
+                        {String(Math.floor(this.props.duration / 60))}:{String(this.props.duration % 60).padStart(2, '0')}
                     </div>
                 </div>
-                <div className="songauthor">{ this.props.author.displayName }</div> 
+                <div className="songauthor">{this.props.author.displayName}</div>
             </div>
         )
     }
@@ -125,12 +127,12 @@ export default class LibraryPickable extends React.Component {
                 <div className='popup'>
                     <div className='popupheader'>
                         <span className="headertext">Szukaj</span>
-                        <Navbutton onClick={this.props.close} iconid="close" style={{marginRight: "0px"}}/>
-                    </div> 
+                        <Navbutton onClick={this.props.close} iconid="close" style={{ marginRight: "0px" }} />
+                    </div>
                     <input className="textbox" type="text" name="searchbox" id="library_search" onChange={this.handleTextChange} />
                     <div className="divider"></div>
                     <div className="songselect" onScroll={this.handleScroll}>{toRender}</div>
-                    <div className="divider" style={{border: "none"}}></div>
+                    <div className="divider" style={{ border: "none" }}></div>
                 </div>
             </div>
         )
