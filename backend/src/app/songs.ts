@@ -33,9 +33,9 @@ function add_song(ytid: string, author?: string | number, name?: string, isPriva
                         song.filename = new_name;
                         songTable.insert(song);
                     })
-                    .catch(err => {
-                        reject(err);
-                    });
+                        .catch(err => {
+                            reject(err);
+                        });
                     // if song was suggested, set status to accepted
                     let suggestionTable = getRepository(Suggestion);
                     let suggestion = await suggestionTable.findOne({ ytid: ytid });
@@ -128,9 +128,9 @@ function accept_suggestion(id: number, name?: string, author?: string | number):
                         song.ytid = to_accept.ytid;
                         songTable.insert(song);
                     })
-                    .catch(err => {
-                        reject(err);
-                    });
+                        .catch(err => {
+                            reject(err);
+                        });
                     suggesionTable.update(id, { status: 1 });
                     resolve("Piosenka została dodana!");
                 } else {
@@ -173,33 +173,48 @@ function get_suggestions(limit: number, before: number, accepted: boolean, rejec
         where.push({ status: -1, id: LessThan(before != -1 ? before : 100000000) });
         where.push({ status: 0, id: LessThan(before != -1 ? before : 100000000) });
     }
-    
+
     return getRepository(Suggestion).find({ where: where, order: { id: "DESC" }, take: limit });
 }
 
-interface SongUpdate {
-    author?: Author,
-    name?: string,
-    isPrivate?: boolean
-}
-
-function update_song(id: number, author?: string | number, name?: string, isPrivate?: boolean): Promise<string> {
+function update_song(id: number, author?: string, name?: string, isPrivate?: boolean, globalAuthor?: boolean): Promise<string> {
     return new Promise<string>(async (resolve, reject) => {
-        let song: SongUpdate;
-        if (author) {
-            try {
-                song.author = await find_add_author(author);
-            }
-            catch (err) {
-                reject(err);
-            }
-        }
-        if (name)
-            song.name = name;
-        if (isPrivate)
-            song.isPrivate = isPrivate;
         let songTable = getRepository(Song);
-        songTable.update(id, song);
+        let song = await songTable.findOne(id);
+        if (song) {
+            if (author && globalAuthor) {
+                let authorTable = getRepository(Author);
+                let newauthor = await authorTable.findOne({ displayName: author });
+                if (newauthor) {
+                    let oldauthor = song.author;
+                    song.author = newauthor;
+                    await songTable.update({author: oldauthor}, {author: newauthor});
+                    await authorTable.remove(oldauthor);
+                } else {
+                    song.author.displayName = author;
+                    await authorTable.save(song.author);
+                }
+            } else {
+                if (author) {
+                    try {
+                        song.author = await find_add_author(author);
+                    }
+                    catch (err) {
+                        reject(err);
+                    }
+                }
+            }
+
+            if (name)
+                song.title = name;
+            if (isPrivate)
+                song.isPrivate = isPrivate;
+
+            await songTable.save(song);
+            resolve("done");
+        } else {
+            reject("Nie ma takiej piosenki!");
+        }
     });
 }
 
@@ -218,9 +233,9 @@ function get_songs(userid: number, limit: number, before: number, like: string):
     return new Promise<Song[]>(async (resolve) => {
         let songTable = getRepository(Song);
         if (userid && await can(userid, permissions.library)) {
-            resolve(await songTable.find({ where: [{ author: {displayName: Like(`%${like}%`)} }, { title: Like(`%${like}%`) }], skip: before, take: limit , relations: ["author"] }));
+            resolve(await songTable.find({ where: [{ author: { displayName: Like(`%${like}%`) } }, { title: Like(`%${like}%`) }], skip: before, take: limit, relations: ["author"] }));
         } else {
-            resolve(await songTable.find({ where: [{ isPrivate: false, author: {displayName: Like(`%${like}%`) }}, { isPrivate: false, title: Like(`%${like}%`) }], skip: before, take: limit, relations: ["author"] }));
+            resolve(await songTable.find({ where: [{ isPrivate: false, author: { displayName: Like(`%${like}%`) } }, { isPrivate: false, title: Like(`%${like}%`) }], skip: before, take: limit, relations: ["author"] }));
         }
     })
 }
@@ -232,4 +247,4 @@ function get_authors(limit: number, before: number, like: string): Promise<Autho
     })
 }
 
-export { add_suggestion, get_suggestions, accept_suggestion, reject_suggestion, get_songs, add_song, get_authors, delete_song }
+export { add_suggestion, get_suggestions, accept_suggestion, reject_suggestion, get_songs, add_song, get_authors, delete_song, update_song };

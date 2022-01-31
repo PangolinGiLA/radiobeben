@@ -75,6 +75,10 @@ body {
 		cursor: pointer;
 		background-color: var(--light-bg-hover);
 	}
+	.authorpanel:hover {
+		cursor: pointer;
+		background-color: var(--light-bg-hover);
+	}
 }
 
 .navbutton:active {
@@ -299,6 +303,15 @@ body {
 }
 
 .songpanel {
+	font-size: 16px;
+	padding: 10px;
+	margin-top: 10px;
+	background-color: var(--light-bg-secondary);
+	box-shadow: inset 0px  0px 4px var(--light-shadow-main);
+	border-radius: 5px;
+}
+
+.songpanelnohover {
 	font-size: 16px;
 	padding: 10px;
 	margin-top: 10px;
@@ -614,4 +627,79 @@ body {
 	margin: 0px;
 	margin-left: 4px;
 	font-weight: bold;
+}
+
+.padding-top {
+	padding-top: 10px;
+}
+
+.songcheckboxes {
+	width: 100%;
+	max-width: 720px;
+	margin-bottom: 10px;
+	margin-top: -5px;
+	font-size: 20px;
+	display: flex;
+	justify-content: space-between;
+	flex-wrap: wrap;
+}
+
+.songproperties {
+	position: relative;
+	display: flex;
+	padding-left: 30px;
+	margin-top: 12px;
+	margin-left: 5px;
+	margin-right: 10px;
+	cursor: pointer;
+	font-size: 18px;
+}
+
+.songproperties input {
+	position: absolute;
+	opacity: 0;
+	cursor: pointer;
+	height: 0;
+	width: 0;
+}
+
+.darkcheckbox {
+	position: absolute;
+	top: 0px;
+	left: 0;
+	height: 18px;
+	width: 18px;
+	background-color: var(--light-bg-secondary);
+	border-radius: 5px;
+	border: 2px solid var(--light-font-main);
+}
+
+.songproperties:hover input ~ .darkcheckbox {
+	background-color: var(--light-bg-hover);
+}
+
+.songproperties input:checked ~ .darkcheckbox {
+	background-color: var(--light-font-main);
+}
+
+.darkcheckbox:after {
+	content: "";
+	position: absolute;
+	display: none;
+}
+
+.songproperties input:checked ~ .darkcheckbox:after {
+	display: block;
+}
+
+.songproperties .darkcheckbox:after {
+	left: 6px;
+	top: 1px;
+	width: 3px;
+	height: 10px;
+	border: solid white;
+	border-width: 0 3px 3px 0;
+	-webkit-transform: rotate(45deg);
+	-ms-transform: rotate(45deg);
+	transform: rotate(45deg);
 }

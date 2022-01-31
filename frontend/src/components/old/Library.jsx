@@ -1,6 +1,14 @@
 import React from 'react'
+import { SuggestionPopup } from './Suggestion';
 
 class Song extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            editing: false
+        }
+    }
+
     delete = () => {
         fetch('/api/songs/song', {
             method: 'DELETE',
@@ -30,6 +38,36 @@ class Song extends React.Component {
         });
     }
 
+    handleSubmitEdit = async (event) => {
+        event.preventDefault();
+        if (event.target.name.value && event.target.author.value) {
+            const data = {
+                id: this.props.id,
+                name: event.target.name.value,
+                author: event.target.author.value,
+                isPrivate: event.target.private.checked,
+                globalAuthor: !event.target.onlyone.checked
+            };
+            const r = await fetch('/api/songs/library', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+            if (r.ok) {
+                this.edit();
+                this.props.refresh(true);
+            } else {
+                this.props.sendNotification(await r.text(), 8000);
+            }
+        }
+    }
+
+    edit = () => {
+        this.setState({ editing: !this.state.editing });
+    }
+
     render() {
         var songjsx
         if (this.props.ytid !== undefined) {
@@ -39,7 +77,7 @@ class Song extends React.Component {
             songjsx = this.props.title
         }
         return (
-            <div className='songpanel'>
+            <div className='songpanelnohover'>
                 <div className="songtitle">
                     <div className='songtitleinner'>
                         {songjsx}
@@ -54,12 +92,28 @@ class Song extends React.Component {
                         <button className="smallbutton" onClick={this.play}>
                             <span className="material-icons-round" style={{ fontSize: "16px" }}>play_arrow</span>
                         </button>
+                        <button className="smallbutton" onClick={this.edit}>
+                            <span className="material-icons-round" style={{ fontSize: "16px" }}>settings</span>
+                        </button>
                         <button className="smallbutton" onClick={this.delete}>
                             <span className="material-icons-round" style={{ fontSize: "16px" }}>delete</span>
                         </button>
                     </div>
 
                 </div>
+                {this.state.editing ?
+                <div className='padding-top'>
+                    <SuggestionPopup
+                        buttontext={'Edytuj'}
+                        handleSubmit={this.handleSubmitEdit}
+                        edit={true}
+                        private={this.props.private}
+                        id={this.props.id}
+                        name={this.props.title}
+                        author={this.props.author}
+                        sendNotification={this.props.sendNotification}
+                    />
+                </div> : null }
             </div>
         )
     }
@@ -130,11 +184,13 @@ export default class Library extends React.Component {
         let toRender = []
         for (let i of this.state.songs) {
             toRender.push(<Song
+                sendNotification={this.props.sendNotification}
+                private={i.isPrivate}
                 title={i.title}
                 author={i.author.displayName}
                 ytid={i.ytid}
                 id={i.id}
-                refresh={this.props.loadData}
+                refresh={this.loadData}
                 key={i.id}
                 duration={i.duration}
             />)

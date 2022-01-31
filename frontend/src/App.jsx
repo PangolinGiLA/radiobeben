@@ -101,7 +101,7 @@ export default class App extends React.Component {
 						<Route exact path="/suggestions">
 							<Suggestions sendNotification={this.showNotification} admin={this.can(this.permissions.suggestions, this.state.permissions)} />
 						</Route>
-						{this.can(this.permissions.library, this.state.permissions) ? <Route exact path="/library"> <Library/></Route> : null}
+						{this.can(this.permissions.library, this.state.permissions) ? <Route exact path="/library"> <Library sendNotification={this.showNotification}/></Route> : null}
 						{this.can(this.permissions.library, this.state.permissions) ? <Route exact path="/addsong"> <AddSong sendNotification={this.showNotification}/></Route> : null}
 					</Switch>
 					<Footer admin={this.can(this.permissions.library, this.state.permissions)}/>

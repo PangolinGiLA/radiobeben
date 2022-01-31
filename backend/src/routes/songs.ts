@@ -1,7 +1,7 @@
 import * as express from "express";
 import { Request, Response } from "express";
 import { login_middleware, permissions, permission_middleware } from "../app/permissions";
-import { accept_suggestion, add_song, add_suggestion, delete_song, get_authors, get_songs, get_suggestions, reject_suggestion } from "../app/songs";
+import { accept_suggestion, add_song, add_suggestion, delete_song, get_authors, get_songs, get_suggestions, reject_suggestion, update_song } from "../app/songs";
 
 const router = express.Router();
 
@@ -82,6 +82,20 @@ router.post("/library", login_middleware, permission_middleware(permissions.libr
         })
         .catch(err => {
             res.status(400).send(err);    
+        });
+    } else {
+        res.sendStatus(400);
+    }
+});
+
+router.put("/library", login_middleware, permission_middleware(permissions.library), async function (req: Request, res: Response) {
+    if (req.body.id) {
+        update_song(req.body.id, req.body.author, req.body.name, req.body.isPrivate, req.body.globalAuthor)
+        .then(result => {
+            res.sendStatus(200);
+        })
+        .catch(err => {
+            res.status(400).send(err);
         });
     } else {
         res.sendStatus(400);

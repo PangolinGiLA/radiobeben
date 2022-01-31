@@ -40,9 +40,35 @@ class Suggestion extends React.Component {
         }
     }
 
+    handleSubmitPopup = async (event) => {
+        event.preventDefault();
+        if (event.target.name.value && event.target.author.value) {
+            const data = {
+                id: this.props.id,
+                name: event.target.name.value,
+                author: event.target.author.value,
+                status: 1
+            };
+            const r = await fetch('/api/songs/suggestions', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+            if (r.ok) {
+                this.whenAccepted();
+            } else {
+                this.props.sendNotification(await r.text(), 8000);
+            }
+        }
+    }
+
     accept = async () => {
         this.setState({
             toAccept: <SuggestionPopup
+                handleSubmit={this.handleSubmitPopup}
+                buttontext={'Pobierz'}
                 id={this.props.id}
                 name={this.props.name}
                 author={this.props.author}
@@ -61,24 +87,24 @@ class Suggestion extends React.Component {
         return (
             <div className={
                 (this.state.status === 1) ? 'accepted-bg suggestionpanel' : (
-                (this.state.status === -1) ? 'rejected-bg suggestionpanel' : 'suggestionpanel' )
+                    (this.state.status === -1) ? 'rejected-bg suggestionpanel' : 'suggestionpanel')
             }>
-                <a className="suggsongtitle" href={this.ytid_to_link(this.props.ytid)}>{ this.props.name }</a>
-                <div>{ this.props.author }</div>
-                <div>{ this.props.views.toLocaleString("en-US") } wyświetleń</div>
+                <a className="suggsongtitle" href={this.ytid_to_link(this.props.ytid)}>{this.props.name}</a>
+                <div>{this.props.author}</div>
+                <div>{this.props.views.toLocaleString("en-US")} wyświetleń</div>
                 <div className="navcontainer">
-                    { this.state.admin && this.state.status === 0 ? <>
-                        <Navbutton onClick={this.accept} iconid="done" style={{marginBottom: "0px"}}/>
-                        <Navbutton onClick={this.reject} iconid="close" style={{marginBottom: "0px"}}/>
-                    </>: null }
+                    {this.state.admin && this.state.status === 0 ? <>
+                        <Navbutton onClick={this.accept} iconid="done" style={{ marginBottom: "0px" }} />
+                        <Navbutton onClick={this.reject} iconid="close" style={{ marginBottom: "0px" }} />
+                    </> : null}
                 </div>
-                { this.state.admin ? this.state.toAccept : null }
+                {this.state.admin ? this.state.toAccept : null}
             </div>
         );
     }
 }
 
-class SuggestionPopup extends React.Component {
+export class SuggestionPopup extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -95,38 +121,33 @@ class SuggestionPopup extends React.Component {
         }
     }
 
-    handleSubmit = async (event) => {
-        event.preventDefault();
-        if (event.target.name.value && event.target.author.value) {
-            const data = {
-                id: this.props.id,
-                name: event.target.name.value,
-                author: event.target.author.value,
-                status: 1
-            };
-            const r = await fetch('/api/songs/suggestions', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            });
-            if (r.ok) {
-                this.props.done();
-            } else {
-                this.props.sendNotification(await r.text(), 8000);
-            }
+    handleKeypress = (e) => {
+        let code = e.charCode;
+        if (code === 32 || code === 13) { // enter or space
+            document.getElementById(e.target.attributes.forwarid.value).click();
         }
     }
 
     render() {
         return (
             <div>
-                <form onSubmit={this.handleSubmit}>
+                <form onSubmit={this.props.handleSubmit}>
                     <input onChange={this.handleChange} defaultValue={this.props.name} className="textbox2" type="text" name="name" />
                     <div>{this.state.error}</div>
                     <AuthorsPickable author={this.props.author} />
-                    <button className="nicebutton" type="submit">Pobierz</button>
+                    {this.props.edit ?
+                    <div className="songcheckboxes">
+                        <label className="songproperties" htmlFor="private_checkbox">Prywatne
+                            <input type="checkbox" id="private_checkbox" name="private" defaultChecked={this.props.private} tabIndex={-1} />
+                            <span className="darkcheckbox" tabIndex={0} onKeyPress={this.handleKeypress} forwarid="private_checkbox"></span>
+                        </label>
+
+                        <label className="songproperties" htmlFor="onlyone_checkbox"> Zmień autora tylko tej piosence
+                            <input type="checkbox" id="onlyone_checkbox" name="onlyone" defaultChecked={false} tabIndex={-1} />
+                            <span className="darkcheckbox" tabIndex={0} onKeyPress={this.handleKeypress} forwarid="onlyone_checkbox"></span>
+                        </label>
+                    </div> : null}
+                    <button className="nicebutton" type="submit">{this.props.buttontext}</button>
                 </form>
             </div>
         );
@@ -203,7 +224,7 @@ export default class Suggestions extends React.Component {
 
     handleKeypress = (e) => {
         let code = e.charCode;
-        if( code === 32 || code === 13 ) { // enter or space
+        if (code === 32 || code === 13) { // enter or space
             document.getElementById(e.target.attributes.forwarid.value).click();
         }
     }
@@ -248,7 +269,7 @@ export default class Suggestions extends React.Component {
 
                 <div className="divider"></div>
                 <div className="allsuggestionspanel" onScroll={this.handleScroll}>
-                    <div style={{overflowY: "scroll", maxHeight: "100%", paddingRight: "8px"}}>{toRender}</div>
+                    <div style={{ overflowY: "scroll", maxHeight: "100%", paddingRight: "8px" }}>{toRender}</div>
                 </div>
                 <div className="divider"></div>
             </div>
@@ -297,11 +318,11 @@ class Suggest extends React.Component {
             >
                 <Form>
                     <div className="formwrapper">
-                        <Field className="textbox" style={{maxWidth: "640px"}} type="text" name="ytlink" autoComplete="off" placeholder="tutaj wpisz link"></Field>
+                        <Field className="textbox" style={{ maxWidth: "640px" }} type="text" name="ytlink" autoComplete="off" placeholder="tutaj wpisz link"></Field>
                         <button className="formbutton" type="submit">Sugeruj</button>
                     </div>
                     <ErrorMessage className="errormsg" name="ytlink" component="span">
-                        { msg => <div className="formwrapper"><div className="formerror">{msg}</div></div> }
+                        {msg => <div className="formwrapper"><div className="formerror">{msg}</div></div>}
                     </ErrorMessage>
                 </Form>
             </Formik>
@@ -403,7 +424,7 @@ export class AuthorsPickable extends React.Component {
 
         return (
             <div>
-                    <input className="textbox2" placeholder="Autor" type="text" name="author" id="library_search_active" autoComplete="off" value={this.state.inputText} onChange={this.handleTextChange}  onFocus={this.searching_start} /> 
+                <input className="textbox2" placeholder="Autor" type="text" name="author" id="library_search_active" autoComplete="off" value={this.state.inputText} onChange={this.handleTextChange} onFocus={this.searching_start} />
                 {this.state.selected === "" ?
                     <div className="authorselect" style={this.scrollstyle} onScroll={this.handleScroll}>{toRender}</div> : null}
             </div>
