@@ -17,6 +17,7 @@ const Navbar = (props) => {
 		"/playlist": "Playlista",
 		"/old": "Śmieci Administratora",
 		"/addsong": "Dodaj piosenkę",
+		"/users": "Użytkownicy"
 	}
 
 	return (

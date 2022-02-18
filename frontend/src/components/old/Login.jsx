@@ -45,7 +45,7 @@ export default function LoginPage(props) {
                 <ErrorMessage name="login" component="span" className="error" />
                 <Field type="password" name="password" />
                 <ErrorMessage name="password" component="span" className="error" />
-                <button type="submit">przycisk</button>
+                <input type="submit" value={"Zaloguj się"}/>
             </Form>
         </Formik>
     </div>

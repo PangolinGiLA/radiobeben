@@ -2,7 +2,7 @@ import LoginPage from "./components/old/Login.jsx";
 import Suggestions from "./components/old/Suggestion.jsx";
 import Breakes from "./components/old/Playlist.jsx"
 import BreaksInput from "./components/old/Breaketime.jsx";
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import Navbar from "./components/Navbar.jsx";
 import Playlist from "./components/playlist/Playlist.jsx";
 import Weekdays from "./components/old/Schedule.jsx";
@@ -12,6 +12,7 @@ import Logout from "./components/old/Logout.jsx";
 import Amp from "./components/old/Amp.jsx";
 import Library from "./components/old/Library.jsx";
 import AddSong from "./components/old/AddSong.jsx";
+import Users from "./components/old/Users.jsx";
 
 export default class App extends React.Component {
 	constructor(props) {
@@ -86,7 +87,7 @@ export default class App extends React.Component {
 					<Navbar notification={this.state.notification} admin={this.can(this.permissions.library, this.state.permissions)}/>
 					<Switch>
 						<Route exact path="/">
-							<Playlist />
+						<Redirect to="/playlist" />
 						</Route>
 						<Route exact path="/old">
 							{this.can(this.permissions.schedule, this.state.permissions) ? <BreaksInput breaktimes={[]} admin={this.state.admin} /> : null }
@@ -103,6 +104,7 @@ export default class App extends React.Component {
 						</Route>
 						{this.can(this.permissions.library, this.state.permissions) ? <Route exact path="/library"> <Library sendNotification={this.showNotification}/></Route> : null}
 						{this.can(this.permissions.library, this.state.permissions) ? <Route exact path="/addsong"> <AddSong sendNotification={this.showNotification}/></Route> : null}
+						{this.can(this.permissions.users, this.state.permissions) ? <Route exact path="/users"> <Users sendNotification={this.showNotification}/></Route> : null}
 					</Switch>
 					<Footer admin={this.can(this.permissions.library, this.state.permissions)}/>
 				</div>

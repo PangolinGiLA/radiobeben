@@ -1,6 +1,6 @@
 import * as express from "express";
 import { Request, Response } from "express";
-import { login, register } from "../app/users";
+import { change_password, login, register } from "../app/users";
 import { get_permissions, login_middleware, permissions, permission_middleware } from "../app/permissions";
 
 const router = express.Router();
@@ -28,6 +28,20 @@ router.post("/login", function (req: Request, res: Response) {
         }
     } else {
         res.status(403).send("already logged in");
+    }
+});
+
+router.put("/password", login_middleware, function (req: Request, res: Response) {
+    if (req.body.old_password && req.body.new_password) {
+        change_password(req.session.userid, req.body.old_password, req.body.new_password)
+            .then(result => {
+                res.sendStatus(200);
+            })
+            .catch(err => {
+                res.status(400).send(err);
+            });
+    } else {
+        res.sendStatus(400);
     }
 });
 

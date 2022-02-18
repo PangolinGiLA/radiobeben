@@ -27,41 +27,42 @@ function register(username: string, password: string, permission?: number): Prom
         userTable.findOne({ login: username }).then(user => {
             if (user)
                 reject("username not available");
-            else{
+            else {
                 bcrypt.hash(password, 10).then(hashed => {
                     let permissions = permission ? permission : 63;
-                    let user = userTable.create({login: username, pass: hashed, permissions: permissions});
+                    let user = userTable.create({ login: username, pass: hashed, permissions: permissions });
                     userTable.insert(user).then(result => {
                         resolve("done");
                     })
 
                 });
             }
-                
+
         });
     });
 }
 
-function change_password(username: string, curr_password: string, new_password: string): Promise <string> {
-    return new Promise <string> ((resolve, reject) => {
-        login(username, curr_password).then(id => { // not *really* loggin in, just re-using function to check if pass is right
-            if (typeof(id) === 'number') {
-                let userTable = getRepository(User);
-                bcrypt.hash(new_password, 10).then(hashed => {
-                    userTable.update(id, {pass: hashed}).then(result => {
-                        resolve("done");
-                    });
-                });
-               
+function change_password(userid: number, curr_password: string, new_password: string): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+        let userTable = getRepository(User);
+        userTable.findOne(userid).then(async user => {
+            if (user) {
+                if (await bcrypt.compare(curr_password, user.pass)) {
+                    let hashed = await bcrypt.hash(new_password, 10);
+                    await userTable.update(user.id, { pass: hashed });
+                    resolve("done");
+                } else {
+                    reject("Złe hasło!");
+                }
             } else {
-                reject ("password not correct");
+                reject("user not found"); // should not happen, as userid is checked in middleware
             }
         });
     });
 }
 
-function delete_user(id: number): Promise <string> {
-    return new Promise <string> ((resolve, reject) => {
+function delete_user(id: number): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
         let userTable = getRepository(User);
         userTable.delete(id).then(result => {
             resolve("done");
@@ -70,18 +71,18 @@ function delete_user(id: number): Promise <string> {
 }
 
 function change_permission(id: number, permission: number): Promise<string> {
-    return new Promise<string> ((resolve, reject) => {
+    return new Promise<string>((resolve, reject) => {
         let userTable = getRepository(User);
-        userTable.update(id, {permissions: permission}).then(result => {
+        userTable.update(id, { permissions: permission }).then(result => {
             resolve("done");
         });
     });
 }
 
 function change_username(id: number, username: string): Promise<string> {
-    return new Promise<string> ((resolve, reject) => {
+    return new Promise<string>((resolve, reject) => {
         let userTable = getRepository(User);
-        userTable.update(id, {login: username}).then(result => {
+        userTable.update(id, { login: username }).then(result => {
             resolve("done");
         });
     });
@@ -91,4 +92,4 @@ function get_users(id: number): Promise<User[]> {
     return getRepository(User).find();
 }
 
-export { login, register };
+export { login, register, change_password };
