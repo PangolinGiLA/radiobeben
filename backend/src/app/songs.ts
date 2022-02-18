@@ -182,29 +182,35 @@ function update_song(id: number, author?: string, name?: string, isPrivate?: boo
         let songTable = getRepository(Song);
         let song = await songTable.findOne(id);
         if (song) {
-            if (author && globalAuthor) {
-                let authorTable = getRepository(Author);
-                let newauthor = await authorTable.findOne({ displayName: author });
-                if (newauthor) {
-                    let oldauthor = song.author;
-                    song.author = newauthor;
-                    await songTable.update({author: oldauthor}, {author: newauthor});
-                    await authorTable.remove(oldauthor);
-                } else {
-                    song.author.displayName = author;
-                    await authorTable.save(song.author);
-                }
-            } else {
-                if (author) {
-                    try {
-                        song.author = await find_add_author(author);
+            if (author !== song.author.displayName) {
+                if (author && globalAuthor) {
+                    let authorTable = getRepository(Author);
+                    let newauthor = await authorTable.findOne({ displayName: author });
+                    if (newauthor) {
+                        let oldauthor = song.author;
+                        song.author = newauthor;
+                        await songTable.update({ author: oldauthor }, { author: newauthor });
+                        await authorTable.remove(oldauthor);
+                    } else {
+                        song.author.displayName = author;
+                        await authorTable.save(song.author);
                     }
-                    catch (err) {
-                        reject(err);
+                } else {
+                    if (author) {
+                        try {
+                            let oldauthor = song.author;
+                            song.author = await find_add_author(author);
+                            if ((await songTable.find({author: oldauthor})).length === 0) {
+                                let authorTable = getRepository(Author);
+                                await authorTable.remove(oldauthor);
+                            }
+                        }
+                        catch (err) {
+                            reject(err);
+                        }
                     }
                 }
             }
-
             if (name)
                 song.title = name;
             if (isPrivate)
