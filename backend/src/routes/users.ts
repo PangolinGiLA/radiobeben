@@ -47,9 +47,10 @@ router.put("/password", login_middleware, function (req: Request, res: Response)
 
 router.use(login_middleware);
 
-router.post("/register", permission_middleware(permissions.users), function (req: Request, res: Response) {
-    if (req.body.login && req.body.password) {
-        register(req.body.login, req.body.password)
+router.post("/register", login_middleware, permission_middleware(permissions.users), function (req: Request, res: Response) {
+    if (req.body.login && req.body.password && req.body.permissions) {
+        if ((req.body.login as string).length >= 3 && (req.body.password as string).length > 8) {
+        register(req.body.login, req.body.password, req.body.permissions)
             .then(result => {
                 console.log(result);
                 res.sendStatus(200);
@@ -58,6 +59,9 @@ router.post("/register", permission_middleware(permissions.users), function (req
                 console.log(err);
                 res.sendStatus(400);
             })
+        } else {
+            res.sendStatus(400);
+        }
     } else {
         res.sendStatus(400);
     }

@@ -17,7 +17,8 @@ export class Amp {
     mode: mode = mode.OFF;
     break_getter = null;
     break_checker = null;
-    
+    working = false;
+
     port = new SerialPort(cfg.serial_port, { autoOpen: false });
     enabled = false;
 
@@ -31,6 +32,7 @@ export class Amp {
         // but i took it from previous system
         // i assume it is needed
         this.port.on('open', function () {
+            this.working = true;
             this.port.write('s');
         }.bind(this));
 
@@ -50,19 +52,21 @@ export class Amp {
     }
 
     autoamp() {
-        if (this.is_break()) {
-            this.port.write('+');
-            this.enabled = true;
-        } else {
-            this.port.write('-');
-            this.enabled = false;
+        if (this.working) {
+            if (this.is_break()) {
+                this.port.write('+');
+                this.enabled = true;
+            } else {
+                this.port.write('-');
+                this.enabled = false;
+            }
         }
+
     }
 
     get_curr_breaks = async () => {
         let info = await get_day_info(new Date());
-        if (info.isEnabled)
-        {
+        if (info.isEnabled) {
             if (info.breaketime)
                 this.breaks = info.breaketime.breaketimesJSON;
         } else {
@@ -97,13 +101,16 @@ export class Amp {
         } else {
             clearInterval(this.break_getter);
             clearInterval(this.break_checker);
-            if (new_mode == mode.OFF) {
-                this.port.write('-');
-                this.enabled = false;
-            } else {
-                this.port.write('+');
-                this.enabled = true;
+            if (this.working) {
+                if (new_mode == mode.OFF) {
+                    this.port.write('-');
+                    this.enabled = false;
+                } else {
+                    this.port.write('+');
+                    this.enabled = true;
+                }
             }
+
         }
     }
 

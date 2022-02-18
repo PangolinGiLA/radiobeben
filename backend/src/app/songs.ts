@@ -181,6 +181,8 @@ function update_song(id: number, author?: string, name?: string, isPrivate?: boo
     return new Promise<string>(async (resolve, reject) => {
         let songTable = getRepository(Song);
         let song = await songTable.findOne(id);
+        let oldauthor2 = song.author;
+        let changed = false;
         if (song) {
             if (author !== song.author.displayName) {
                 if (author && globalAuthor) {
@@ -198,12 +200,8 @@ function update_song(id: number, author?: string, name?: string, isPrivate?: boo
                 } else {
                     if (author) {
                         try {
-                            let oldauthor = song.author;
                             song.author = await find_add_author(author);
-                            if ((await songTable.find({author: oldauthor})).length === 0) {
-                                let authorTable = getRepository(Author);
-                                await authorTable.remove(oldauthor);
-                            }
+                            changed = true;
                         }
                         catch (err) {
                             reject(err);
@@ -217,6 +215,12 @@ function update_song(id: number, author?: string, name?: string, isPrivate?: boo
                 song.isPrivate = isPrivate;
 
             await songTable.save(song);
+            if (changed) {
+                if ((await songTable.find({ author: oldauthor2 })).length === 0) {
+                    let authorTable = getRepository(Author);
+                    await authorTable.remove(oldauthor2);
+                }
+            }
             resolve("done");
         } else {
             reject("Nie ma takiej piosenki!");
