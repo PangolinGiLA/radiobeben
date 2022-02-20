@@ -330,6 +330,11 @@ function set_weekday(weekday: number, isEnabled: boolean, breaketimeid?: number,
                 for (let i of daysToMigrate) {
                     let day = await getRepository(Days).findOne(i.day_id);
                     await migrate_day(old_schedule.breaketime.breaketimesJSON, breaketime.breaketimesJSON, day);
+                    day.isEnabled = isEnabled;
+                    day.breaketime = breaketime;
+                    if (visibility)
+                        day.visibility = visibility;
+                    await daysTable.save(day);
                 }
                 resolve("done");
             } else {
@@ -402,6 +407,7 @@ function create_day(day: Date): Promise<Days> {
     });
 }
 
+// NOT WORKING IDK WHY TO DEBUG LATER
 function migrate_day(old_breaketimes: Break[], new_breaketimes: Break[], day: Days): Promise<string> {
     return new Promise<string>(async resolve => {
         if (old_breaketimes !== new_breaketimes) {
@@ -409,14 +415,22 @@ function migrate_day(old_breaketimes: Break[], new_breaketimes: Break[], day: Da
                 if (new_breaketimes[i]) {
                     // move beginings of the song by time difference
                     let oldtime = new Date(day.date);
-                    oldtime = setHMS(oldtime, new_breaketimes[i].start.hour, new_breaketimes[i].start.minutes, 0);
+                    oldtime = setHMS(oldtime, old_breaketimes[i].start.hour, old_breaketimes[i].start.minutes, 0);
                     let newtime = new Date(day.date);
                     newtime = setHMS(newtime, new_breaketimes[i].start.hour, new_breaketimes[i].start.minutes, 0);
                     let diff = (oldtime.getTime() - newtime.getTime()) / 1000; // time difference in seconds
-                    let result = await getManager().query(
-                        "UPDATE playlist SET estTime=SUBTIME(estTime, ?) WHERE breakNumber=? AND dayId=?",
-                        [diff, i, day.id]
-                    );
+                    if (diff < 0) {
+                        let result = await getManager().query(
+                            "UPDATE playlist SET estTime=ADDTIME(estTime, SEC_TO_TIME(?)) WHERE breakNumber=? AND dayId=?",
+                            [Math.abs(diff), i, day.id]
+                        );
+                    } else {
+                        let result = await getManager().query(
+                            "UPDATE playlist SET estTime=SUBTIME(estTime, SEC_TO_TIME(?)) WHERE breakNumber=? AND dayId=?",
+                            [Math.abs(diff), i, day.id]
+                        );
+                    }
+
                     // remove songs that start after break end
                     let breakend = new Date(day.date);
                     breakend = setHMS(breakend, new_breaketimes[i].end.hour, new_breaketimes[i].end.minutes, 0);
@@ -434,12 +448,22 @@ function migrate_day(old_breaketimes: Break[], new_breaketimes: Break[], day: Da
     });
 }
 
-function reset_day_schedule(day: Days): Promise<string> {
-    return new Promise<string>(async resolve => {
+function reset_day_schedule(date: string): Promise<string> {
+    return new Promise<string>(async (resolve, reject) => {
         let scheduleTable = getRepository(Schedule);
-        let schedule = await scheduleTable.findOne({ weekday: new Date(day.date).getDay() }, { relations: ["breaketime"] });
-        await migrate_day(day.breaketime.breaketimesJSON, schedule.breaketime.breaketimesJSON, day);
-        resolve("done");
+        let daysTable = getRepository(Days);
+        let day = await daysTable.findOne({ date: date }, {relations: ["breaketime"]});
+        if (day) {
+            let schedule = await scheduleTable.findOne({ weekday: new Date(day.date).getDay() }, { relations: ["breaketime"] });
+            await migrate_day(day.breaketime.breaketimesJSON, schedule.breaketime.breaketimesJSON, day);
+            day.isEnabled = schedule.isEnabled;
+            day.visibility = schedule.visibility;
+            day.breaketime = schedule.breaketime;
+            await daysTable.save(day);
+            resolve("done");
+        } else {
+            reject("Nie ma takiego dnia!");
+        }
     });
 }
 

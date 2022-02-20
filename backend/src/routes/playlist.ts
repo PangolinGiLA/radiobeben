@@ -143,9 +143,14 @@ router.get("/stop", login_middleware, permission_middleware(permissions.playlist
 });
 
 router.delete("/day", login_middleware, permission_middleware(permissions.schedule), async function (req: Request, res: Response) {
-    if (req.body.day) {
-        await reset_day_schedule(req.body.day);
-        res.sendStatus(200);
+    if (req.body.date) {
+        reset_day_schedule(req.body.date)
+        .then(() => {
+            res.sendStatus(200);
+        })
+        .catch(err => {
+            res.status(400).send(err);
+        });
     } else {
         res.sendStatus(400);
     }
