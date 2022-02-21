@@ -175,6 +175,7 @@ class Breaks extends React.Component {
             if (this.state.songs instanceof Array) {
                 songs = [...this.state.songs];
             }
+            songs.sort((a, b) => { return a.breakNumber - b.breakNumber });
             for (let i = 0; i < this.state.breaks.length; i++) {
                 let temp = [];
                 // get songs for that break
