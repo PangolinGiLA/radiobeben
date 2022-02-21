@@ -268,8 +268,8 @@ export default class Suggestions extends React.Component {
                 <Suggest done={this.loadData} sendNotification={this.props.sendNotification} />
 
                 <div className="divider"></div>
-                <div className="allsuggestionspanel" onScroll={this.handleScroll}>
-                    <div style={{ overflowY: "scroll", maxHeight: "100%", paddingRight: "8px" }}>{toRender}</div>
+                <div className="allsuggestionspanel">
+                    <div onScroll={this.handleScroll} style={{ overflowY: "scroll", maxHeight: "100%", paddingRight: "8px" }}>{toRender}</div>
                 </div>
                 <div className="divider"></div>
             </div>
