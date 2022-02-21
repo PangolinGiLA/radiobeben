@@ -164,8 +164,8 @@ export default class Suggestions extends React.Component {
             rejected: localStorage.getItem('rejected') === 'true',
             waiting: localStorage.getItem('waiting') === 'true',
             submit: false,
+            loading: false
         };
-        this.loading = false;
     }
 
     componentDidMount() {
@@ -185,7 +185,7 @@ export default class Suggestions extends React.Component {
     }
 
     loadData = (reload = false) => {
-        this.loading = true;
+        this.setState({ loading: true });
         let before = this.state.suggestions.length > 0 ? this.state.suggestions[this.state.suggestions.length - 1].id : -1;
         before = reload ? -1 : before;
         fetch('/api/songs/suggestions?' + new URLSearchParams({
@@ -199,10 +199,10 @@ export default class Suggestions extends React.Component {
                 if (r.ok) {
                     if (reload) {
                         let new_suggestions = JSON.parse(await r.text());
-                        this.setState({ suggestions: new_suggestions });
+                        this.setState({ suggestions: new_suggestions, loading: false });
                     } else {
                         let new_suggestions = this.state.suggestions.concat(JSON.parse(await r.text()));
-                        this.setState({ suggestions: new_suggestions });
+                        this.setState({ suggestions: new_suggestions, loading: false });
                     }
 
                 }
@@ -211,7 +211,7 @@ export default class Suggestions extends React.Component {
 
     handleScroll = (e) => {
         if (e.target.scrollTop / (e.target.scrollHeight - e.target.clientHeight) > 0.95) {
-            if (!this.loading) {
+            if (!this.state.loading) {
                 this.loadData();
             }
         }
