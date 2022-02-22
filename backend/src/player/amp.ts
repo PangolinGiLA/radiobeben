@@ -3,7 +3,7 @@ import { get_day_info } from "../app/playlist"
 import { my_time_to_Date } from "../app/datetime";
 import { getConnection, getRepository } from "typeorm";
 import { SettingPersistence } from "../entity/SettingPersistence";
-import SerialPort = require('serialport');
+import { SerialPort } from 'serialport'
 import { cfg } from "../config/general";
 
 export enum mode {
@@ -19,7 +19,7 @@ export class Amp {
     break_checker = null;
     working = false;
 
-    port = new SerialPort(cfg.serial_port, { autoOpen: false });
+    port = new SerialPort({path: cfg.serial_port,  autoOpen: false, baudRate: 9600 });
     enabled = false;
 
     constructor() {

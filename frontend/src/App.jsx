@@ -4,7 +4,6 @@ import Breakes from "./components/old/Playlist.jsx"
 import BreaksInput from "./components/old/Breaketime.jsx";
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import Navbar from "./components/Navbar.jsx";
-import Playlist from "./components/playlist/Playlist.jsx";
 import Weekdays from "./components/old/Schedule.jsx";
 import Footer from "./components/Footer.jsx";
 import React from "react";

@@ -1,6 +1,6 @@
 import React from "react";
 import { AuthorsPickable } from "./Suggestion";
-import * as ytdl from "ytdl-core"
+import { getVideoID, validateURL } from "./yt-url-utils";
 import { withRouter } from "react-router-dom";
 import Navbutton from "../Navbutton";
 
@@ -24,7 +24,7 @@ class AddSongPopup extends React.Component {
         const link = event.target.value;
         if (link.length === 0) {
             this.setState({ error: "Podaj link!" });
-        } else if (!ytdl.validateURL(link)) {
+        } else if (validateURL(link)) {
             this.setState({ error: "Niepoprawny link!" });
         } else {
             this.setState({ error: "" });
@@ -36,7 +36,7 @@ class AddSongPopup extends React.Component {
         if (event.target.ytlink.value) {
             console.log(event.target)
             const data = {
-                ytid: ytdl.getVideoID(event.target.ytlink.value),
+                ytid: getVideoID(event.target.ytlink.value),
                 name: event.target.name.value,
                 author: event.target.author.value,
                 isPrivate: event.target.private.checked

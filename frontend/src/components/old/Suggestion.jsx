@@ -1,6 +1,6 @@
 import React from "react";
 import { Form, Formik, Field, ErrorMessage } from "formik";
-import * as ytdl from "ytdl-core"
+import { getVideoID, validateURL } from "./yt-url-utils";
 import Navbutton from "../Navbutton";
 
 class Suggestion extends React.Component {
@@ -136,17 +136,17 @@ export class SuggestionPopup extends React.Component {
                     <div>{this.state.error}</div>
                     <AuthorsPickable author={this.props.author} />
                     {this.props.edit ?
-                    <div className="songcheckboxes">
-                        <label className="songproperties" htmlFor="private_checkbox">Prywatne
-                            <input type="checkbox" id="private_checkbox" name="private" defaultChecked={this.props.private} tabIndex={-1} />
-                            <span className="darkcheckbox" tabIndex={0} onKeyPress={this.handleKeypress} forwarid="private_checkbox"></span>
-                        </label>
+                        <div className="songcheckboxes">
+                            <label className="songproperties" htmlFor="private_checkbox">Prywatne
+                                <input type="checkbox" id="private_checkbox" name="private" defaultChecked={this.props.private} tabIndex={-1} />
+                                <span className="darkcheckbox" tabIndex={0} onKeyPress={this.handleKeypress} forwarid="private_checkbox"></span>
+                            </label>
 
-                        <label className="songproperties" htmlFor="onlyone_checkbox"> Zmień autora tylko tej piosence
-                            <input type="checkbox" id="onlyone_checkbox" name="onlyone" defaultChecked={false} tabIndex={-1} />
-                            <span className="darkcheckbox" tabIndex={0} onKeyPress={this.handleKeypress} forwarid="onlyone_checkbox"></span>
-                        </label>
-                    </div> : null}
+                            <label className="songproperties" htmlFor="onlyone_checkbox"> Zmień autora tylko tej piosence
+                                <input type="checkbox" id="onlyone_checkbox" name="onlyone" defaultChecked={false} tabIndex={-1} />
+                                <span className="darkcheckbox" tabIndex={0} onKeyPress={this.handleKeypress} forwarid="onlyone_checkbox"></span>
+                            </label>
+                        </div> : null}
                     <button className="nicebutton" type="submit">{this.props.buttontext}</button>
                 </form>
             </div>
@@ -291,7 +291,7 @@ class Suggest extends React.Component {
                     if (!values.ytlink) {
                         errors.ytlink = "Wpisz link!";
                     }
-                    else if (!ytdl.validateURL(values.ytlink)) {
+                    else if (validateURL(values.ytlink)) {
                         errors.ytlink = "Niepoprawny link!";
                     }
                     return errors;
@@ -299,7 +299,7 @@ class Suggest extends React.Component {
                 onSubmit={async (values, { setSubmitting, resetForm }) => {
                     resetForm({}) // why reset?
                     const data = {
-                        ytid: ytdl.getVideoID(values.ytlink)
+                        ytid: getVideoID(values.ytlink)
                     };
                     const r = await fetch('/api/songs/suggestions', {
                         method: 'POST',
