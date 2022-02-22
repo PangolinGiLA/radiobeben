@@ -18,7 +18,7 @@ function get_playlist(date: Date, userid?: number): Promise<Playlist[]> {
         );
         let dayInfo = await get_day_info(date);
         if ((dayInfo.visibility !== 0) || (userid && await can(userid, permissions.playlist))) {
-            if (day)
+            if (day && day.isEnabled)
                 resolve(day.playlist);
             else
                 resolve([]);
@@ -342,6 +342,21 @@ function set_weekday(weekday: number, isEnabled: boolean, breaketimeid?: number,
             }
         } else {
             await scheduleTable.update(weekday, { isEnabled: false });
+            let daysTable = getRepository(Days);
+                let daysToMigrate = await daysTable.createQueryBuilder("day")
+                    .select()
+                    .where("day.date >= CURRENT_DATE()")
+                    .andWhere("WEEKDAY(day.date) = :weekday", { weekday: (weekday + 6) % 7 })
+                    .andWhere("day.hasDefaultSchedule = TRUE")
+                    .execute()
+                // ik, should do it with one query but im lazy
+                for (let i of daysToMigrate) {
+                    let day = await getRepository(Days).findOne(i.day_id);
+                    day.isEnabled = false;
+                    if (visibility)
+                        day.visibility = visibility;
+                    await daysTable.save(day);
+                }
             resolve("done");
         }
     });
@@ -441,7 +456,7 @@ function migrate_day(old_breaketimes: Break[], new_breaketimes: Break[], day: Da
             // remove song from breaks that don't exist now
             if (old_breaketimes.length > new_breaketimes.length) {
                 let playlistTable = getRepository(Playlist);
-                await playlistTable.delete({ breakNumber: MoreThan(new_breaketimes.length) });
+                await playlistTable.delete({ day: day, breakNumber: MoreThan(new_breaketimes.length - 1) });
             }
         }
         resolve("done");

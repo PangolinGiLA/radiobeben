@@ -1,31 +1,23 @@
-# How to set-up
+App in React and Typescript for scheduling music written with school local radio in mind.
+Inspired by https://github.com/etiaro/LocalRadio
+
+# How to set-up for development
 dependencies:  
 + node.js: https://nodejs.org/en/  
 + ffmpeg: https://www.ffmpeg.org/download.html 
-	
-You need to add both to path, then:
 
+For linux you can just install them with a package manager of choice.
+For windows download them from links and addd to path.
+ 
+Then
 1. set up mysql database ( for example with docker container ) and add its name to `ormconfig.js` in database field (or use `DB_NAME` environment variable)
-1. open new terminal in project directory  
-1. `cd backend` then `npm install`  
-1. `npm start` this should automatically create all tables in database  
-1. you need to add some rows so aplication will by fully functional:  
-	+ add at least 1 row in days table (set the date to current date)
-	+ add one row in breaktimes table\
-	(in breaktimesJSON you need to put the json in table\
-	example:  `[{"start":{"hour":8,"minutes": 10},"end":{"hour":8,"minutes":20}}]`)
-	+ in schedule add days form 0 to 6
-	+ default `admin` user will be automatically created with password `admin`
+1. instal npm packages with `npm install` in backend and frontend directory
+1. start frontend with `npm start` and backend with `npm run dev`
 
-	You might need to restart backend after that
+Admin panel is accesible at /old and /users for now.
+Default login credentials are admin admin. Remebmer to change them for production!
 
-1. `mkdir Music`    
-1. `cd ../frontend`  
-1. `npm install` then `npm start`   
-	
 This should be all you need (at least I hope so...)
-
-Most of the code I wrote is not yet tested. I will do that after I develop frontend for that part of backend.
 
 # Docker
 Run `radio/build.sh`\
