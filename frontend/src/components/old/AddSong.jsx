@@ -24,7 +24,7 @@ class AddSongPopup extends React.Component {
         const link = event.target.value;
         if (link.length === 0) {
             this.setState({ error: "Podaj link!" });
-        } else if (validateURL(link)) {
+        } else if (!validateURL(link)) {
             this.setState({ error: "Niepoprawny link!" });
         } else {
             this.setState({ error: "" });

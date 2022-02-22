@@ -21,7 +21,7 @@ var getURLVideoID = link => {
         throw Error(`No video id found: ${link}`);
     }
     id = id.substring(0, 11);
-    if (!exports.validateID(id)) {
+    if (!validateID(id)) {
         throw TypeError(`Video id (${id}) does not match expected ` +
             `format (${idRegex.toString()})`);
     }
@@ -44,7 +44,7 @@ var getVideoID = str => {
 
 var validateURL = string => {
     try {
-        exports.getURLVideoID(string);
+        getURLVideoID(string);
         return true;
     } catch (e) {
         return false;

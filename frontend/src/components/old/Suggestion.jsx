@@ -291,7 +291,7 @@ class Suggest extends React.Component {
                     if (!values.ytlink) {
                         errors.ytlink = "Wpisz link!";
                     }
-                    else if (validateURL(values.ytlink)) {
+                    else if (!validateURL(values.ytlink)) {
                         errors.ytlink = "Niepoprawny link!";
                     }
                     return errors;
