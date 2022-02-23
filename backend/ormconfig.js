@@ -7,6 +7,7 @@ module.exports = {
    "database": process.env.DB_NAME || "radio",
    "synchronize": true,
    "logging": false,
+   "charset": "utf8mb4_unicode_ci",
    "entities": [
       "src/entity/**/*.ts",
       "src/entity/**/*.js" // applies in built container
