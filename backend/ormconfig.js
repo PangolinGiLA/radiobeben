@@ -2,11 +2,12 @@ module.exports = {
    "type": "mysql",
    "host": process.env.DB_HOST || "localhost",
    "port": process.env.DB_PORT || 3306,
-   "username": process.env.DB_USER || "root",
-   "password": process.env.DB_PASS || "",
-   "database": process.env.DB_NAME || "radio",
+   "username": process.env.DB_USER || "pangolingila",
+   "password": process.env.DB_PASS || "pass",
+   "database": process.env.DB_NAME || "fajna",
    "synchronize": true,
    "logging": false,
+   "charset": "utf8mb4_unicode_ci",
    "entities": [
       "src/entity/**/*.ts",
       "src/entity/**/*.js" // applies in built container
