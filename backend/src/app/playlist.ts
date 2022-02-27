@@ -23,7 +23,7 @@ function get_playlist(date: Date, userid?: number): Promise<Playlist[]> {
             else
                 resolve([]);
         } else {
-            reject("not permitted");
+            resolve([]);
         }
     });
 }
@@ -298,7 +298,7 @@ function get_schedule(day: Date, userid?: number): Promise<Break[]> {
                 else
                     resolve([]);
             } else {
-                reject("Dzień jest prywatny!");
+                resolve([]);
             }
         } else {
             if (info.isEnabled)

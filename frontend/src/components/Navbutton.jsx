@@ -8,8 +8,8 @@ const Navbutton = (props) => {
 			<span className="material-icons-round">{props.iconid}</span>
 		</Link>
 		:
-		<button className="navbutton" {...props}>
-			<span className="material-icons-round">{props.iconid}</span>
+		<button className={props.small ? "smallbutton" : "navbutton"} {...props}>
+			<span className="material-icons-round" style={props.small ? { fontSize: "16px" } : null}>{props.iconid}</span>
 		</button>
 	} </>
 	);

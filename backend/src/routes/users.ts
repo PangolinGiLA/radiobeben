@@ -1,6 +1,6 @@
 import * as express from "express";
 import { Request, Response } from "express";
-import { change_password, login, register } from "../app/users";
+import { change_password, get_users, login, register, delete_user, change_permission } from "../app/users";
 import { get_permissions, login_middleware, permissions, permission_middleware } from "../app/permissions";
 
 const router = express.Router();
@@ -48,7 +48,7 @@ router.put("/password", login_middleware, function (req: Request, res: Response)
 router.use(login_middleware);
 
 router.post("/register", login_middleware, permission_middleware(permissions.users), function (req: Request, res: Response) {
-    if (req.body.login && req.body.password && req.body.permissions) {
+    if (req.body.login && req.body.password && req.body.permissions !== undefined) {
         if ((req.body.login as string).length >= 3 && (req.body.password as string).length > 8) {
         register(req.body.login, req.body.password, req.body.permissions)
             .then(result => {
@@ -80,6 +80,29 @@ router.get("/permissions", async function(req: Request, res: Response) {
     } else {
         // not logged in
         res.sendStatus(401);
+    }
+});
+
+router.get("/users", login_middleware, permission_middleware(permissions.users), async function(req: Request, res: Response) {
+    let users = await get_users();
+    res.status(200).send(users);
+});
+
+router.delete("/users", login_middleware, permission_middleware(permissions.users), async function(req: Request, res: Response) {
+    if (req.body.id && req.body.id !== req.session.userid) {
+        await delete_user(req.body.id);
+        res.sendStatus(200);
+    } else {
+        res.sendStatus(400);
+    }
+});
+
+router.put("/permissions", login_middleware, permission_middleware(permissions.users), async function(req: Request, res: Response) {
+    if (req.body.id && req.body.permissions !== undefined && req.body.id !== req.session.userid) {
+        await change_permission(req.body.id, req.body.permissions);
+        res.sendStatus(200);
+    } else {
+        res.sendStatus(400);
     }
 });
 

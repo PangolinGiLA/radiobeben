@@ -29,7 +29,7 @@ function register(username: string, password: string, permission?: number): Prom
                 reject("username not available");
             else {
                 bcrypt.hash(password, 10).then(hashed => {
-                    let permissions = permission ? permission : 63;
+                    let permissions = permission ? permission : 31;
                     let user = userTable.create({ login: username, pass: hashed, permissions: permissions });
                     userTable.insert(user).then(result => {
                         resolve("done");
@@ -88,8 +88,8 @@ function change_username(id: number, username: string): Promise<string> {
     });
 }
 
-function get_users(id: number): Promise<User[]> {
+function get_users(): Promise<User[]> {
     return getRepository(User).find();
 }
 
-export { login, register, change_password };
+export { login, register, change_password, get_users, delete_user, change_permission };
