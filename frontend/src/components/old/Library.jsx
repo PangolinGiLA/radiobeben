@@ -124,7 +124,8 @@ export default class Library extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            songs: []
+            songs: [],
+            order: localStorage.getItem('order') ? localStorage.getItem('order') : "ta"
         }
         this.loading = false;
         this.searchText = "";
@@ -143,6 +144,9 @@ export default class Library extends React.Component {
         if (prevState.songs.length !== this.state.songs.length) {
             this.loading = false;
         }
+        if (prevState.order !== this.state.order) {
+            this.loadData(true);
+        }
     }
 
     loadData = (clear) => {
@@ -155,7 +159,8 @@ export default class Library extends React.Component {
         fetch('/api/songs/library?' + new URLSearchParams({
             limit: 20,
             before: new_songs.length,
-            like: this.searchText
+            like: this.searchText,
+            order: this.state.order
         }))
             .then(async r => {
                 if (r.ok) {
@@ -180,6 +185,11 @@ export default class Library extends React.Component {
         }
     }
 
+    handleOrderChange = (e) => {
+        localStorage.setItem("order", e.target.value);
+        this.setState({order: e.target.value});
+    }
+
     render() {
         let toRender = []
         for (let i of this.state.songs) {
@@ -200,6 +210,16 @@ export default class Library extends React.Component {
             <div className='header'></div>
             <div className='formwrapper'>
                 <input className='textbox2' placeholder='Szukaj' type="text" name="searchbox" id="library_search" onChange={this.handleTextChange} />
+                <select name="order" id="order" onChange={this.handleOrderChange} value={this.state.order}>
+                    <option value="ta">tytuł rosnąco</option>
+                    <option value="td">tytuł malejąco</option>
+                    <option value="dd">czas trwania malejąco</option>
+                    <option value="da">czas trwania rosnąco</option>
+                    <option value="aa">autor rosnąco</option>
+                    <option value="ad">autor malejąco</option>
+                    <option value="ia">czas dodania rosnąco</option>
+                    <option value="id">czas dodania malejąco</option>
+                </select>
             </div>
             <div className='divider'></div>
             <div className='allsuggestionspanel'>

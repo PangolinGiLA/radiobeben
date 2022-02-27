@@ -1,4 +1,4 @@
-import { getRepository, LessThan, Like, MoreThan } from "typeorm";
+import { Brackets, getRepository, LessThan, Like, MoreThan } from "typeorm";
 import { Suggestion } from "../entity/Suggestion";
 import * as yts from "yt-search"
 import { Song } from "../entity/Song";
@@ -239,13 +239,64 @@ function delete_song(id: number): Promise<string> {
 
 }
 
-function get_songs(userid: number, limit: number, before: number, like: string): Promise<Song[]> {
+interface OrderOption {
+    "author.displayName"?: "ASC" | "DESC";
+    "song.id"?: "ASC" | "DESC";
+    "song.ytid"?: "ASC" | "DESC";
+    "song.title"?: "ASC" | "DESC";
+    "song.filename"?: "ASC" | "DESC";
+    "song.duration"?: "ASC" | "DESC";
+}
+
+interface OrderOptionObject {
+    [key: string]: OrderOption
+}
+
+const sorting: OrderOptionObject = {
+    "aa": { "author.displayName": "ASC" },
+    "ad": { "author.displayName": "DESC" },
+    "da": { "song.duration": "ASC" },
+    "dd": { "song.duration": "DESC" },
+    "ia": { "song.id": "ASC" },
+    "id": { "song.id": "DESC" },
+    "ta": { "song.title": "ASC" },
+    "td": { "song.title": "DESC" }
+}
+
+function get_songs(userid: number, limit: number, before: number, like: string, order?: string): Promise<Song[]> {
     return new Promise<Song[]>(async (resolve) => {
         let songTable = getRepository(Song);
+        let orederobjet = sorting["ta"];
+
+        if (order && order in sorting) {
+            orederobjet = sorting[order];
+        }
+
         if (userid && await can(userid, permissions.library)) {
-            resolve(await songTable.find({ where: [{ author: { displayName: Like(`%${like}%`) } }, { title: Like(`%${like}%`) }], skip: before, take: limit, relations: ["author"] }));
+            //resolve(await songTable.find({ where: [{ author: { displayName: Like(`%${like}%`) } }, { title: Like(`%${like}%`) }], skip: before, take: limit, order: orederobjet, relations: ["author"] }));
+            resolve(await songTable.createQueryBuilder('song')
+                .leftJoinAndSelect("song.author", "author")
+                .where("author.displayName LIKE :displayName", { displayName: `%${like}%` })
+                .orWhere("song.title LIKE :title", { title: `%${like}%` })
+                .orderBy(Object.keys(orederobjet)[0], Object.values(orederobjet)[0])
+                .take(limit)
+                .skip(before)
+                .getMany())
+
         } else {
-            resolve(await songTable.find({ where: [{ isPrivate: false, author: { displayName: Like(`%${like}%`) } }, { isPrivate: false, title: Like(`%${like}%`) }], skip: before, take: limit, relations: ["author"] }));
+            //resolve(await songTable.find({ where: [{ isPrivate: false, author: { displayName: Like(`%${like}%`) } }, { isPrivate: false, title: Like(`%${like}%`) }], skip: before, order:orederobjet, take: limit, relations: ["author"] }));
+            resolve(await songTable.createQueryBuilder('song')
+                .leftJoinAndSelect("song.author", "author")
+                .where("song.isPrivate = :private", { private: false })
+                .andWhere(new Brackets(qb => {
+                    qb.where("author.displayName LIKE :displayName", { displayName: `%${like}%` })
+                        .orWhere("song.title LIKE :title", { title: `%${like}%` })
+                }))
+                .orderBy(Object.keys(orederobjet)[0], Object.values(orederobjet)[0])
+                .take(limit)
+                .skip(before)
+                .getMany()
+            )
         }
     })
 }

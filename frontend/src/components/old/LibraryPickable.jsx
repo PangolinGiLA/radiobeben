@@ -55,7 +55,8 @@ export default class LibraryPickable extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            songs: []
+            songs: [],
+            order: localStorage.getItem('order') ? localStorage.getItem('order') : "ta"
         }
         this.loading = false;
         this.searchText = "";
@@ -69,6 +70,9 @@ export default class LibraryPickable extends React.Component {
         if (prevState.songs.length !== this.state.songs.length) {
             this.loading = false;
         }
+        if (prevState.order !== this.state.order) {
+            this.loadData(true);
+        }
     }
 
     loadData = (clear) => {
@@ -81,7 +85,8 @@ export default class LibraryPickable extends React.Component {
         fetch('/api/songs/library?' + new URLSearchParams({
             limit: 20,
             before: new_songs.length,
-            like: this.searchText
+            like: this.searchText,
+            order: this.state.order
         }))
             .then(async r => {
                 if (r.ok) {
@@ -104,6 +109,11 @@ export default class LibraryPickable extends React.Component {
             this.searchText = e.target.value;
             this.loadData(true);
         }
+    }
+    
+    handleOrderChange = (e) => {
+        localStorage.setItem("order", e.target.value);
+        this.setState({order: e.target.value});
     }
 
     render() {
@@ -129,7 +139,19 @@ export default class LibraryPickable extends React.Component {
                         <span className="headertext">Szukaj</span>
                         <Navbutton onClick={this.props.close} iconid="close" style={{ marginRight: "0px" }} />
                     </div>
-                    <input className="textbox" type="text" name="searchbox" id="library_search" onChange={this.handleTextChange} />
+                    <div className='formwrapper'>
+                        <input className="textbox" type="text" name="searchbox" id="library_search" onChange={this.handleTextChange} />
+                        <select name="order" id="order" onChange={this.handleOrderChange} value={this.state.order}>
+                            <option value="ta">tytuł rosnąco</option>
+                            <option value="td">tytuł malejąco</option>
+                            <option value="dd">czas trwania malejąco</option>
+                            <option value="da">czas trwania rosnąco</option>
+                            <option value="aa">autor rosnąco</option>
+                            <option value="ad">autor malejąco</option>
+                            <option value="ia">czas dodania rosnąco</option>
+                            <option value="id">czas dodania malejąco</option>
+                        </select>
+                    </div>
                     <div className="divider"></div>
                     <div className="songselect" onScroll={this.handleScroll}>{toRender}</div>
                     <div className="divider" style={{ border: "none" }}></div>

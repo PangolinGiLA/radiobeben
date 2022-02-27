@@ -66,7 +66,7 @@ router.get("/library", async function (req: Request, res: Response) {
         if (req.query.like) {
             like = req.query.like as string;
         }
-        get_songs(req.session.userid, parseInt(req.query.limit as string), parseInt(req.query.before as string), like).then(result => {
+        get_songs(req.session.userid, parseInt(req.query.limit as string), parseInt(req.query.before as string), like, req.query.order as string).then(result => {
             res.send(result);
         });
     } else {
