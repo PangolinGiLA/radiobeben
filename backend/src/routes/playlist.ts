@@ -51,7 +51,7 @@ router.delete("/playlist", login_middleware, permission_middleware(permissions.p
 
 router.get("/schedule", async function (req: Request, res: Response) {
     if (req.query.date)
-        res.send(await get_schedule(new Date(req.query.date as string)));
+        res.send(await get_schedule(new Date(req.query.date as string), req.session.userid));
     else
         res.sendStatus(400);
 });
