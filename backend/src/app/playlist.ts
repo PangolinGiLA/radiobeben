@@ -332,7 +332,7 @@ function set_weekday(weekday: number, isEnabled: boolean, breaketimeid?: number,
                     await migrate_day(old_schedule.breaketime.breaketimesJSON, breaketime.breaketimesJSON, day);
                     day.isEnabled = isEnabled;
                     day.breaketime = breaketime;
-                    if (visibility)
+                    if (visibility !== undefined)
                         day.visibility = visibility;
                     await daysTable.save(day);
                 }
