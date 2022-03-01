@@ -89,7 +89,7 @@ class Suggestion extends React.Component {
                 (this.state.status === 1) ? 'accepted-bg suggestionpanel' : (
                     (this.state.status === -1) ? 'rejected-bg suggestionpanel' : 'suggestionpanel')
             }>
-                <a className="suggsongtitle" href={this.ytid_to_link(this.props.ytid)}>{this.props.name}</a>
+                <a className="suggsongtitle" target="_blank" rel="noreferrer" href={this.ytid_to_link(this.props.ytid)}>{this.props.name}</a>
                 <div>{this.props.author}</div>
                 <div>{this.props.views.toLocaleString("en-US")} wyświetleń</div>
                 <div className="navcontainer">
