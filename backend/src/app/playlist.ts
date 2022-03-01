@@ -36,7 +36,7 @@ function add_to_playlist(day: Date, breaknumber: number, songid: number, userid?
         let date = jsDatetoSQLDate(day);
 
         // get schedule for that day (will be used soon)
-        let schedule = await get_schedule(day);
+        let schedule = await get_schedule(day, userid);
 
         // check if song exists
         let songTable = getRepository(Song);

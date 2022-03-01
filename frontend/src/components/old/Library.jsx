@@ -72,7 +72,7 @@ class Song extends React.Component {
         var songjsx
         if (this.props.ytid !== undefined) {
             let link = "https://www.youtube.com/watch?v=" + this.props.ytid;
-            songjsx = <a href={link}>{this.props.title}</a>
+            songjsx = <a target="_blank" rel="noreferrer" href={link}>{this.props.title}</a>
         } else {
             songjsx = this.props.title
         }
