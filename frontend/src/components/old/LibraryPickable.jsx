@@ -67,7 +67,7 @@ export default class LibraryPickable extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if (prevState.songs.length !== this.state.songs.length) {
+        if (prevState.songs !== this.state.songs) {
             this.loading = false;
         }
         if (prevState.order !== this.state.order) {
@@ -142,12 +142,12 @@ export default class LibraryPickable extends React.Component {
                     <div className='formwrapper'>
                         <input className="textbox" type="text" name="searchbox" id="library_search" onChange={this.handleTextChange} />
                         <select name="order" id="order" onChange={this.handleOrderChange} value={this.state.order}>
-                            <option value="ta">tytuł rosnąco</option>
-                            <option value="td">tytuł malejąco</option>
+                            <option value="ta">tytuł A-Z</option>
+                            <option value="td">tytuł Z-A</option>
                             <option value="dd">czas trwania malejąco</option>
                             <option value="da">czas trwania rosnąco</option>
-                            <option value="aa">autor rosnąco</option>
-                            <option value="ad">autor malejąco</option>
+                            <option value="aa">autor A-Z</option>
+                            <option value="ad">autor Z-A</option>
                             <option value="ia">czas dodania rosnąco</option>
                             <option value="id">czas dodania malejąco</option>
                         </select>

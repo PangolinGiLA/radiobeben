@@ -102,7 +102,10 @@ class Break extends React.Component {
                     <button className="breakbutton" onClick={this.showAdding}><span className="material-icons-round" style={{ fontSize: "16px" }}>add</span></button>
                 </div>
                 { toRender }
-                <div className="timestampbot">{ String(this.props.end.hour).padStart(2, "0")}:{String(this.props.end.minutes).padStart(2, "0") }</div>
+                <div className="breakinfo">
+                    <div className="timestampbot">{ String(this.props.end.hour).padStart(2, "0")}:{String(this.props.end.minutes).padStart(2, "0") }</div>
+                    <button className="breakbutton" onClick={this.showAdding}><span className="material-icons-round" style={{ fontSize: "16px" }}>add</span></button>
+                </div>
             </div>);
     }
 
