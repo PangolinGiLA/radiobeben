@@ -167,7 +167,7 @@ class AddUser extends React.Component {
                             <input className="textbox" placeholder="Powtórz nowe hasło" type="password" name="new_password2" value={this.state.new_password2} onChange={this.handleInputChange} />
                         </div>
                         <div>
-                            <UserConfig  number={-1} user={{permissions: 31}}/>
+                            <UserConfig number={-1} user={{ permissions: 31 }} />
                         </div>
                         <div>
                             {this.state.error}
@@ -279,9 +279,9 @@ class SmallCheckbox extends React.Component {
     }
     render() {
         return (
-            <label className="userfilter" htmlFor={this.props.id+this.props.number}>{this.props.name}
-                <input onChange={this.change} type="checkbox" id={this.props.id+this.props.number} name={this.props.name} checked={this.props.checked} tabIndex={-1} />
-                <span className="smallcheckbox" tabIndex={0} forwarid={this.props.id+this.props.number}></span>
+            <label className="userfilter" htmlFor={this.props.id + this.props.number}>{this.props.name}
+                <input onChange={this.change} type="checkbox" id={this.props.id + this.props.number} name={this.props.name} checked={this.props.checked} tabIndex={-1} />
+                <span className="smallcheckbox" tabIndex={0} forwarid={this.props.id + this.props.number}></span>
             </label>
         )
     }
@@ -352,9 +352,9 @@ class UserConfig extends React.Component {
 
         return (
             <div className="userfilters">
-                <input type="hidden" value={this.state.value} name="permissions"/>
+                <input type="hidden" value={this.state.value} name="permissions" />
                 {checkboxes}
-                {this.props.hasSubmit ? <Navbutton iconid="done" onClick={this.submit} small={1}/> : null}
+                {this.props.hasSubmit ? <Navbutton iconid="done" onClick={this.submit} small={1} /> : null}
             </div>
         )
     }
@@ -365,19 +365,19 @@ export default class Users extends React.Component {
     render() {
         return (
             <div>
-                <div className="divider"></div>
+                {this.props.admin ? <div className="divider"></div> : null}
                 <div>
-                    <AddUser sendNotification={this.props.sendNotification} />
+                    {this.props.admin ? <AddUser sendNotification={this.props.sendNotification} /> : null}
                 </div>
                 <div className="divider" ></div>
                 <div>
                     <ChangePassword sendNotification={this.props.sendNotification} />
-                <div className="divider" ></div>
+                    <div className="divider" ></div>
                 </div>
                 <div>
-                    <UserList sendNotification={this.props.sendNotification} />
+                    {this.props.admin ? <UserList sendNotification={this.props.sendNotification} /> : null}
                 </div>
-                <div className="divider" ></div>
+                {this.props.admin ? <div className="divider" ></div> : null}
             </div>
         )
     }
