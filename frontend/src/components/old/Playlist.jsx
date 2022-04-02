@@ -99,7 +99,6 @@ class Break extends React.Component {
             <div className="breakpanel" style={ this.props.popup ? {visibility: 'hidden'} : null}>
                 <div className="breakinfo">
                     <div className="timestamp">{ String(this.props.start.hour).padStart(2, "0")}:{String(this.props.start.minutes).padStart(2, "0") }</div>
-                    <button className="breakbutton" onClick={this.showAdding}><span className="material-icons-round" style={{ fontSize: "16px" }}>add</span></button>
                 </div>
                 { toRender }
                 <div className="breakinfo">
